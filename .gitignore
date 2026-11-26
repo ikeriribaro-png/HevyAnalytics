@@ -1,0 +1,7 @@
+# Never commit your personal workout export
+*.csv
+
+# OS / editor
+.DS_Store
+.vscode/
+.idea/
