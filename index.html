@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Hevy Analytics - Volumen, RMs, Rutinas y Grupos Musculares</title>
+  <title>Hevy Analytics</title>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -20,12 +20,12 @@
               700: '#1d4ed8',
             },
             dark: {
-              950: '#070a12',
-              900: '#0d1322',
-              850: '#11192e',
-              800: '#17223b',
-              700: '#233254',
-              600: '#334155'
+              950: '#09090b',
+              900: '#111113',
+              850: '#161619',
+              800: '#222226',
+              700: '#2e2e34',
+              600: '#3f3f46'
             },
             gold: {
               400: '#fbbf24',
@@ -43,36 +43,36 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link rel="stylesheet" href="style.css">
 </head>
-<body class="bg-dark-950 text-slate-100 min-h-screen flex flex-col font-sans antialiased selection:bg-brand-500 selection:text-white">
+<body class="bg-dark-950 text-zinc-100 min-h-screen flex flex-col font-sans antialiased selection:bg-brand-500 selection:text-white">
 
   <!-- TOP BAR -->
-  <header class="border-b border-dark-800 bg-dark-900/80 backdrop-blur-md sticky top-0 z-40 px-4 lg:px-8 py-3.5">
+  <header class="border-b border-dark-800 bg-dark-950/90 backdrop-blur-md sticky top-0 z-40 px-4 lg:px-8 py-3">
     <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4">
       <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-cyan-400 flex items-center justify-center text-white shadow-lg shadow-brand-500/20">
-          <i class="fa-solid fa-dumbbell text-lg"></i>
+        <div class="w-8 h-8 rounded-lg bg-dark-850 border border-dark-700 flex items-center justify-center text-brand-400">
+          <i class="fa-solid fa-chart-simple text-sm"></i>
         </div>
         <div>
-          <h1 class="text-lg font-bold tracking-tight text-white flex items-center gap-2">
-            Hevy Analytics <span class="text-xs px-2 py-0.5 rounded-full bg-brand-500/10 text-brand-400 border border-brand-500/20 font-medium">Pro</span>
+          <h1 class="text-sm font-semibold tracking-tight text-zinc-100 flex items-center gap-2">
+            Hevy Analytics
           </h1>
-          <p id="sourceStatus" class="text-xs text-slate-400 flex items-center gap-1.5">
-            <span class="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-            Cargando datos...
+          <p id="sourceStatus" class="text-[11px] text-zinc-400 flex items-center gap-1.5 font-mono">
+            <span class="inline-block w-1.5 h-1.5 rounded-full bg-zinc-500"></span>
+            Sin datos: importa tu CSV de Hevy
           </p>
         </div>
       </div>
 
       <!-- Quick Section Anchor Links & Action Buttons -->
-      <div class="flex items-center gap-2.5">
-        <a href="#breakdownSection" class="hidden md:flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-lg bg-dark-800 text-slate-300 border border-dark-700 hover:text-white hover:border-dark-600 transition-all">
-          <i class="fa-solid fa-pie-chart text-brand-400"></i>
+      <div class="flex items-center gap-2">
+        <a href="#breakdownSection" class="hidden md:flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg bg-dark-900 text-zinc-300 border border-dark-800 hover:text-white hover:border-dark-700 transition-colors">
+          <i class="fa-solid fa-layer-group text-zinc-400 text-[11px]"></i>
           <span>Rutinas y Músculos</span>
         </a>
 
-        <label class="flex items-center gap-2 px-3.5 py-2 text-xs font-semibold rounded-lg bg-dark-800 text-slate-200 border border-dark-700 hover:bg-dark-700 transition-all cursor-pointer active:scale-95">
-          <i class="fa-solid fa-file-arrow-up text-brand-400"></i>
-          <span>Subir CSV</span>
+        <label class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg bg-dark-850 text-zinc-200 border border-dark-700 hover:bg-dark-800 transition-colors cursor-pointer">
+          <i class="fa-solid fa-arrow-up-from-bracket text-zinc-400 text-[11px]"></i>
+          <span>Importar CSV</span>
           <input type="file" id="fileInput" accept=".csv" class="hidden">
         </label>
       </div>
@@ -80,307 +80,279 @@
   </header>
 
   <!-- NOTIFICATION BANNER -->
-  <div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-24 opacity-0 transition-all duration-300 max-w-md p-4 rounded-xl shadow-2xl border flex items-center gap-3 text-sm">
+  <div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-24 opacity-0 transition-all duration-300 max-w-md p-3.5 rounded-xl shadow-2xl border flex items-center gap-3 text-xs">
   </div>
 
   <!-- MAIN CONTAINER -->
-  <main class="max-w-7xl mx-auto px-4 lg:px-8 py-6 w-full flex-1 flex flex-col gap-6">
+  <main class="max-w-7xl mx-auto px-4 lg:px-8 py-5 w-full flex-1 flex flex-col gap-5">
 
     <!-- EMPTY STATE: shown until a CSV is loaded -->
-    <div id="emptyState" class="bg-dark-900 border border-dark-800 rounded-2xl p-6 text-sm text-slate-300">
-      <h2 class="text-base font-bold text-white mb-2 flex items-center gap-2">
-        <i class="fa-solid fa-dumbbell text-brand-400"></i> Empieza subiendo tu export de Hevy
+    <div id="emptyState" class="bg-dark-900 border border-dark-800 rounded-xl p-5 text-xs text-zinc-300">
+      <h2 class="text-sm font-semibold text-white mb-2 flex items-center gap-2">
+        <i class="fa-solid fa-arrow-up-from-bracket text-brand-400"></i> Empieza importando tu export de Hevy
       </h2>
-      <p class="mb-2">En la app de Hevy: <span class="text-white font-medium">Perfil &rarr; Ajustes &rarr; Exportar e importar datos &rarr; Exportar entrenamientos</span>. Después pulsa <span class="text-white font-medium">Subir CSV</span> arriba a la derecha.</p>
-      <p class="text-xs text-slate-400"><i class="fa-solid fa-lock mr-1"></i> Privacidad: el archivo se procesa solo en tu navegador. No se envía a ningún servidor.</p>
+      <p class="mb-2 text-zinc-400">En la app de Hevy: <span class="text-zinc-200 font-medium">Perfil &rarr; Ajustes &rarr; Exportar e importar datos &rarr; Exportar entrenamientos</span>. Después pulsa <span class="text-zinc-200 font-medium">Importar CSV</span> arriba a la derecha.</p>
+      <p class="text-[11px] text-zinc-500"><i class="fa-solid fa-lock mr-1"></i> El archivo se procesa localmente en tu navegador.</p>
     </div>
 
-    <!-- KPI SUMMARY CARDS WITH PERIOD COMPARISON (% MEJORA / EMPEORAMIENTO) -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <!-- KPI SUMMARY STRIP -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
       <!-- KPI Sesiones -->
-      <div class="bg-dark-900 border border-dark-800 rounded-2xl p-4 flex flex-col justify-between shadow-sm relative overflow-hidden group hover:border-brand-500/30 transition-colors">
-        <div class="flex items-center justify-between text-slate-400 mb-2">
-          <span class="text-xs font-medium uppercase tracking-wider">Sesiones</span>
-          <div class="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-400 flex items-center justify-center text-sm">
-            <i class="fa-solid fa-calendar-check"></i>
-          </div>
+      <div class="bg-dark-900 border border-dark-800 rounded-xl p-4 flex flex-col justify-between hover:border-dark-700 transition-colors">
+        <div class="flex items-center justify-between text-zinc-400 mb-2">
+          <span class="text-[11px] font-medium uppercase tracking-wider">Sesiones</span>
+          <i class="fa-regular fa-calendar-check text-zinc-500 text-xs"></i>
         </div>
         <div>
-          <div id="kpiSessions" class="text-2xl font-black text-white">0</div>
-          <div id="kpiSessionsSub" class="text-xs text-slate-400 mt-0.5">en el período</div>
+          <div id="kpiSessions" class="text-2xl font-semibold tracking-tight text-white tabular-nums">0</div>
+          <div id="kpiSessionsSub" class="text-[11px] text-zinc-500 mt-0.5">en el período</div>
         </div>
-        <!-- Difference Badge -->
-        <div id="kpiSessionsDiff" class="mt-2.5 pt-2 border-t border-dark-800 text-[11px] font-medium flex items-center gap-1.5">
-          <span class="text-slate-500">Comparativa: -</span>
+        <div id="kpiSessionsDiff" class="mt-3 pt-2.5 border-t border-dark-800/80 text-[11px] font-medium flex items-center gap-1.5 tabular-nums">
+          <span class="text-zinc-500">Comparativa: -</span>
         </div>
       </div>
 
       <!-- KPI Volumen -->
-      <div class="bg-dark-900 border border-dark-800 rounded-2xl p-4 flex flex-col justify-between shadow-sm relative overflow-hidden group hover:border-emerald-500/30 transition-colors">
-        <div class="flex items-center justify-between text-slate-400 mb-2">
-          <span class="text-xs font-medium uppercase tracking-wider">Volumen Acumulado</span>
-          <div class="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-sm">
-            <i class="fa-solid fa-weight-hanging"></i>
-          </div>
+      <div class="bg-dark-900 border border-dark-800 rounded-xl p-4 flex flex-col justify-between hover:border-dark-700 transition-colors">
+        <div class="flex items-center justify-between text-zinc-400 mb-2">
+          <span class="text-[11px] font-medium uppercase tracking-wider">Volumen Acumulado</span>
+          <i class="fa-solid fa-dumbbell text-zinc-500 text-xs"></i>
         </div>
         <div>
-          <div id="kpiVolume" class="text-2xl font-black text-emerald-400">0 kg</div>
-          <div id="kpiVolumeSub" class="text-xs text-slate-400 mt-0.5">Promedio: 0 kg / sesión</div>
+          <div id="kpiVolume" class="text-2xl font-semibold tracking-tight text-white tabular-nums">0 kg</div>
+          <div id="kpiVolumeSub" class="text-[11px] text-zinc-500 mt-0.5 tabular-nums">Promedio: 0 kg / sesión</div>
         </div>
-        <!-- Difference Badge -->
-        <div id="kpiVolumeDiff" class="mt-2.5 pt-2 border-t border-dark-800 text-[11px] font-medium flex items-center gap-1.5">
-          <span class="text-slate-500">Comparativa: -</span>
+        <div id="kpiVolumeDiff" class="mt-3 pt-2.5 border-t border-dark-800/80 text-[11px] font-medium flex items-center gap-1.5 tabular-nums">
+          <span class="text-zinc-500">Comparativa: -</span>
         </div>
       </div>
 
       <!-- KPI RMs -->
-      <div class="bg-dark-900 border border-dark-800 rounded-2xl p-4 flex flex-col justify-between shadow-sm relative overflow-hidden group hover:border-amber-500/30 transition-colors">
-        <div class="flex items-center justify-between text-slate-400 mb-2">
-          <span class="text-xs font-medium uppercase tracking-wider">RMs / PRs Batidos</span>
-          <div class="w-8 h-8 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center text-sm">
-            <i class="fa-solid fa-trophy"></i>
-          </div>
+      <div class="bg-dark-900 border border-dark-800 rounded-xl p-4 flex flex-col justify-between hover:border-dark-700 transition-colors">
+        <div class="flex items-center justify-between text-zinc-400 mb-2">
+          <span class="text-[11px] font-medium uppercase tracking-wider">RMs / PRs Batidos</span>
+          <i class="fa-solid fa-trophy text-amber-500/70 text-xs"></i>
         </div>
         <div>
-          <div id="kpiPRs" class="text-2xl font-black text-amber-400">0</div>
-          <div id="kpiPRsSub" class="text-xs text-slate-400 mt-0.5">Récords personales</div>
+          <div id="kpiPRs" class="text-2xl font-semibold tracking-tight text-white tabular-nums">0</div>
+          <div id="kpiPRsSub" class="text-[11px] text-zinc-500 mt-0.5">Récords personales</div>
         </div>
-        <!-- Difference Badge -->
-        <div id="kpiPRsDiff" class="mt-2.5 pt-2 border-t border-dark-800 text-[11px] font-medium flex items-center gap-1.5">
-          <span class="text-slate-500">Comparativa: -</span>
+        <div id="kpiPRsDiff" class="mt-3 pt-2.5 border-t border-dark-800/80 text-[11px] font-medium flex items-center gap-1.5 tabular-nums">
+          <span class="text-zinc-500">Comparativa: -</span>
         </div>
       </div>
 
       <!-- KPI Mejor 1RM / Suma -->
-      <div class="bg-dark-900 border border-dark-800 rounded-2xl p-4 flex flex-col justify-between shadow-sm relative overflow-hidden group hover:border-purple-500/30 transition-colors">
-        <div class="flex items-center justify-between text-slate-400 mb-2">
-          <span class="text-xs font-medium uppercase tracking-wider">Mejor 1RM / Suma Max</span>
-          <div class="w-8 h-8 rounded-lg bg-purple-500/10 text-purple-400 flex items-center justify-center text-sm">
-            <i class="fa-solid fa-bolt"></i>
-          </div>
+      <div class="bg-dark-900 border border-dark-800 rounded-xl p-4 flex flex-col justify-between hover:border-dark-700 transition-colors">
+        <div class="flex items-center justify-between text-zinc-400 mb-2">
+          <span class="text-[11px] font-medium uppercase tracking-wider">Mejor 1RM / Suma Máx</span>
+          <i class="fa-solid fa-bolt text-zinc-500 text-xs"></i>
         </div>
         <div>
-          <div id="kpiTopRM" class="text-2xl font-black text-purple-400">0 kg</div>
-          <div id="kpiTopRMSub" class="text-xs text-slate-400 mt-0.5">Pico histórico</div>
+          <div id="kpiTopRM" class="text-2xl font-semibold tracking-tight text-white tabular-nums">0 kg</div>
+          <div id="kpiTopRMSub" class="text-[11px] text-zinc-500 mt-0.5">Pico histórico</div>
         </div>
-        <!-- Difference Badge -->
-        <div id="kpiTopRMDiff" class="mt-2.5 pt-2 border-t border-dark-800 text-[11px] font-medium flex items-center gap-1.5">
-          <span class="text-slate-500">Comparativa: -</span>
+        <div id="kpiTopRMDiff" class="mt-3 pt-2.5 border-t border-dark-800/80 text-[11px] font-medium flex items-center gap-1.5 tabular-nums">
+          <span class="text-zinc-500">Comparativa: -</span>
         </div>
       </div>
     </div>
 
     <!-- FILTER & CONTROL PANEL -->
-    <div class="bg-dark-900 border border-dark-800 rounded-2xl p-5 shadow-sm flex flex-col gap-4">
-      <div class="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4">
-        
-        <!-- Metric Selector Buttons -->
+    <div class="bg-dark-900 border border-dark-800 rounded-xl p-4 flex flex-col gap-3.5">
+      <div class="flex flex-col lg:flex-row items-stretch lg:items-end justify-between gap-4">
+
+        <!-- Metric Selector -->
         <div class="flex flex-col gap-1.5 flex-1">
-          <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-            <i class="fa-solid fa-chart-line text-brand-400"></i> Métrica de la Gráfica:
-          </label>
-          <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-1.5 p-1 bg-dark-950 rounded-xl border border-dark-800" id="metricTabs">
-            <button data-metric="volume" class="metric-tab active py-2 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 bg-brand-600 text-white shadow-md">
-              <i class="fa-solid fa-dumbbell"></i>
-              <span class="truncate">Volumen Total</span>
+          <label class="text-[11px] font-medium text-zinc-400 uppercase tracking-wider">Métrica</label>
+          <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-1 p-1 bg-dark-950 rounded-lg border border-dark-800" id="metricTabs">
+            <button data-metric="volume" class="metric-tab active py-1.5 px-2.5 rounded-md text-xs font-medium transition-colors flex items-center justify-center gap-1.5 bg-brand-600 text-white">
+              <i class="fa-solid fa-dumbbell text-[11px]"></i>
+              <span class="truncate">Volumen</span>
             </button>
-            <button data-metric="sets" class="metric-tab py-2 px-3 rounded-lg text-xs font-medium text-slate-400 hover:text-white transition-all flex items-center justify-center gap-2">
-              <i class="fa-solid fa-layer-group text-cyan-400"></i>
+            <button data-metric="sets" class="metric-tab py-1.5 px-2.5 rounded-md text-xs font-medium text-zinc-400 hover:text-zinc-100 transition-colors flex items-center justify-center gap-1.5">
+              <i class="fa-solid fa-layer-group text-[11px]"></i>
               <span class="truncate">Series</span>
             </button>
-            <button data-metric="pr_count" class="metric-tab py-2 px-3 rounded-lg text-xs font-medium text-slate-400 hover:text-white transition-all flex items-center justify-center gap-2">
-              <i class="fa-solid fa-trophy text-amber-400"></i>
-              <span class="truncate">Cantidad de RMs</span>
+            <button data-metric="pr_count" class="metric-tab py-1.5 px-2.5 rounded-md text-xs font-medium text-zinc-400 hover:text-zinc-100 transition-colors flex items-center justify-center gap-1.5">
+              <i class="fa-solid fa-trophy text-[11px]"></i>
+              <span class="truncate">RMs</span>
             </button>
-            <button data-metric="sum_orm" class="metric-tab py-2 px-3 rounded-lg text-xs font-medium text-slate-400 hover:text-white transition-all flex items-center justify-center gap-2" title="Suma de 1RM (por ejercicios en sesión/músculo o por series en un ejercicio)">
-              <i class="fa-solid fa-bolt text-purple-400"></i>
-              <span class="truncate">Suma de 1RM</span>
+            <button data-metric="sum_orm" class="metric-tab py-1.5 px-2.5 rounded-md text-xs font-medium text-zinc-400 hover:text-zinc-100 transition-colors flex items-center justify-center gap-1.5" title="Suma de 1RM (por ejercicios en sesión/músculo o por series en un ejercicio)">
+              <i class="fa-solid fa-bolt text-[11px]"></i>
+              <span class="truncate">Suma 1RM</span>
             </button>
-            <button data-metric="best_orm" class="metric-tab py-2 px-3 rounded-lg text-xs font-medium text-slate-400 hover:text-white transition-all flex items-center justify-center gap-2" title="Serie con mejor 1RM estimado">
-              <i class="fa-solid fa-crown text-violet-400"></i>
+            <button data-metric="best_orm" class="metric-tab py-1.5 px-2.5 rounded-md text-xs font-medium text-zinc-400 hover:text-zinc-100 transition-colors flex items-center justify-center gap-1.5" title="Serie con mejor 1RM estimado">
+              <i class="fa-solid fa-crown text-[11px]"></i>
               <span class="truncate">Mejor 1RM</span>
             </button>
-            <button data-metric="best_weight" class="metric-tab py-2 px-3 rounded-lg text-xs font-medium text-slate-400 hover:text-white transition-all flex items-center justify-center gap-2" title="Serie con mayor peso levantado (kg)">
-              <i class="fa-solid fa-weight-hanging text-rose-400"></i>
+            <button data-metric="best_weight" class="metric-tab py-1.5 px-2.5 rounded-md text-xs font-medium text-zinc-400 hover:text-zinc-100 transition-colors flex items-center justify-center gap-1.5" title="Serie con mayor peso levantado (kg)">
+              <i class="fa-solid fa-weight-hanging text-[11px]"></i>
               <span class="truncate">Mejor Peso</span>
             </button>
           </div>
         </div>
 
-        <!-- Filter Mode Switcher (Exercise vs Muscle Group vs Routine) -->
+        <!-- Filter Mode Switcher -->
         <div class="flex flex-col gap-1.5 flex-1 lg:max-w-md">
           <div class="flex items-center justify-between">
-            <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-              <i class="fa-solid fa-filter text-brand-400"></i> Filtrar Gráfica por:
-            </label>
+            <label class="text-[11px] font-medium text-zinc-400 uppercase tracking-wider">Filtro</label>
             <div class="flex items-center gap-1 text-[11px]" id="filterTypeButtons">
               <button data-type="all" class="filter-type-btn active px-2 py-0.5 rounded bg-brand-600 text-white font-medium">Todo</button>
-              <button data-type="muscle" class="filter-type-btn px-2 py-0.5 rounded bg-dark-950 text-slate-400 hover:text-white font-medium">Músculo</button>
-              <button data-type="routine" class="filter-type-btn px-2 py-0.5 rounded bg-dark-950 text-slate-400 hover:text-white font-medium">Rutina</button>
-              <button data-type="exercise" class="filter-type-btn px-2 py-0.5 rounded bg-dark-950 text-slate-400 hover:text-white font-medium">Ejercicio</button>
+              <button data-type="muscle" class="filter-type-btn px-2 py-0.5 rounded bg-dark-950 text-zinc-400 hover:text-white font-medium">Músculo</button>
+              <button data-type="routine" class="filter-type-btn px-2 py-0.5 rounded bg-dark-950 text-zinc-400 hover:text-white font-medium">Rutina</button>
+              <button data-type="exercise" class="filter-type-btn px-2 py-0.5 rounded bg-dark-950 text-zinc-400 hover:text-white font-medium">Ejercicio</button>
             </div>
           </div>
-          
+
           <div class="relative">
-            <select id="mainFilterSelect" class="w-full bg-dark-950 border border-dark-800 rounded-xl py-2 px-3 text-xs text-slate-200 focus:outline-none focus:border-brand-500 font-medium transition-colors cursor-pointer appearance-none pr-8">
-              <option value="ALL">🏋️ Toda la Sesión (Sin filtro específico)</option>
+            <select id="mainFilterSelect" class="w-full bg-dark-950 border border-dark-800 rounded-lg py-1.5 px-3 text-xs text-zinc-200 focus:outline-none focus:border-brand-500 font-medium transition-colors cursor-pointer appearance-none pr-8">
+              <option value="ALL">Toda la sesión (Sin filtro)</option>
             </select>
-            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2.5 text-slate-400 text-xs">
+            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2.5 text-zinc-500 text-xs">
               <i class="fa-solid fa-chevron-down"></i>
             </div>
           </div>
         </div>
-
       </div>
 
-      <!-- Date Range Controls (Including 1 Semana, Week Stepper & Stats Mode) -->
-      <div class="flex flex-wrap items-center justify-between gap-4 pt-3 border-t border-dark-800">
+      <!-- Date Range Controls -->
+      <div class="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-dark-800/80">
         <!-- Quick Preset Chips -->
-        <div class="flex flex-wrap items-center gap-1.5">
-          <span class="text-xs font-semibold text-slate-400 mr-1"><i class="fa-regular fa-calendar"></i> Rango:</span>
-          <!-- 1 Semana Preset -->
-          <button data-range="1w" class="range-preset px-2.5 py-1 text-xs rounded-lg bg-dark-800 hover:bg-dark-700 text-slate-300 font-medium transition-colors">1 Semana</button>
-          <button data-range="1m" class="range-preset px-2.5 py-1 text-xs rounded-lg bg-dark-800 hover:bg-dark-700 text-slate-300 font-medium transition-colors">1 Mes</button>
-          <button data-range="3m" class="range-preset px-2.5 py-1 text-xs rounded-lg bg-dark-800 hover:bg-dark-700 text-slate-300 font-medium transition-colors">3 Meses</button>
-          <button data-range="6m" class="range-preset px-2.5 py-1 text-xs rounded-lg bg-dark-800 hover:bg-dark-700 text-slate-300 font-medium transition-colors">6 Meses</button>
-          <button data-range="1y" class="range-preset px-2.5 py-1 text-xs rounded-lg bg-dark-800 hover:bg-dark-700 text-slate-300 font-medium transition-colors">1 Año</button>
-          <button data-range="all" class="range-preset active px-2.5 py-1 text-xs rounded-lg bg-brand-600/30 border border-brand-500/40 text-brand-300 font-semibold transition-colors">Todo</button>
+        <div class="flex flex-wrap items-center gap-1">
+          <span class="text-[11px] font-medium text-zinc-500 mr-1.5">Rango:</span>
+          <button data-range="1w" class="range-preset px-2.5 py-1 text-xs rounded-md bg-dark-850 hover:bg-dark-800 text-zinc-300 font-medium transition-colors">1 Sem</button>
+          <button data-range="1m" class="range-preset px-2.5 py-1 text-xs rounded-md bg-dark-850 hover:bg-dark-800 text-zinc-300 font-medium transition-colors">1 Mes</button>
+          <button data-range="3m" class="range-preset px-2.5 py-1 text-xs rounded-md bg-dark-850 hover:bg-dark-800 text-zinc-300 font-medium transition-colors">3 Meses</button>
+          <button data-range="6m" class="range-preset px-2.5 py-1 text-xs rounded-md bg-dark-850 hover:bg-dark-800 text-zinc-300 font-medium transition-colors">6 Meses</button>
+          <button data-range="1y" class="range-preset px-2.5 py-1 text-xs rounded-md bg-dark-850 hover:bg-dark-800 text-zinc-300 font-medium transition-colors">1 Año</button>
+          <button data-range="all" class="range-preset active px-2.5 py-1 text-xs rounded-md bg-brand-600/20 border border-brand-500/40 text-brand-400 font-medium transition-colors">Todo</button>
         </div>
 
         <!-- Week Stepper Navigation -->
-        <div class="flex items-center gap-1 bg-dark-950 p-1 rounded-xl border border-dark-800 text-xs">
-          <button id="btnPrevWeek" class="px-2.5 py-1 rounded-lg bg-dark-800 hover:bg-dark-700 text-slate-300 font-medium transition-colors flex items-center gap-1" title="Retroceder 1 Semana">
-            <i class="fa-solid fa-chevron-left text-[10px]"></i> Semana Ant.
+        <div class="flex items-center gap-1 bg-dark-950 p-0.5 rounded-lg border border-dark-800 text-xs">
+          <button id="btnPrevWeek" class="px-2.5 py-1 rounded-md hover:bg-dark-800 text-zinc-400 hover:text-zinc-200 font-medium transition-colors flex items-center gap-1" title="Retroceder 1 Semana">
+            <i class="fa-solid fa-chevron-left text-[10px]"></i> Ant.
           </button>
-          <button id="btnCurrentWeek" class="px-2.5 py-1 rounded-lg bg-brand-600/20 text-brand-300 border border-brand-500/30 font-semibold hover:bg-brand-600/30 transition-colors" title="Última semana actual">
-            Esta Semana
+          <button id="btnCurrentWeek" class="px-2.5 py-1 rounded-md bg-dark-850 text-zinc-200 border border-dark-700 font-medium hover:bg-dark-800 transition-colors" title="Última semana actual">
+            Esta semana
           </button>
-          <button id="btnNextWeek" class="px-2.5 py-1 rounded-lg bg-dark-800 hover:bg-dark-700 text-slate-300 font-medium transition-colors flex items-center gap-1" title="Avanzar 1 Semana">
-            Semana Sig. <i class="fa-solid fa-chevron-right text-[10px]"></i>
+          <button id="btnNextWeek" class="px-2.5 py-1 rounded-md hover:bg-dark-800 text-zinc-400 hover:text-zinc-200 font-medium transition-colors flex items-center gap-1" title="Avanzar 1 Semana">
+            Sig. <i class="fa-solid fa-chevron-right text-[10px]"></i>
           </button>
         </div>
 
         <!-- Custom Date Inputs & Chart Type Toggle -->
-        <div class="flex flex-wrap items-center gap-3">
-          <div class="flex items-center gap-2 text-xs">
-            <span class="text-slate-400">Desde:</span>
-            <input type="date" id="dateStart" class="bg-dark-950 border border-dark-800 rounded-lg px-2 py-1 text-slate-200 focus:outline-none focus:border-brand-500">
-            <span class="text-slate-400">Hasta:</span>
-            <input type="date" id="dateEnd" class="bg-dark-950 border border-dark-800 rounded-lg px-2 py-1 text-slate-200 focus:outline-none focus:border-brand-500">
+        <div class="flex flex-wrap items-center gap-2.5">
+          <div class="flex items-center gap-1.5 text-xs">
+            <span class="text-zinc-500 text-[11px]">Desde</span>
+            <input type="date" id="dateStart" class="bg-dark-950 border border-dark-800 rounded-md px-2 py-1 text-xs text-zinc-200 focus:outline-none focus:border-brand-500">
+            <span class="text-zinc-500 text-[11px]">Hasta</span>
+            <input type="date" id="dateEnd" class="bg-dark-950 border border-dark-800 rounded-md px-2 py-1 text-xs text-zinc-200 focus:outline-none focus:border-brand-500">
           </div>
 
           <div class="flex items-center bg-dark-950 rounded-lg p-0.5 border border-dark-800 text-xs">
             <button id="btnChartLine" class="px-2.5 py-1 rounded-md bg-dark-800 text-white font-medium" title="Gráfico de Línea"><i class="fa-solid fa-chart-area"></i></button>
-            <button id="btnChartBar" class="px-2.5 py-1 rounded-md text-slate-400 hover:text-white" title="Gráfico de Barras"><i class="fa-solid fa-chart-column"></i></button>
+            <button id="btnChartBar" class="px-2.5 py-1 rounded-md text-zinc-400 hover:text-white" title="Gráfico de Barras"><i class="fa-solid fa-chart-column"></i></button>
           </div>
         </div>
       </div>
 
       <!-- Stats Mode & Fractional Toggle Bar -->
-      <div class="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-dark-800">
+      <div class="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-dark-800/80">
         <div class="flex flex-wrap items-center gap-4 text-xs">
           <!-- Stats Mode: Tal cual vs Equilibrada -->
           <div class="flex flex-wrap items-center gap-2">
-            <span class="font-semibold text-slate-400 flex items-center gap-1.5">
-              <i class="fa-solid fa-scale-balanced text-cyan-400"></i> Estadística:
-            </span>
-            <div class="flex items-center bg-dark-950 p-1 rounded-xl border border-dark-800">
-              <button id="btnStatsRaw" class="active px-2.5 py-1 rounded-lg bg-brand-600 text-white font-bold transition-all shadow-sm" title="Muestra los kg exactos registrados en Hevy (peso × reps)">
-                📊 Tal cual (Bruto kg)
+            <span class="text-[11px] font-medium text-zinc-400">Carga:</span>
+            <div class="flex items-center bg-dark-950 p-0.5 rounded-lg border border-dark-800">
+              <button id="btnStatsRaw" class="active px-2.5 py-1 rounded-md bg-brand-600 text-white font-medium transition-colors" title="Muestra los kg exactos registrados en Hevy (peso × reps)">
+                Bruto (kg)
               </button>
-              <button id="btnStatsBalanced" class="px-2.5 py-1 rounded-lg text-slate-400 hover:text-white font-medium transition-colors" title="Convierte las cargas a kg equivalentes reales (ángulo de prensa 45°, hacka con peso corporal, polea 2:1, mancuernas ×2, máquinas y peso corporal)">
-                ⚖️ Equilibrada (kg eq.)
+              <button id="btnStatsBalanced" class="px-2.5 py-1 rounded-md text-zinc-400 hover:text-white font-medium transition-colors" title="Convierte las cargas a kg equivalentes reales (ángulo de prensa 45°, hacka con peso corporal, polea 2:1, mancuernas ×2, máquinas y peso corporal)">
+                Equilibrada (kg eq.)
               </button>
             </div>
-            <button id="btnOpenBalanceModal" class="px-2.5 py-1 rounded-lg bg-cyan-950/60 hover:bg-cyan-900/60 text-cyan-300 border border-cyan-500/30 font-medium transition-colors flex items-center gap-1.5" title="Ver o ajustar los factores biomecánicos por ejercicio (Prensa, Hacka, Poleas, Peso Corporal...)">
-              <i class="fa-solid fa-sliders"></i> Calibrar
+            <button id="btnOpenBalanceModal" class="px-2.5 py-1 rounded-md bg-dark-950 hover:bg-dark-850 text-zinc-300 border border-dark-800 hover:border-dark-700 font-medium transition-colors flex items-center gap-1.5" title="Ver o ajustar los factores biomecánicos por ejercicio">
+              <i class="fa-solid fa-sliders text-cyan-400 text-[11px]"></i> Calibrar
             </button>
           </div>
 
           <!-- Top Fractional Sets Toggle -->
           <div class="flex flex-wrap items-center gap-2">
-            <span class="font-semibold text-slate-400 flex items-center gap-1.5">
-              <i class="fa-solid fa-calculator text-brand-400"></i> Músculos:
-            </span>
-            <div class="flex items-center bg-dark-950 p-1 rounded-xl border border-dark-800">
-              <button id="btnTopModeDirect" class="px-2.5 py-1 rounded-lg text-slate-400 hover:text-white font-medium transition-colors" title="Solo cuenta series y volumen directo del músculo principal">
+            <span class="text-[11px] font-medium text-zinc-400">Series:</span>
+            <div class="flex items-center bg-dark-950 p-0.5 rounded-lg border border-dark-800">
+              <button id="btnTopModeDirect" class="px-2.5 py-1 rounded-md text-zinc-400 hover:text-white font-medium transition-colors" title="Solo cuenta series y volumen directo del músculo principal">
                 Directo (1.0x)
               </button>
-              <button id="btnTopModeFractional" class="active px-2.5 py-1 rounded-lg bg-brand-600 text-white font-bold transition-all shadow-sm" title="Incluye 0.5x de ejercicios compuestos donde el músculo trabaja como sinergista">
-                Fraccionario (0.5x) ✨
+              <button id="btnTopModeFractional" class="active px-2.5 py-1 rounded-md bg-brand-600 text-white font-medium transition-colors" title="Incluye 0.5x de ejercicios compuestos donde el músculo trabaja como sinergista">
+                Fraccionario (0.5x)
               </button>
             </div>
           </div>
         </div>
-        <p id="statsModeHint" class="text-[11px] text-slate-400">
-          Mostrando kilogramos reales brutos (<code class="text-slate-300">peso × reps</code>).
+        <p id="statsModeHint" class="text-[11px] text-zinc-500">
+          Mostrando kilogramos reales brutos (<code class="text-zinc-300">peso × reps</code>).
         </p>
       </div>
     </div>
 
     <!-- MAIN CHART CARD -->
-    <div class="bg-dark-900 border border-dark-800 rounded-2xl p-5 shadow-sm flex flex-col gap-3 relative">
-      <div class="flex items-center justify-between">
+    <div class="bg-dark-900 border border-dark-800 rounded-xl p-5 flex flex-col gap-3 relative">
+      <div class="flex items-center justify-between gap-2">
         <div>
-          <h2 id="chartTitle" class="text-base font-bold text-white flex items-center gap-2">
+          <h2 id="chartTitle" class="text-sm font-semibold text-zinc-100 flex items-center gap-2">
             Volumen Total por Sesión
           </h2>
-          <p id="chartSubtitle" class="text-xs text-slate-400 mt-0.5">
-            Evolución a lo largo del tiempo. <span class="text-brand-400 font-medium">💡 Haz clic en cualquier punto para ver el desglose completo de esa sesión.</span>
+          <p id="chartSubtitle" class="text-xs text-zinc-500 mt-0.5">
+            Haz clic en cualquier punto para inspeccionar el desglose de la sesión.
           </p>
         </div>
         <div class="flex items-center gap-2">
-          <span id="selectedSessionTag" class="hidden text-xs px-2.5 py-1 rounded-lg bg-brand-500/20 text-brand-300 border border-brand-500/30 flex items-center gap-1.5 font-medium">
-            <i class="fa-solid fa-circle-check"></i> <span id="selectedSessionTagName"></span>
+          <span id="selectedSessionTag" class="hidden text-xs px-2.5 py-1 rounded-md bg-dark-850 text-zinc-200 border border-dark-700 flex items-center gap-1.5 font-medium">
+            <i class="fa-solid fa-circle-check text-brand-400 text-[11px]"></i> <span id="selectedSessionTagName"></span>
           </span>
         </div>
       </div>
 
       <!-- Chart Canvas Container -->
-      <div class="relative w-full h-[380px] lg:h-[430px]">
+      <div class="relative w-full h-[380px] lg:h-[420px]">
         <canvas id="workoutChart"></canvas>
       </div>
     </div>
 
-    <!-- SECTION: BREAKDOWN BY ROUTINE OR MUSCLE GROUP WITH FRACTIONAL SETS -->
-    <section id="breakdownSection" class="bg-dark-900 border border-dark-800 rounded-2xl p-5 shadow-sm flex flex-col gap-5 scroll-mt-20">
-      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-dark-800">
+    <!-- SECTION: BREAKDOWN BY ROUTINE OR MUSCLE GROUP -->
+    <section id="breakdownSection" class="bg-dark-900 border border-dark-800 rounded-xl p-5 flex flex-col gap-5 scroll-mt-20">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-dark-800/80">
         <div>
-          <div class="flex items-center gap-2.5">
-            <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-amber-500 to-rose-500 flex items-center justify-center text-white text-sm shadow-sm">
-              <i class="fa-solid fa-cubes"></i>
-            </div>
-            <h2 class="text-base font-bold text-white">
-              Análisis por Rutina y Grupo Muscular
-            </h2>
-          </div>
-          <p class="text-xs text-slate-400 mt-1">
-            Distribución comparativa de volumen, series y porcentaje de mejora vs el período anterior.
+          <h2 class="text-sm font-semibold tracking-tight text-zinc-100 flex items-center gap-2">
+            <span class="w-1 h-4 rounded-full bg-brand-500 inline-block"></span>
+            Análisis por Rutina y Grupo Muscular
+          </h2>
+          <p class="text-xs text-zinc-500 mt-1">
+            Distribución de volumen, series efectivas y variación frente al período anterior.
           </p>
         </div>
 
-        <div class="flex flex-wrap items-center gap-3">
+        <div class="flex flex-wrap items-center gap-2.5">
           <!-- Fractional Sets Toggle Switch -->
-          <div class="flex items-center bg-dark-950 p-1 rounded-xl border border-dark-800 text-xs">
-            <span class="text-slate-400 px-2 font-medium flex items-center gap-1">
-              <i class="fa-solid fa-calculator text-brand-400"></i> Conteo Series:
-            </span>
-            <button id="btnSetModeDirect" class="px-3 py-1 rounded-lg text-slate-400 hover:text-white font-medium transition-colors" title="Solo cuenta las series del músculo principal objetivo">
+          <div class="flex items-center bg-dark-950 p-0.5 rounded-lg border border-dark-800 text-xs">
+            <span class="text-zinc-500 px-2 font-medium text-[11px]">Conteo:</span>
+            <button id="btnSetModeDirect" class="px-2.5 py-1 rounded-md text-zinc-400 hover:text-white font-medium transition-colors" title="Solo cuenta las series del músculo principal objetivo">
               Directas (1.0x)
             </button>
-            <button id="btnSetModeFractional" class="active px-3 py-1 rounded-lg bg-brand-600 text-white font-bold transition-all shadow-sm" title="Añade 0.5 series a los músculos sinergistas (ej. tríceps y hombro en banca, bíceps en remos/jalones)">
-              Fraccionarias (0.5x sinergistas) ✨
+            <button id="btnSetModeFractional" class="active px-2.5 py-1 rounded-md bg-brand-600 text-white font-medium transition-colors" title="Añade 0.5 series a los músculos sinergistas">
+              Fraccionarias (0.5x)
             </button>
           </div>
 
-          <!-- Section View Switch: Muscle Group vs Routine -->
-          <div class="flex items-center p-1 bg-dark-950 rounded-xl border border-dark-800" id="breakdownTabs">
-            <button id="tabBreakdownMuscle" class="active py-1.5 px-4 rounded-lg text-xs font-bold transition-all flex items-center gap-2 bg-brand-600 text-white shadow-sm">
-              <i class="fa-solid fa-dumbbell"></i>
+          <!-- Section View Switch -->
+          <div class="flex items-center p-0.5 bg-dark-950 rounded-lg border border-dark-800" id="breakdownTabs">
+            <button id="tabBreakdownMuscle" class="active py-1 px-3 rounded-md text-xs font-medium transition-colors flex items-center gap-1.5 bg-brand-600 text-white">
+              <i class="fa-solid fa-dumbbell text-[11px]"></i>
               <span>Por Músculo</span>
             </button>
-            <button id="tabBreakdownRoutine" class="py-1.5 px-4 rounded-lg text-xs font-medium text-slate-400 hover:text-white transition-all flex items-center gap-2">
-              <i class="fa-solid fa-layer-group"></i>
+            <button id="tabBreakdownRoutine" class="py-1 px-3 rounded-md text-xs font-medium text-zinc-400 hover:text-white transition-colors flex items-center gap-1.5">
+              <i class="fa-solid fa-layer-group text-[11px]"></i>
               <span>Por Rutina</span>
             </button>
           </div>
@@ -388,32 +360,30 @@
       </div>
 
       <!-- Fractional sets explanation note -->
-      <div id="fractionalNoteBanner" class="p-3 bg-brand-950/40 border border-brand-500/20 rounded-xl text-xs text-brand-200 flex items-center gap-2.5">
-        <i class="fa-solid fa-circle-info text-brand-400 text-base"></i>
+      <div id="fractionalNoteBanner" class="px-3.5 py-2.5 bg-dark-950 border border-dark-800 rounded-lg text-xs text-zinc-400 flex items-center gap-2.5">
+        <i class="fa-solid fa-circle-info text-brand-400 text-xs"></i>
         <span>
-          <strong>Modo de Series Fraccionarias activo:</strong> Los ejercicios compuestos suman <strong>1.0 serie</strong> al músculo principal y <strong>0.5 series</strong> a los sinergistas secundarios (ej: Press banca suma a Pecho 1.0, Tríceps 0.5 y Hombro 0.5; Remos/Jalones suman a Espalda 1.0 y Bíceps 0.5).
+          <strong class="text-zinc-200 font-medium">Series Fraccionarias:</strong> los compuestos suman <strong class="text-zinc-200">1.0</strong> serie al músculo principal y <strong class="text-zinc-200">0.5</strong> a los sinergistas secundarios.
         </span>
       </div>
 
-      <!-- Breakdown Visual Charts (Doughnut Distribution + Horizontal Bar Ranking) -->
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
-        <!-- Distribution Chart (Doughnut) -->
-        <div class="lg:col-span-5 bg-dark-950/70 border border-dark-800 rounded-xl p-4 flex flex-col items-center justify-center relative">
-          <h3 id="breakdownDonutTitle" class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2 self-start flex items-center gap-1.5">
-            <i class="fa-solid fa-chart-pie text-brand-400"></i> Distribución de Volumen (%)
+      <!-- Breakdown Visual Charts -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+        <div class="lg:col-span-5 bg-dark-950 border border-dark-800/80 rounded-lg p-4 flex flex-col items-center justify-center relative">
+          <h3 id="breakdownDonutTitle" class="text-[11px] font-medium uppercase tracking-wider text-zinc-400 mb-2 self-start">
+            Distribución de Volumen (%)
           </h3>
           <div class="relative w-full max-w-[280px] h-[260px] flex items-center justify-center">
             <canvas id="breakdownDonutChart"></canvas>
           </div>
         </div>
 
-        <!-- Comparison Bar Chart -->
-        <div class="lg:col-span-7 bg-dark-950/70 border border-dark-800 rounded-xl p-4 flex flex-col justify-between">
+        <div class="lg:col-span-7 bg-dark-950 border border-dark-800/80 rounded-lg p-4 flex flex-col justify-between">
           <div class="flex items-center justify-between mb-2">
-            <h3 id="breakdownBarTitle" class="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-              <i class="fa-solid fa-chart-simple text-emerald-400"></i> Comparativa de Volumen Total (kg)
+            <h3 id="breakdownBarTitle" class="text-[11px] font-medium uppercase tracking-wider text-zinc-400">
+              Comparativa de Volumen Total (kg)
             </h3>
-            <span id="breakdownBarSubtitle" class="text-[11px] text-slate-400"></span>
+            <span id="breakdownBarSubtitle" class="text-[11px] text-zinc-500 font-mono"></span>
           </div>
           <div class="relative w-full h-[260px]">
             <canvas id="breakdownBarChart"></canvas>
@@ -421,114 +391,113 @@
         </div>
       </div>
 
-      <!-- Cards Grid (Interactive Cards per Muscle Group / Routine with % de Mejora/Empeoramiento) -->
+      <!-- Cards Grid -->
       <div>
         <div class="flex items-center justify-between mb-3">
-          <h3 id="cardsGridTitle" class="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-            <i class="fa-solid fa-grid-2 text-indigo-400"></i> Desglose Detallado y Comparativa vs Período Anterior
+          <h3 id="cardsGridTitle" class="text-[11px] font-medium uppercase tracking-wider text-zinc-400">
+            Desglose por grupo
           </h3>
-          <span class="text-[11px] text-slate-500 font-normal">pulsa en cualquier tarjeta para filtrar la gráfica superior</span>
+          <span class="text-[11px] text-zinc-500">Pulsa en una tarjeta para filtrar la gráfica</span>
         </div>
-        <div id="breakdownCardsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3.5">
+        <div id="breakdownCardsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
           <!-- Populated dynamically via app.js -->
         </div>
       </div>
     </section>
 
-    <!-- SESSION DETAILS DRAWER / MODAL -->
-    <div id="sessionDetailContainer" class="bg-dark-900 border border-dark-800 rounded-2xl p-5 shadow-lg flex flex-col gap-4 scroll-mt-20">
-      <div class="flex flex-col md:flex-row md:items-center justify-between pb-4 border-b border-dark-800 gap-3">
+    <!-- SESSION DETAILS -->
+    <div id="sessionDetailContainer" class="bg-dark-900 border border-dark-800 rounded-xl p-5 flex flex-col gap-4 scroll-mt-20">
+      <div class="flex flex-col md:flex-row md:items-center justify-between pb-4 border-b border-dark-800/80 gap-3">
         <div class="flex items-center gap-3">
-          <div class="w-12 h-12 rounded-xl bg-gradient-to-tr from-brand-600 to-indigo-600 flex items-center justify-center text-white text-xl shadow-md">
+          <div class="w-9 h-9 rounded-lg bg-dark-850 border border-dark-700 flex items-center justify-center text-zinc-300 text-sm">
             <i class="fa-solid fa-clipboard-list"></i>
           </div>
           <div>
-            <div class="flex items-center gap-2.5">
-              <h3 id="detailTitle" class="text-lg font-black text-white">Selecciona una sesión en la gráfica</h3>
-              <span id="detailBadge" class="hidden px-2 py-0.5 text-xs font-semibold rounded-md bg-amber-500/20 text-amber-300 border border-amber-500/30">
-                🏆 Contiene RMs
+            <div class="flex flex-wrap items-center gap-2">
+              <h3 id="detailTitle" class="text-base font-semibold text-white">Selecciona una sesión en la gráfica</h3>
+              <span id="detailBadge" class="hidden px-2 py-0.5 text-[11px] font-medium rounded-md bg-amber-500/10 text-amber-400 border border-amber-500/30">
+                Contiene RMs
               </span>
-              <span id="detailRoutineBadge" class="hidden px-2 py-0.5 text-xs font-medium rounded-md bg-blue-500/20 text-blue-300 border border-blue-500/30">
+              <span id="detailRoutineBadge" class="hidden px-2 py-0.5 text-[11px] font-medium rounded-md bg-dark-850 text-zinc-300 border border-dark-700">
               </span>
             </div>
-            <p id="detailDateTime" class="text-xs text-slate-400 flex items-center gap-2 mt-0.5">
-              <i class="fa-regular fa-clock"></i> Haz clic en un punto de la gráfica superior para ver los detalles
+            <p id="detailDateTime" class="text-xs text-zinc-500 flex items-center gap-2 mt-0.5 font-mono">
+              <i class="fa-regular fa-clock"></i> Haz clic en un punto de la gráfica para ver los detalles
             </p>
           </div>
         </div>
 
         <!-- Navigation between sessions -->
-        <div id="detailNav" class="hidden flex items-center gap-2">
-          <button id="btnPrevSession" class="px-3 py-1.5 text-xs rounded-lg bg-dark-800 hover:bg-dark-700 text-slate-200 border border-dark-700 transition-colors flex items-center gap-1.5">
-            <i class="fa-solid fa-chevron-left"></i> Anterior
+        <div id="detailNav" class="hidden flex items-center gap-1.5">
+          <button id="btnPrevSession" class="px-2.5 py-1.5 text-xs rounded-md bg-dark-850 hover:bg-dark-800 text-zinc-300 border border-dark-700 transition-colors flex items-center gap-1.5">
+            <i class="fa-solid fa-chevron-left text-[10px]"></i> Anterior
           </button>
-          <button id="btnNextSession" class="px-3 py-1.5 text-xs rounded-lg bg-dark-800 hover:bg-dark-700 text-slate-200 border border-dark-700 transition-colors flex items-center gap-1.5">
-            Siguiente <i class="fa-solid fa-chevron-right"></i>
+          <button id="btnNextSession" class="px-2.5 py-1.5 text-xs rounded-md bg-dark-850 hover:bg-dark-800 text-zinc-300 border border-dark-700 transition-colors flex items-center gap-1.5">
+            Siguiente <i class="fa-solid fa-chevron-right text-[10px]"></i>
           </button>
         </div>
       </div>
 
       <!-- Session Description / Notes -->
-      <div id="detailDescBox" class="hidden p-3.5 bg-dark-950/70 border border-dark-800 rounded-xl text-xs text-slate-300 italic flex items-start gap-2.5">
-        <i class="fa-solid fa-quote-left text-brand-400 text-sm mt-0.5"></i>
-        <div id="detailDescription" class="flex-1 not-italic"></div>
+      <div id="detailDescBox" class="hidden p-3 bg-dark-950 border border-dark-800 rounded-lg text-xs text-zinc-300 flex items-start gap-2.5">
+        <i class="fa-solid fa-quote-left text-zinc-500 text-xs mt-0.5"></i>
+        <div id="detailDescription" class="flex-1"></div>
       </div>
 
       <!-- Quick Session Stats -->
       <div id="detailStatsRow" class="hidden grid grid-cols-2 md:grid-cols-4 gap-3">
-        <div class="p-3 bg-dark-950 rounded-xl border border-dark-800/80">
-          <span class="text-[10px] uppercase font-bold text-slate-400">Volumen Sesión</span>
-          <div id="detailVol" class="text-base font-bold text-emerald-400 mt-0.5">0 kg</div>
+        <div class="p-3 bg-dark-950 rounded-lg border border-dark-800/80">
+          <span class="text-[11px] uppercase font-medium text-zinc-500">Volumen Sesión</span>
+          <div id="detailVol" class="text-base font-semibold text-white mt-0.5 tabular-nums">0 kg</div>
         </div>
-        <div class="p-3 bg-dark-950 rounded-xl border border-dark-800/80">
-          <span class="text-[10px] uppercase font-bold text-slate-400">Duración</span>
-          <div id="detailDuration" class="text-base font-bold text-white mt-0.5">0 min</div>
+        <div class="p-3 bg-dark-950 rounded-lg border border-dark-800/80">
+          <span class="text-[11px] uppercase font-medium text-zinc-500">Duración</span>
+          <div id="detailDuration" class="text-base font-semibold text-white mt-0.5 tabular-nums">0 min</div>
         </div>
-        <div class="p-3 bg-dark-950 rounded-xl border border-dark-800/80">
-          <span class="text-[10px] uppercase font-bold text-slate-400">Total Series / Reps</span>
-          <div id="detailSetsReps" class="text-base font-bold text-blue-400 mt-0.5">0 / 0</div>
+        <div class="p-3 bg-dark-950 rounded-lg border border-dark-800/80">
+          <span class="text-[11px] uppercase font-medium text-zinc-500">Series / Reps</span>
+          <div id="detailSetsReps" class="text-base font-semibold text-white mt-0.5 tabular-nums">0 / 0</div>
         </div>
-        <div class="p-3 bg-dark-950 rounded-xl border border-dark-800/80">
-          <span class="text-[10px] uppercase font-bold text-slate-400">Suma 1RM Estimada</span>
-          <div id="detailSumORM" class="text-base font-bold text-purple-400 mt-0.5">0 kg</div>
+        <div class="p-3 bg-dark-950 rounded-lg border border-dark-800/80">
+          <span class="text-[11px] uppercase font-medium text-zinc-500">Suma 1RM Est.</span>
+          <div id="detailSumORM" class="text-base font-semibold text-white mt-0.5 tabular-nums">0 kg</div>
         </div>
       </div>
 
-      <!-- Exercises Breakdown Accordion / List -->
+      <!-- Exercises Breakdown -->
       <div id="detailExercisesList" class="flex flex-col gap-3">
-        <div class="p-8 text-center text-slate-500 text-sm">
-          <i class="fa-solid fa-chart-line text-2xl mb-2 text-slate-600 block"></i>
+        <div class="p-8 text-center text-zinc-500 text-xs">
           Pulsa en cualquier punto de la gráfica para ver las series, pesos, repeticiones y récords de esa sesión.
         </div>
       </div>
     </div>
 
     <!-- SECTION: BY MUSCLE GROUP RADAR CHARTS -->
-    <section id="muscleRadarSection" class="bg-dark-900 border border-dark-800 rounded-2xl p-5 shadow-sm flex flex-col gap-5 scroll-mt-20">
-      <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 pb-4 border-b border-dark-800">
+    <section id="muscleRadarSection" class="bg-dark-900 border border-dark-800 rounded-xl p-5 flex flex-col gap-4 scroll-mt-20">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 pb-4 border-b border-dark-800/80">
         <div>
-          <h2 class="text-base font-black tracking-wide uppercase text-white flex items-center gap-2">
-            <span class="w-2 h-5 rounded-sm bg-orange-500 inline-block"></span>
-            Por Grupo Muscular
+          <h2 class="text-sm font-semibold tracking-tight text-zinc-100 flex items-center gap-2">
+            <span class="w-1 h-4 rounded-full bg-orange-500 inline-block"></span>
+            Balance Muscular
           </h2>
-          <p id="radarSubtitle" class="text-[11px] font-mono uppercase tracking-wider text-slate-400 mt-1">
-            Series efectivas · Brillante = Período actual, Oscuro = Período anterior
+          <p id="radarSubtitle" class="text-[11px] font-mono uppercase tracking-wider text-zinc-500 mt-1">
+            Series efectivas · Actual vs Anterior
           </p>
         </div>
 
         <div class="flex flex-wrap items-center gap-4">
-          <div class="flex items-center gap-4 text-[11px] font-mono uppercase tracking-wider text-slate-300">
+          <div class="flex items-center gap-4 text-[11px] font-mono uppercase tracking-wider text-zinc-400">
             <span class="flex items-center gap-1.5">
-              <span class="w-2.5 h-2.5 rounded-sm inline-block" style="background:#ff4d1a"></span>
+              <span class="w-2 h-2 rounded-sm inline-block" style="background:#ff4d1a"></span>
               <span id="radarLegendCurrent">Últimos 30 días</span>
             </span>
             <span class="flex items-center gap-1.5">
-              <span class="w-2.5 h-2.5 rounded-sm inline-block" style="background:#7c2d12"></span>
+              <span class="w-2 h-2 rounded-sm inline-block" style="background:#7c2d12"></span>
               <span id="radarLegendPrev">30 días anteriores</span>
             </span>
           </div>
 
-          <select id="radarPeriodSelect" class="bg-dark-950 border border-dark-800 rounded-lg py-1.5 px-3 text-xs text-slate-200 font-mono focus:outline-none focus:border-orange-500 cursor-pointer">
+          <select id="radarPeriodSelect" class="bg-dark-950 border border-dark-800 rounded-lg py-1.5 px-3 text-xs text-zinc-200 font-mono focus:outline-none focus:border-brand-500 cursor-pointer">
             <option value="30">30 días vs 30 anteriores</option>
             <option value="7">7 días vs 7 anteriores</option>
             <option value="14">14 días vs 14 anteriores</option>
@@ -538,15 +507,15 @@
         </div>
       </div>
 
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div class="bg-dark-950/70 border border-dark-800 rounded-xl p-4 flex flex-col items-center">
-          <h3 class="text-[11px] font-mono uppercase tracking-widest text-slate-400 mb-2">Reps / Series</h3>
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div class="bg-dark-950 border border-dark-800/80 rounded-lg p-4 flex flex-col items-center">
+          <h3 class="text-[11px] font-mono uppercase tracking-widest text-zinc-400 mb-2">Reps / Series</h3>
           <div class="relative w-full max-w-[380px] h-[300px]">
             <canvas id="radarRepsChart"></canvas>
           </div>
         </div>
-        <div class="bg-dark-950/70 border border-dark-800 rounded-xl p-4 flex flex-col items-center">
-          <h3 class="text-[11px] font-mono uppercase tracking-widest text-slate-400 mb-2">Volumen (kg)</h3>
+        <div class="bg-dark-950 border border-dark-800/80 rounded-lg p-4 flex flex-col items-center">
+          <h3 class="text-[11px] font-mono uppercase tracking-widest text-zinc-400 mb-2">Volumen (kg)</h3>
           <div class="relative w-full max-w-[380px] h-[300px]">
             <canvas id="radarVolumeChart"></canvas>
           </div>
@@ -555,16 +524,16 @@
     </section>
 
     <!-- SECTION: ACTIVITY CALENDAR -->
-    <section id="activityCalendarSection" class="bg-dark-900 border border-dark-800 rounded-2xl p-5 shadow-sm flex flex-col gap-4 scroll-mt-20">
-      <div class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-dark-800">
-        <h2 class="text-base font-black tracking-wide uppercase text-white flex items-center gap-2">
-          <span class="w-2 h-5 rounded-sm bg-orange-500 inline-block"></span>
+    <section id="activityCalendarSection" class="bg-dark-900 border border-dark-800 rounded-xl p-5 flex flex-col gap-4 scroll-mt-20">
+      <div class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-dark-800/80">
+        <h2 class="text-sm font-semibold tracking-tight text-zinc-100 flex items-center gap-2">
+          <span class="w-1 h-4 rounded-full bg-orange-500 inline-block"></span>
           Calendario de Actividad
         </h2>
 
         <div class="flex flex-wrap items-center gap-3">
           <div class="flex flex-wrap items-center gap-2">
-            <select id="calendarRangeSelect" class="bg-dark-950 border border-dark-800 rounded-lg py-1 px-2.5 text-xs text-slate-200 font-mono focus:outline-none focus:border-orange-500 cursor-pointer">
+            <select id="calendarRangeSelect" class="bg-dark-950 border border-dark-800 rounded-lg py-1 px-2.5 text-xs text-zinc-200 font-mono focus:outline-none focus:border-brand-500 cursor-pointer">
               <option value="1y">Último año</option>
               <option value="6m">Últimos 6 meses</option>
               <option value="3m">Últimos 3 meses</option>
@@ -575,16 +544,16 @@
               <option value="custom">Personalizado...</option>
             </select>
             <div id="calendarCustomDates" class="hidden flex items-center gap-1.5 text-[11px] font-mono">
-              <input type="date" id="calDateStart" class="bg-dark-950 border border-dark-800 rounded-lg px-2 py-1 text-slate-200 focus:outline-none focus:border-orange-500">
-              <span class="text-slate-500">&rarr;</span>
-              <input type="date" id="calDateEnd" class="bg-dark-950 border border-dark-800 rounded-lg px-2 py-1 text-slate-200 focus:outline-none focus:border-orange-500">
+              <input type="date" id="calDateStart" class="bg-dark-950 border border-dark-800 rounded-md px-2 py-1 text-zinc-200 focus:outline-none focus:border-brand-500">
+              <span class="text-zinc-500">&rarr;</span>
+              <input type="date" id="calDateEnd" class="bg-dark-950 border border-dark-800 rounded-md px-2 py-1 text-zinc-200 focus:outline-none focus:border-brand-500">
             </div>
           </div>
           <div class="flex items-center bg-dark-950 rounded-lg border border-dark-800 p-0.5 text-[11px] font-mono">
-            <button id="btnCalAll" class="px-3 py-1 rounded-md bg-slate-100 text-dark-950 font-bold transition-colors">TODO</button>
-            <button id="btnCalSplit" class="px-3 py-1 rounded-md text-slate-400 hover:text-white font-medium transition-colors">RUTINA</button>
+            <button id="btnCalAll" class="px-2.5 py-1 rounded-md bg-zinc-100 text-zinc-950 font-semibold transition-colors">TODO</button>
+            <button id="btnCalSplit" class="px-2.5 py-1 rounded-md text-zinc-400 hover:text-white font-medium transition-colors">RUTINA</button>
           </div>
-          <span id="calendarRangeLabel" class="text-xs font-mono text-slate-400 uppercase tracking-wider">-</span>
+          <span id="calendarRangeLabel" class="text-xs font-mono text-zinc-500 uppercase tracking-wider">-</span>
         </div>
       </div>
 
@@ -592,53 +561,53 @@
         <div id="activityCalendarGrid" class="inline-block min-w-full"></div>
       </div>
 
-      <div id="calendarLegend" class="flex flex-wrap items-center gap-2 text-[11px] font-mono text-slate-400 pt-1">
+      <div id="calendarLegend" class="flex flex-wrap items-center gap-2 text-[11px] font-mono text-zinc-500 pt-1">
       </div>
     </section>
 
   </main>
 
   <!-- BALANCE FACTORS CALIBRATION MODAL -->
-  <div id="balanceConfigModal" class="hidden fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-dark-900 border border-dark-700 rounded-2xl shadow-2xl w-full max-w-5xl max-h-[88vh] flex flex-col overflow-hidden">
-      <div class="px-5 py-4 border-b border-dark-800 flex items-center justify-between gap-3 bg-dark-950/60">
+  <div id="balanceConfigModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-dark-900 border border-dark-700 rounded-xl shadow-2xl w-full max-w-5xl max-h-[88vh] flex flex-col overflow-hidden">
+      <div class="px-5 py-4 border-b border-dark-800 flex items-center justify-between gap-3 bg-dark-950">
         <div>
-          <h3 class="text-base font-bold text-white flex items-center gap-2">
-            <i class="fa-solid fa-sliders text-cyan-400"></i> Calibrar Factores Biomecánicos (kg equivalentes)
+          <h3 class="text-sm font-semibold text-white flex items-center gap-2">
+            <i class="fa-solid fa-sliders text-cyan-400"></i> Calibrar Factores Biomecánicos (kg eq.)
           </h3>
-          <p class="text-xs text-slate-400 mt-0.5">
-            Fórmula: <code class="text-cyan-300">Peso Eq. = (Peso + %PC &times; Peso Corporal) &times; Lados &times; Factor Mec.</code> (en asistidas: <code class="text-slate-300">(%PC &times; PC &minus; Peso)</code>).
+          <p class="text-xs text-zinc-400 mt-0.5">
+            Fórmula: <code class="text-cyan-400">Peso Eq. = (Peso + %PC &times; Peso Corporal) &times; Lados &times; Factor Mec.</code>
           </p>
         </div>
-        <button id="btnCloseBalanceModal" class="w-8 h-8 rounded-lg bg-dark-800 hover:bg-dark-700 text-slate-300 hover:text-white flex items-center justify-center transition-colors">
-          <i class="fa-solid fa-xmark"></i>
+        <button id="btnCloseBalanceModal" class="w-7 h-7 rounded-md bg-dark-850 hover:bg-dark-800 text-zinc-400 hover:text-white flex items-center justify-center transition-colors border border-dark-800">
+          <i class="fa-solid fa-xmark text-xs"></i>
         </button>
       </div>
 
       <div class="px-5 py-3 border-b border-dark-800 flex flex-wrap items-center justify-between gap-3 bg-dark-900">
         <div class="flex flex-wrap items-center gap-3 text-xs">
-          <label class="flex items-center gap-2 bg-dark-950 border border-dark-800 rounded-xl px-3 py-1.5">
-            <span class="text-slate-400 font-medium">Peso Corporal:</span>
-            <input type="number" id="inputBodyweightKg" min="30" max="250" step="0.5" value="75" class="w-16 bg-dark-900 border border-dark-700 rounded px-2 py-0.5 text-white font-bold text-center focus:outline-none focus:border-cyan-500">
-            <span class="text-slate-400">kg</span>
+          <label class="flex items-center gap-2 bg-dark-950 border border-dark-800 rounded-lg px-3 py-1.5">
+            <span class="text-zinc-400 font-medium">Peso Corporal:</span>
+            <input type="number" id="inputBodyweightKg" min="30" max="250" step="0.5" value="75" class="w-16 bg-dark-900 border border-dark-700 rounded px-2 py-0.5 text-white font-semibold text-center focus:outline-none focus:border-cyan-500">
+            <span class="text-zinc-400">kg</span>
           </label>
           <div class="relative">
-            <i class="fa-solid fa-magnifying-glass text-slate-500 absolute left-3 top-1/2 -translate-y-1/2 text-[11px]"></i>
-            <input type="text" id="balanceSearchInput" placeholder="Buscar ejercicio (Prensa, Hacka, Lateral...)" class="bg-dark-950 border border-dark-800 rounded-xl pl-8 pr-3 py-1.5 text-xs text-slate-200 w-64 focus:outline-none focus:border-cyan-500">
+            <i class="fa-solid fa-magnifying-glass text-zinc-500 absolute left-3 top-1/2 -translate-y-1/2 text-[11px]"></i>
+            <input type="text" id="balanceSearchInput" placeholder="Buscar ejercicio (Prensa, Hacka, Lateral...)" class="bg-dark-950 border border-dark-800 rounded-lg pl-8 pr-3 py-1.5 text-xs text-zinc-200 w-64 focus:outline-none focus:border-cyan-500">
           </div>
-          <label class="flex items-center gap-1.5 text-slate-300 cursor-pointer select-none">
+          <label class="flex items-center gap-1.5 text-zinc-300 cursor-pointer select-none">
             <input type="checkbox" id="balanceFilterUsedOnly" checked class="rounded border-dark-700 bg-dark-950 text-cyan-500 focus:ring-0">
             <span>Solo mis ejercicios</span>
           </label>
         </div>
-        <button id="btnResetBalanceConfig" class="px-3 py-1.5 rounded-lg bg-dark-800 hover:bg-dark-700 text-slate-300 hover:text-white text-xs font-medium border border-dark-700 transition-colors flex items-center gap-1.5">
-          <i class="fa-solid fa-rotate-left"></i> Restaurar defaults
+        <button id="btnResetBalanceConfig" class="px-3 py-1.5 rounded-lg bg-dark-850 hover:bg-dark-800 text-zinc-300 hover:text-white text-xs font-medium border border-dark-700 transition-colors flex items-center gap-1.5">
+          <i class="fa-solid fa-rotate-left text-[11px]"></i> Restaurar defaults
         </button>
       </div>
 
       <div class="overflow-y-auto flex-1">
         <table class="w-full text-left border-collapse text-xs">
-          <thead class="sticky top-0 bg-dark-950 border-b border-dark-800 text-[11px] uppercase tracking-wider text-slate-400 z-10">
+          <thead class="sticky top-0 bg-dark-950 border-b border-dark-800 text-[11px] uppercase tracking-wider text-zinc-500 z-10">
             <tr>
               <th class="py-2.5 px-4">Ejercicio</th>
               <th class="py-2.5 px-3">Perfil</th>
@@ -646,7 +615,7 @@
               <th class="py-2.5 px-3 text-center">Lados</th>
               <th class="py-2.5 px-3 text-center">Factor Mec.</th>
               <th class="py-2.5 px-3 text-center">Asistida</th>
-              <th class="py-2.5 px-4 text-right">Ejemplo con tus datos</th>
+              <th class="py-2.5 px-4 text-right">Ejemplo</th>
             </tr>
           </thead>
           <tbody id="balanceModalTableBody" class="divide-y divide-dark-800/60">
@@ -654,19 +623,19 @@
         </table>
       </div>
 
-      <div class="px-5 py-3 border-t border-dark-800 bg-dark-950/60 flex flex-wrap items-center justify-between gap-3 text-xs">
-        <span class="text-slate-400">
-          Los cambios se guardan automáticamente en tu navegador y recalculan las gráficas al instante.
+      <div class="px-5 py-3 border-t border-dark-800 bg-dark-950 flex flex-wrap items-center justify-between gap-3 text-xs">
+        <span class="text-zinc-500">
+          Los cambios se guardan localmente y recalculan las métricas al instante.
         </span>
-        <button id="btnDoneBalanceModal" class="px-4 py-1.5 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white font-bold transition-colors">
+        <button id="btnDoneBalanceModal" class="px-4 py-1.5 rounded-lg bg-brand-600 hover:bg-brand-500 text-white font-medium transition-colors">
           Aplicar y Cerrar
         </button>
       </div>
     </div>
   </div>
 
-  <footer class="border-t border-dark-800/80 bg-dark-950 py-4 px-4 text-center text-xs text-slate-500">
-    Hevy Analytics Dashboard &bull; Series Fraccionarias &bull; Análisis de Progresión
+  <footer class="border-t border-dark-800/80 bg-dark-950 py-4 px-4 text-center text-[11px] text-zinc-600 font-mono">
+    Hevy Analytics &bull; Procesamiento 100% en navegador &bull; Series Fraccionarias &bull; Calibración Biomecánica
   </footer>
 
   <script src="hevy-core.js"></script>

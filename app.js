@@ -422,25 +422,25 @@ function rebuildFilterDropdown() {
   select.innerHTML = '';
 
   if (currentFilterType === 'all') {
-    select.innerHTML = '<option value="ALL">🏋️ Toda la Sesión (Sin filtro específico)</option>';
+    select.innerHTML = '<option value="ALL">Toda la sesión (Sin filtro)</option>';
   } else if (currentFilterType === 'muscle') {
-    select.innerHTML = '<option value="ALL">🥩 Todos los Grupos Musculares</option>';
+    select.innerHTML = '<option value="ALL">Todos los Grupos Musculares</option>';
     muscleGroups.forEach(m => {
       const opt = document.createElement('option');
       opt.value = m;
-      opt.textContent = `🥩 Grupo: ${m}`;
+      opt.textContent = `Grupo: ${m}`;
       select.appendChild(opt);
     });
   } else if (currentFilterType === 'routine') {
-    select.innerHTML = '<option value="ALL">📋 Todas las Rutinas</option>';
+    select.innerHTML = '<option value="ALL">Todas las Rutinas</option>';
     routineCategories.forEach(r => {
       const opt = document.createElement('option');
       opt.value = r;
-      opt.textContent = `📋 Rutina: ${r}`;
+      opt.textContent = `Rutina: ${r}`;
       select.appendChild(opt);
     });
   } else if (currentFilterType === 'exercise') {
-    select.innerHTML = '<option value="ALL">🏋️ Todos los Ejercicios</option>';
+    select.innerHTML = '<option value="ALL">Todos los Ejercicios</option>';
     const usageSessions = {};
     const usageSets = {};
     allSessions.forEach(s => {
@@ -461,7 +461,7 @@ function rebuildFilterDropdown() {
       const opt = document.createElement('option');
       opt.value = ex;
       const count = usageSessions[ex] || 0;
-      opt.textContent = `🏋️ ${ex} (${exerciseMuscleMap[ex] || 'Otro'} • ${count} ses.)`;
+      opt.textContent = `${ex} (${exerciseMuscleMap[ex] || 'Otro'} · ${count} ses.)`;
       select.appendChild(opt);
     });
   }
@@ -931,7 +931,7 @@ function renderChart() {
         fill: chartType === 'line',
         tension: 0.25,
         pointBackgroundColor: pointColors,
-        pointBorderColor: '#070a12',
+        pointBorderColor: '#09090b',
         pointBorderWidth: pointBorderWidth,
         pointRadius: pointRadius,
         pointHoverRadius: 9,
@@ -959,10 +959,10 @@ function renderChart() {
       plugins: {
         legend: { display: false },
         tooltip: {
-          backgroundColor: '#0d1322',
+          backgroundColor: '#111113',
           titleColor: '#ffffff',
           bodyColor: '#cbd5e1',
-          borderColor: '#233254',
+          borderColor: '#2e2e34',
           borderWidth: 1,
           padding: 12,
           boxPadding: 6,
@@ -981,7 +981,7 @@ function renderChart() {
                 lines.push(`Nota: "${s.description.slice(0, 45)}${s.description.length > 45 ? '...' : ''}"`);
               }
               if (s.pr_count > 0) {
-                lines.push(`🏆 ${s.pr_count} récord(s) batido(s)!`);
+                lines.push(`${s.pr_count} récord(s) batido(s)`);
               }
               return lines;
             },
@@ -992,7 +992,7 @@ function renderChart() {
       scales: {
         x: {
           grid: {
-            color: 'rgba(35, 50, 84, 0.4)',
+            color: 'rgba(255, 255, 255, 0.06)',
             tickColor: 'transparent'
           },
           ticks: {
@@ -1006,7 +1006,7 @@ function renderChart() {
         y: {
           beginAtZero: true,
           grid: {
-            color: 'rgba(35, 50, 84, 0.4)',
+            color: 'rgba(255, 255, 255, 0.06)',
             tickColor: 'transparent'
           },
           ticks: {
@@ -1184,7 +1184,7 @@ function renderDonutChart(sortedStats, totalVol, colorMap, volUnit = 'kg') {
       datasets: [{
         data: data,
         backgroundColor: bgColors,
-        borderColor: '#070a12',
+        borderColor: '#09090b',
         borderWidth: 2,
         hoverOffset: 8
       }]
@@ -1204,10 +1204,10 @@ function renderDonutChart(sortedStats, totalVol, colorMap, volUnit = 'kg') {
           }
         },
         tooltip: {
-          backgroundColor: '#0d1322',
+          backgroundColor: '#111113',
           titleColor: '#ffffff',
           bodyColor: '#cbd5e1',
-          borderColor: '#233254',
+          borderColor: '#2e2e34',
           borderWidth: 1,
           padding: 10,
           callbacks: {
@@ -1249,10 +1249,10 @@ function renderBarChart(sortedStats, colorMap, volUnit = 'kg') {
       plugins: {
         legend: { display: false },
         tooltip: {
-          backgroundColor: '#0d1322',
+          backgroundColor: '#111113',
           titleColor: '#ffffff',
           bodyColor: '#cbd5e1',
-          borderColor: '#233254',
+          borderColor: '#2e2e34',
           borderWidth: 1,
           padding: 10,
           callbacks: {
@@ -1262,7 +1262,7 @@ function renderBarChart(sortedStats, colorMap, volUnit = 'kg') {
       },
       scales: {
         x: {
-          grid: { color: 'rgba(35, 50, 84, 0.4)', tickColor: 'transparent' },
+          grid: { color: 'rgba(255, 255, 255, 0.06)', tickColor: 'transparent' },
           ticks: {
             color: '#94a3b8',
             font: { size: 11 },
@@ -1416,7 +1416,7 @@ function showSessionDetail(s, index) {
   const badge = document.getElementById('detailBadge');
   if (s.pr_count > 0) {
     badge.classList.remove('hidden');
-    badge.textContent = `🏆 ${s.pr_count} Nuevo(s) Récord(s)`;
+    badge.textContent = `${s.pr_count} Nuevo(s) RM`;
   } else {
     badge.classList.add('hidden');
   }
@@ -1536,7 +1536,7 @@ function showSessionDetail(s, index) {
             ${muscle}
           </span>
           ${secBadgesHtml}
-          ${prInfo ? `<span class="badge-pr text-xs font-bold px-2.5 py-0.5 rounded-full inline-flex items-center gap-1"><i class="fa-solid fa-trophy"></i> ¡Nuevo RM: ${prInfo.new_orm} kg! (previo: ${prInfo.prev_best} kg)</span>` : ''}
+          ${prInfo ? `<span class="badge-pr text-xs font-bold px-2.5 py-0.5 rounded-full inline-flex items-center gap-1"><i class="fa-solid fa-trophy"></i> Nuevo RM: ${prInfo.new_orm} kg! (previo: ${prInfo.prev_best} kg)</span>` : ''}
         </div>
         <div class="flex items-center gap-3 text-xs text-slate-400">
           <span>Volumen: <strong class="text-emerald-400">${Math.round(exVol).toLocaleString('es-ES')} ${unit}</strong></span>
@@ -1709,10 +1709,10 @@ function renderMuscleRadarCharts() {
       plugins: {
         legend: { display: false },
         tooltip: {
-          backgroundColor: '#0d1322',
+          backgroundColor: '#111113',
           titleColor: '#ffffff',
           bodyColor: '#cbd5e1',
-          borderColor: '#233254',
+          borderColor: '#2e2e34',
           borderWidth: 1,
           callbacks: {
             label: (item) => ` ${item.dataset.label}: ${item.raw.toLocaleString('es-ES')} ${unit}`
