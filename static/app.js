@@ -37,7 +37,7 @@ const SPANISH_MONTH_NAMES = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "a
 
 const MUSCLE_COLORS = {
   "Pierna": { bg: "#10b981", border: "#34d399", text: "text-emerald-400", light: "rgba(16, 185, 129, 0.15)" },
-  "Espalda": { bg: "#3b82f6", border: "#60a5fa", text: "text-blue-400", light: "rgba(59, 130, 246, 0.15)" },
+  "Espalda": { bg: "#3b82f6", border: "#60a5fa", text: "text-blue-400", light: "rgba(27, 133, 243, 0.16)" },
   "Pecho": { bg: "#ef4444", border: "#f87171", text: "text-red-400", light: "rgba(239, 68, 68, 0.15)" },
   "Bíceps": { bg: "#8b5cf6", border: "#a78bfa", text: "text-purple-400", light: "rgba(139, 92, 246, 0.15)" },
   "Hombro": { bg: "#f59e0b", border: "#fbbf24", text: "text-amber-400", light: "rgba(245, 158, 11, 0.15)" },
@@ -48,7 +48,7 @@ const MUSCLE_COLORS = {
 
 const ROUTINE_COLORS = {
   "Push (Empuje)": { bg: "#ef4444", border: "#f87171", text: "text-red-400", light: "rgba(239, 68, 68, 0.15)" },
-  "Pull (Tirón)": { bg: "#3b82f6", border: "#60a5fa", text: "text-blue-400", light: "rgba(59, 130, 246, 0.15)" },
+  "Pull (Tirón)": { bg: "#3b82f6", border: "#60a5fa", text: "text-blue-400", light: "rgba(27, 133, 243, 0.16)" },
   "Legs (Pierna)": { bg: "#10b981", border: "#34d399", text: "text-emerald-400", light: "rgba(16, 185, 129, 0.15)" },
   "Espalda y Pecho": { bg: "#ec4899", border: "#f472b6", text: "text-pink-400", light: "rgba(236, 72, 153, 0.15)" },
   "Hombro y Brazos": { bg: "#6366f1", border: "#818cf8", text: "text-indigo-400", light: "rgba(99, 102, 241, 0.15)" },
@@ -861,9 +861,9 @@ function renderChart() {
 
   const dataValues = filteredSessions.map(s => getSessionMetricValue(s));
 
-  let primaryColor = '#3b82f6';
-  let primaryBg = 'rgba(59, 130, 246, 0.15)';
-  let primaryBorder = '#60a5fa';
+  let primaryColor = '#1b85f3';
+  let primaryBg = 'rgba(27, 133, 243, 0.16)';
+  let primaryBorder = '#3898ff';
 
   if (currentFilterType === 'muscle' && MUSCLE_COLORS[currentFilterValue]) {
     const c = MUSCLE_COLORS[currentFilterValue];
@@ -949,7 +949,7 @@ function renderChart() {
         fill: chartType === 'line',
         tension: 0.25,
         pointBackgroundColor: pointColors,
-        pointBorderColor: '#09090b',
+        pointBorderColor: '#000000',
         pointBorderWidth: pointBorderWidth,
         pointRadius: pointRadius,
         pointHoverRadius: 9,
@@ -977,10 +977,10 @@ function renderChart() {
       plugins: {
         legend: { display: false },
         tooltip: {
-          backgroundColor: '#111113',
+          backgroundColor: '#161616',
           titleColor: '#ffffff',
           bodyColor: '#cbd5e1',
-          borderColor: '#2e2e34',
+          borderColor: '#2a2a2d',
           borderWidth: 1,
           padding: 12,
           boxPadding: 6,
@@ -1202,7 +1202,7 @@ function renderDonutChart(sortedStats, totalVol, colorMap, volUnit = 'kg') {
       datasets: [{
         data: data,
         backgroundColor: bgColors,
-        borderColor: '#09090b',
+        borderColor: '#000000',
         borderWidth: 2,
         hoverOffset: 8
       }]
@@ -1222,10 +1222,10 @@ function renderDonutChart(sortedStats, totalVol, colorMap, volUnit = 'kg') {
           }
         },
         tooltip: {
-          backgroundColor: '#111113',
+          backgroundColor: '#161616',
           titleColor: '#ffffff',
           bodyColor: '#cbd5e1',
-          borderColor: '#2e2e34',
+          borderColor: '#2a2a2d',
           borderWidth: 1,
           padding: 10,
           callbacks: {
@@ -1267,10 +1267,10 @@ function renderBarChart(sortedStats, colorMap, volUnit = 'kg') {
       plugins: {
         legend: { display: false },
         tooltip: {
-          backgroundColor: '#111113',
+          backgroundColor: '#161616',
           titleColor: '#ffffff',
           bodyColor: '#cbd5e1',
-          borderColor: '#2e2e34',
+          borderColor: '#2a2a2d',
           borderWidth: 1,
           padding: 10,
           callbacks: {
@@ -1700,22 +1700,22 @@ function renderMuscleRadarCharts() {
         {
           label: currLabel,
           data: currArr,
-          borderColor: '#ff4d1a',
-          backgroundColor: 'rgba(255, 77, 26, 0.24)',
+          borderColor: '#1b85f3',
+          backgroundColor: 'rgba(27, 133, 243, 0.24)',
           borderWidth: 2,
-          pointBackgroundColor: '#ff4d1a',
-          pointBorderColor: '#ff4d1a',
+          pointBackgroundColor: '#1b85f3',
+          pointBorderColor: '#1b85f3',
           pointRadius: 3.5,
           pointHoverRadius: 5
         },
         {
           label: prevLabel,
           data: prevArr,
-          borderColor: '#7c2d12',
-          backgroundColor: 'rgba(124, 45, 18, 0.28)',
+          borderColor: '#1e3a5f',
+          backgroundColor: 'rgba(30, 58, 95, 0.35)',
           borderWidth: 1.5,
-          pointBackgroundColor: '#7c2d12',
-          pointBorderColor: '#7c2d12',
+          pointBackgroundColor: '#1e3a5f',
+          pointBorderColor: '#1e3a5f',
           pointRadius: 2.5,
           pointHoverRadius: 4
         }
@@ -1727,10 +1727,10 @@ function renderMuscleRadarCharts() {
       plugins: {
         legend: { display: false },
         tooltip: {
-          backgroundColor: '#111113',
+          backgroundColor: '#161616',
           titleColor: '#ffffff',
           bodyColor: '#cbd5e1',
-          borderColor: '#2e2e34',
+          borderColor: '#2a2a2d',
           borderWidth: 1,
           callbacks: {
             label: (item) => ` ${item.dataset.label}: ${item.raw.toLocaleString('es-ES')} ${unit}`
@@ -1866,7 +1866,7 @@ function renderActivityCalendar() {
     weeks.push(week);
   }
 
-  const INTENSITY_COLORS = ['#141824', '#431407', '#7c2d12', '#c2410c', '#ff4d1a'];
+  const INTENSITY_COLORS = ['#1c1c1e', '#0c2d4d', '#114b82', '#1668b8', '#1b85f3'];
   const DAY_LABELS = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
 
   let monthRowHtml = '<div class="flex gap-1.5 mb-1.5">';
