@@ -288,10 +288,13 @@
               <button id="btnStatsRaw" class="active px-2.5 py-1 rounded-lg bg-brand-600 text-white font-bold transition-all shadow-sm" title="Muestra los kg exactos registrados en Hevy (peso × reps)">
                 📊 Tal cual (Bruto kg)
               </button>
-              <button id="btnStatsBalanced" class="px-2.5 py-1 rounded-lg text-slate-400 hover:text-white font-medium transition-colors" title="Normaliza el esfuerzo según tu 1RM en cada ejercicio para que Prensa, Sentadilla, Banca y Aislamientos pesen de forma justa">
-                ⚖️ Equilibrada (pts)
+              <button id="btnStatsBalanced" class="px-2.5 py-1 rounded-lg text-slate-400 hover:text-white font-medium transition-colors" title="Convierte las cargas a kg equivalentes reales (ángulo de prensa 45°, hacka con peso corporal, polea 2:1, mancuernas ×2, máquinas y peso corporal)">
+                ⚖️ Equilibrada (kg eq.)
               </button>
             </div>
+            <button id="btnOpenBalanceModal" class="px-2.5 py-1 rounded-lg bg-cyan-950/60 hover:bg-cyan-900/60 text-cyan-300 border border-cyan-500/30 font-medium transition-colors flex items-center gap-1.5" title="Ver o ajustar los factores biomecánicos por ejercicio (Prensa, Hacka, Poleas, Peso Corporal...)">
+              <i class="fa-solid fa-sliders"></i> Calibrar
+            </button>
           </div>
 
           <!-- Top Fractional Sets Toggle -->
@@ -594,6 +597,73 @@
     </section>
 
   </main>
+
+  <!-- BALANCE FACTORS CALIBRATION MODAL -->
+  <div id="balanceConfigModal" class="hidden fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-dark-900 border border-dark-700 rounded-2xl shadow-2xl w-full max-w-5xl max-h-[88vh] flex flex-col overflow-hidden">
+      <div class="px-5 py-4 border-b border-dark-800 flex items-center justify-between gap-3 bg-dark-950/60">
+        <div>
+          <h3 class="text-base font-bold text-white flex items-center gap-2">
+            <i class="fa-solid fa-sliders text-cyan-400"></i> Calibrar Factores Biomecánicos (kg equivalentes)
+          </h3>
+          <p class="text-xs text-slate-400 mt-0.5">
+            Fórmula: <code class="text-cyan-300">Peso Eq. = (Peso + %PC &times; Peso Corporal) &times; Lados &times; Factor Mec.</code> (en asistidas: <code class="text-slate-300">(%PC &times; PC &minus; Peso)</code>).
+          </p>
+        </div>
+        <button id="btnCloseBalanceModal" class="w-8 h-8 rounded-lg bg-dark-800 hover:bg-dark-700 text-slate-300 hover:text-white flex items-center justify-center transition-colors">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="px-5 py-3 border-b border-dark-800 flex flex-wrap items-center justify-between gap-3 bg-dark-900">
+        <div class="flex flex-wrap items-center gap-3 text-xs">
+          <label class="flex items-center gap-2 bg-dark-950 border border-dark-800 rounded-xl px-3 py-1.5">
+            <span class="text-slate-400 font-medium">Peso Corporal:</span>
+            <input type="number" id="inputBodyweightKg" min="30" max="250" step="0.5" value="75" class="w-16 bg-dark-900 border border-dark-700 rounded px-2 py-0.5 text-white font-bold text-center focus:outline-none focus:border-cyan-500">
+            <span class="text-slate-400">kg</span>
+          </label>
+          <div class="relative">
+            <i class="fa-solid fa-magnifying-glass text-slate-500 absolute left-3 top-1/2 -translate-y-1/2 text-[11px]"></i>
+            <input type="text" id="balanceSearchInput" placeholder="Buscar ejercicio (Prensa, Hacka, Lateral...)" class="bg-dark-950 border border-dark-800 rounded-xl pl-8 pr-3 py-1.5 text-xs text-slate-200 w-64 focus:outline-none focus:border-cyan-500">
+          </div>
+          <label class="flex items-center gap-1.5 text-slate-300 cursor-pointer select-none">
+            <input type="checkbox" id="balanceFilterUsedOnly" checked class="rounded border-dark-700 bg-dark-950 text-cyan-500 focus:ring-0">
+            <span>Solo mis ejercicios</span>
+          </label>
+        </div>
+        <button id="btnResetBalanceConfig" class="px-3 py-1.5 rounded-lg bg-dark-800 hover:bg-dark-700 text-slate-300 hover:text-white text-xs font-medium border border-dark-700 transition-colors flex items-center gap-1.5">
+          <i class="fa-solid fa-rotate-left"></i> Restaurar defaults
+        </button>
+      </div>
+
+      <div class="overflow-y-auto flex-1">
+        <table class="w-full text-left border-collapse text-xs">
+          <thead class="sticky top-0 bg-dark-950 border-b border-dark-800 text-[11px] uppercase tracking-wider text-slate-400 z-10">
+            <tr>
+              <th class="py-2.5 px-4">Ejercicio</th>
+              <th class="py-2.5 px-3">Perfil</th>
+              <th class="py-2.5 px-3 text-center">% Peso Corp.</th>
+              <th class="py-2.5 px-3 text-center">Lados</th>
+              <th class="py-2.5 px-3 text-center">Factor Mec.</th>
+              <th class="py-2.5 px-3 text-center">Asistida</th>
+              <th class="py-2.5 px-4 text-right">Ejemplo con tus datos</th>
+            </tr>
+          </thead>
+          <tbody id="balanceModalTableBody" class="divide-y divide-dark-800/60">
+          </tbody>
+        </table>
+      </div>
+
+      <div class="px-5 py-3 border-t border-dark-800 bg-dark-950/60 flex flex-wrap items-center justify-between gap-3 text-xs">
+        <span class="text-slate-400">
+          Los cambios se guardan automáticamente en tu navegador y recalculan las gráficas al instante.
+        </span>
+        <button id="btnDoneBalanceModal" class="px-4 py-1.5 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white font-bold transition-colors">
+          Aplicar y Cerrar
+        </button>
+      </div>
+    </div>
+  </div>
 
   <footer class="border-t border-dark-800/80 bg-dark-950 py-4 px-4 text-center text-xs text-slate-500">
     Hevy Analytics Dashboard &bull; Series Fraccionarias &bull; Análisis de Progresión

@@ -443,11 +443,167 @@ ORDERED_ROUTINES = [
     "General / Otro",
 ]
 
+DEFAULT_BODYWEIGHT_KG = 75.0
+
+# Mechanical / biomechanical conversion table:
+# (bw_ratio, bilateral_mult, mech_factor, is_assisted, profile)
+# Effective equivalent load (kg eq.) = (weight_kg + bw_ratio * BW) * bilateral_mult * mech_factor
+# (For assisted machines: max(0, bw_ratio * BW - weight_kg) * bilateral_mult * mech_factor)
+EXERCISE_BIOMECHANICS_OVERRIDES = {
+    # Pierna: Prensa vs Hacka vs Sentadilla vs Máquinas
+    "Leg Press (Machine)": (0.0, 1, 0.50, False, "Prensa 45°"),
+    "Leg Press Horizontal (Machine)": (0.0, 1, 0.90, False, "Prensa Horiz."),
+    "Single Leg Press (Machine)": (0.0, 2, 0.50, False, "Prensa 1 Pierna"),
+    "Hack Squat (Machine)": (0.85, 1, 0.85, False, "Hacka"),
+    "Pendulum Squat (Machine)": (0.75, 1, 0.85, False, "Péndulo"),
+    "Belt Squat (Machine)": (0.65, 1, 0.90, False, "Sentadilla Cinturón"),
+    "Squat (Barbell)": (0.75, 1, 1.00, False, "Sentadilla Libre"),
+    "Front Squat": (0.75, 1, 1.00, False, "Sentadilla Frontal"),
+    "Overhead Squat": (0.75, 1, 1.00, False, "Sentadilla Overhead"),
+    "Box Squat (Barbell)": (0.75, 1, 1.00, False, "Sentadilla Cajón"),
+    "Pause Squat (Barbell)": (0.75, 1, 1.00, False, "Sentadilla Pausa"),
+    "Squat (Smith Machine)": (0.75, 1, 0.88, False, "Multipower + PC"),
+    "Goblet Squat": (0.75, 1, 1.00, False, "Peso Libre + PC"),
+    "Squat (Dumbbell)": (0.75, 2, 1.00, False, "Mancuernas + PC"),
+    "Squat (Bodyweight)": (0.75, 1, 1.00, False, "Peso Corporal"),
+    "Jump Squat": (0.75, 1, 1.00, False, "Peso Corporal"),
+    "Leg Extension (Machine)": (0.0, 1, 0.75, False, "Máquina Pierna"),
+    "Seated Leg Curl (Machine)": (0.0, 1, 0.75, False, "Máquina Pierna"),
+    "Lying Leg Curl (Machine)": (0.0, 1, 0.75, False, "Máquina Pierna"),
+    "Hip Thrust (Machine)": (0.0, 1, 0.75, False, "Máquina Glúteo"),
+    "Hip Thrust (Barbell)": (0.0, 1, 0.85, False, "Empuje Cadera"),
+    "Hip Adduction (Machine)": (0.0, 1, 0.45, False, "Máquina Aductor"),
+    "Hip Abduction (Machine)": (0.0, 1, 0.45, False, "Máquina Abductor"),
+    "Calf Extension (Machine)": (0.0, 1, 0.55, False, "Prensa Gemelo"),
+    "Calf Press (Machine)": (0.0, 1, 0.55, False, "Prensa Gemelo"),
+    "Standing Calf Raise (Smith)": (0.75, 1, 0.85, False, "Multipower + PC"),
+    "Seated Calf Raise": (0.0, 1, 0.75, False, "Máquina Gemelo"),
+
+    # Hombro: Elevaciones laterales Polea vs Máquina vs Mancuerna
+    "Lateral Raise (Cable)": (0.0, 2, 0.50, False, "Polea 2:1 Unil."),
+    "Lateral Raise (Machine)": (0.0, 1, 0.40, False, "Máquina Hombro"),
+    "Lateral Raise (Dumbbell)": (0.0, 2, 1.00, False, "Mancuernas ×2"),
+    "Lateral Raise (Band)": (0.0, 2, 0.80, False, "Banda Unil."),
+    "Rear Delt Reverse Fly (Machine)": (0.0, 1, 0.55, False, "Máquina Hombro"),
+    "Reverse Fly Single Arm (Cable)": (0.0, 2, 0.50, False, "Polea 2:1 Unil."),
+    "Face Pull": (0.0, 1, 0.50, False, "Polea 2:1 Bilat."),
+    "Seated Shoulder Press (Machine)": (0.0, 1, 0.80, False, "Máquina Hombro"),
+
+    # Pecho & Espalda & Brazos (Poleas vs Máquinas vs Mancuernas)
+    "Butterfly (Pec Deck)": (0.0, 1, 0.55, False, "Máquina Pec Deck"),
+    "Chest Press (Machine)": (0.0, 1, 0.80, False, "Máquina Palanca"),
+    "Incline Chest Press (Machine)": (0.0, 1, 0.80, False, "Máquina Palanca"),
+    "Iso-Lateral Chest Press (Machine)": (0.0, 1, 0.80, False, "Máquina Palanca"),
+    "Cable Fly Crossovers": (0.0, 2, 0.50, False, "Polea 2:1 Dual"),
+    "Low Cable Fly Crossovers": (0.0, 2, 0.50, False, "Polea 2:1 Dual"),
+    "Seated Chest Flys (Cable)": (0.0, 2, 0.50, False, "Polea 2:1 Dual"),
+    "Single Arm Cable Crossover": (0.0, 2, 0.50, False, "Polea 2:1 Unil."),
+    "Pullover (Dumbbell)": (0.0, 1, 1.00, False, "Mancuerna Única"),
+    "Lat Pulldown (Cable)": (0.0, 1, 1.00, False, "Polea 1:1 Bilat."),
+    "Lat Pulldown - Close Grip (Cable)": (0.0, 1, 1.00, False, "Polea 1:1 Bilat."),
+    "Lat Pulldown (Machine)": (0.0, 1, 0.85, False, "Máquina Palanca"),
+    "Seated Cable Row - Bar Grip": (0.0, 1, 1.00, False, "Polea 1:1 Remo"),
+    "Seated Cable Row - Bar Wide Grip": (0.0, 1, 1.00, False, "Polea 1:1 Remo"),
+    "Seated Cable Row - V Grip (Cable)": (0.0, 1, 1.00, False, "Polea 1:1 Remo"),
+    "Seated Row (Machine)": (0.0, 1, 0.80, False, "Máquina Palanca"),
+    "Iso-Lateral Row (Machine)": (0.0, 1, 0.70, False, "Máquina Palanca"),
+    "Iso-Lateral High Row (Machine)": (0.0, 1, 0.70, False, "Máquina Palanca"),
+    "Iso-Lateral Low Row": (0.0, 1, 0.70, False, "Máquina Palanca"),
+    "Single Arm Cable Row": (0.0, 2, 0.50, False, "Polea 2:1 Unil."),
+    "Rope Straight Arm Pulldown": (0.0, 1, 0.50, False, "Polea 2:1 Bilat."),
+    "Straight Arm Lat Pulldown (Cable)": (0.0, 2, 0.50, False, "Polea 2:1 Unil."),
+    "Preacher Curl (Machine)": (0.0, 1, 0.70, False, "Máquina Bíceps"),
+    "Bayesian": (0.0, 2, 0.50, False, "Polea 2:1 Unil."),
+    "Curl Martillo Cable Unilateral": (0.0, 2, 0.50, False, "Polea 2:1 Unil."),
+    "Bicep Curl (Cable)": (0.0, 1, 0.50, False, "Polea 2:1 Bilat."),
+    "Hammer Curl (Cable)": (0.0, 1, 0.50, False, "Polea 2:1 Bilat."),
+    "Triceps Extension (Cable)": (0.0, 1, 0.50, False, "Polea 2:1 Bilat."),
+    "Overhead Triceps Extension (Cable)": (0.0, 1, 0.50, False, "Polea 2:1 Bilat."),
+    "Triceps Pushdown": (0.0, 1, 0.50, False, "Polea 2:1 Bilat."),
+    "Triceps Pressdown": (0.0, 1, 0.50, False, "Polea 2:1 Bilat."),
+    "Triceps Rope Pushdown": (0.0, 1, 0.50, False, "Polea 2:1 Bilat."),
+    "Single Arm Triceps Pushdown (Cable)": (0.0, 2, 0.50, False, "Polea 2:1 Unil."),
+    "Triceps Kickback (Cable)": (0.0, 2, 0.50, False, "Polea 2:1 Unil."),
+    "Tríceps Bastardo": (0.0, 2, 0.50, False, "Polea 2:1 Unil."),
+    "Tríceps Bastardo Alto Barra": (0.0, 2, 0.50, False, "Polea 2:1 Unil."),
+    "Tríceps Lonamico": (0.0, 2, 0.50, False, "Polea 2:1 Unil."),
+    "Tríceps En Abdominales": (0.0, 1, 0.50, False, "Polea 2:1 Bilat."),
+    "Triceps Extension (Machine)": (0.0, 1, 0.75, False, "Máquina Tríceps"),
+    "Behind the Back Wrist Curl (Barbell)": (0.0, 1, 1.00, False, "Peso Libre"),
+
+    # Abdomen / Calistenia
+    "Crunch (Machine)": (0.0, 1, 0.70, False, "Máquina Abdomen"),
+    "Dragonfly": (0.65, 1, 1.00, False, "Peso Corporal"),
+    "Decline Crunch": (0.40, 1, 1.00, False, "Peso Corporal"),
+    "Decline Crunch (Weighted)": (0.40, 1, 1.00, False, "PC + Lastre"),
+    "Crunch (Weighted)": (0.35, 1, 1.00, False, "PC + Lastre"),
+}
+
+def infer_biomechanics(exercise_title):
+    if exercise_title in EXERCISE_BIOMECHANICS_OVERRIDES:
+        bw_r, bilat, mech, assisted, prof = EXERCISE_BIOMECHANICS_OVERRIDES[exercise_title]
+        return {"bw_ratio": bw_r, "bilateral": bilat, "mech_factor": mech, "is_assisted": assisted, "profile": prof}
+
+    tl = exercise_title.lower()
+    is_unil = any(k in tl for k in ["single arm", "one arm", "single leg", "unilateral", "concentration curl"])
+
+    if "(assisted)" in tl:
+        return {"bw_ratio": 1.0, "bilateral": 1, "mech_factor": 1.0, "is_assisted": True, "profile": "Asistida (PC - Asist.)"}
+    if any(k in tl for k in ["pull up", "chin up", "chest dip", "triceps dip", "muscle up"]) or tl == "dips":
+        return {"bw_ratio": 1.0, "bilateral": 1, "mech_factor": 1.0, "is_assisted": False, "profile": "Peso Corporal 100%"}
+    if "push up" in tl:
+        bw_r = 0.45 if "incline" in tl else (0.75 if "decline" in tl else 0.65)
+        return {"bw_ratio": bw_r, "bilateral": 1, "mech_factor": 1.0, "is_assisted": False, "profile": "Peso Corporal"}
+    if any(k in tl for k in ["bulgarian", "split squat", "lunge", "step up"]):
+        bilat = 2 if "(dumbbell)" in tl or "(kettlebell)" in tl else 1
+        return {"bw_ratio": 0.70, "bilateral": bilat, "mech_factor": 1.0, "is_assisted": False, "profile": "Unil. + Peso Corp."}
+    if "squat" in tl and "(machine)" in tl:
+        return {"bw_ratio": 0.70, "bilateral": 1, "mech_factor": 0.85, "is_assisted": False, "profile": "Máquina Sentadilla"}
+    if "(smith machine)" in tl:
+        bw_r = 0.75 if any(k in tl for k in ["squat", "lunge", "calf"]) else 0.0
+        return {"bw_ratio": bw_r, "bilateral": 1, "mech_factor": 0.85, "is_assisted": False, "profile": "Multipower"}
+    if "(dumbbell)" in tl or "(kettlebell)" in tl:
+        two_hand_single = any(k in tl for k in ["pullover", "goblet", "shrug"])
+        bilat = 1 if two_hand_single else 2
+        return {"bw_ratio": 0.0, "bilateral": bilat, "mech_factor": 1.0, "is_assisted": False, "profile": "Mancuerna ×1" if two_hand_single else "Mancuernas ×2"}
+    if "(cable)" in tl:
+        bilat = 2 if (is_unil or "crossover" in tl or "fly" in tl) else 1
+        return {"bw_ratio": 0.0, "bilateral": bilat, "mech_factor": 0.50, "is_assisted": False, "profile": "Polea 2:1"}
+    if "(machine)" in tl:
+        bilat = 2 if is_unil else 1
+        return {"bw_ratio": 0.0, "bilateral": bilat, "mech_factor": 0.75, "is_assisted": False, "profile": "Máquina Palanca"}
+    if any(k in tl for k in ["crunch", "leg raise", "knee raise", "sit up", "plank", "ab wheel", "russian twist", "v-up", "side bend"]):
+        bw_r = 0.50 if any(k in tl for k in ["hanging", "leg raise"]) else 0.35
+        return {"bw_ratio": bw_r, "bilateral": 1, "mech_factor": 1.0, "is_assisted": False, "profile": "Abdomen PC"}
+    if "back extension" in tl or "hyperextension" in tl:
+        return {"bw_ratio": 0.45, "bilateral": 1, "mech_factor": 1.0, "is_assisted": False, "profile": "PC + Lastre"}
+    if "(barbell)" in tl or "(ez bar)" in tl or "(trap bar)" in tl:
+        return {"bw_ratio": 0.0, "bilateral": 1, "mech_factor": 1.0, "is_assisted": False, "profile": "Peso Libre Barra"}
+    return {"bw_ratio": 0.0, "bilateral": 2 if is_unil else 1, "mech_factor": 1.0, "is_assisted": False, "profile": "Estándar"}
+
+def calc_balanced_weight(weight_kg, reps, muscle_group, bio, bw_kg=DEFAULT_BODYWEIGHT_KG):
+    if reps <= 0 or muscle_group == "Cardio / Otro":
+        return 0.0
+    bw_ratio = float(bio.get("bw_ratio", 0.0) or 0.0)
+    bilateral = float(bio.get("bilateral", 1.0) or 1.0)
+    mech = float(bio.get("mech_factor", 1.0) or 1.0)
+    is_assisted = bool(bio.get("is_assisted", False))
+    if is_assisted:
+        base = max(0.0, (bw_ratio * bw_kg) - weight_kg)
+    elif bw_ratio == 0.0 and weight_kg <= 0.0:
+        return 0.0
+    else:
+        base = weight_kg + (bw_ratio * bw_kg)
+    return round(base * bilateral * mech, 1)
+
+EXERCISE_BALANCE_MAP = {ex: infer_biomechanics(ex) for ex in EXERCISE_MUSCLE_MAP}
+
 CACHE = {
     "sessions": [],
     "exercises": [],
     "exercise_muscle_map": EXERCISE_MUSCLE_MAP,
     "exercise_secondary_map": EXERCISE_SECONDARY_MUSCLES,
+    "exercise_balance_map": EXERCISE_BALANCE_MAP,
     "muscle_groups": ORDERED_MUSCLE_GROUPS,
     "routine_categories": ORDERED_ROUTINES,
     "min_date": None,
@@ -739,36 +895,44 @@ def load_and_parse_csv(filepath):
 
     CACHE["sessions"] = sorted_sessions
     CACHE["exercises"] = sorted(list(all_exercises))
+    CACHE["exercise_balance_map"] = {ex: infer_biomechanics(ex) for ex in set(EXERCISE_MUSCLE_MAP.keys()) | all_exercises}
     CACHE["total_rows"] = total_rows
     CACHE["min_date"] = sorted_sessions[0]["date_day"] if sorted_sessions else ""
     CACHE["max_date"] = sorted_sessions[-1]["date_day"] if sorted_sessions else ""
 
-    # Second pass: compute balanced/normalized metrics relative to all-time 1RM per exercise
+    # Second pass: compute biomechanically balanced metrics (equivalent kg)
     for sess in sorted_sessions:
         bal_total_vol = 0.0
+        bal_max_weight = 0.0
         bal_ex_volumes = {}
         bal_muscle_volumes = {}
         bal_muscle_volumes_fractional = {}
         muscle_volumes_fractional = {}
         bal_ex_max_orm = {}
         bal_muscle_max_orm = {}
+        bal_ex_max_weight = {}
+        bal_muscle_max_weight = {}
 
         for s in sess["sets"]:
             ex = s["exercise_title"]
             m = s["muscle_group"]
-            peak_1rm = exercise_history_max.get(ex, 0.0)
+            bio = CACHE["exercise_balance_map"].get(ex) or infer_biomechanics(ex)
 
-            if peak_1rm > 0 and s["weight_kg"] > 0 and s["reps"] > 0:
-                bal_vol = round((s["weight_kg"] / peak_1rm) * s["reps"] * 100.0, 1)
-                bal_orm = round((s["estimated_1rm"] / peak_1rm) * 100.0, 1)
+            eq_weight = calc_balanced_weight(s["weight_kg"], s["reps"], m, bio, DEFAULT_BODYWEIGHT_KG)
+            if eq_weight > 0 and s["reps"] > 0:
+                bal_vol = round(eq_weight * s["reps"], 1)
+                bal_orm = calc_1rm(eq_weight, s["reps"])
             else:
                 bal_vol = 0.0
                 bal_orm = 0.0
 
+            s["balanced_weight"] = eq_weight
             s["balanced_volume"] = bal_vol
             s["balanced_1rm"] = bal_orm
 
             bal_total_vol += bal_vol
+            if eq_weight > bal_max_weight:
+                bal_max_weight = eq_weight
             bal_ex_volumes[ex] = round(bal_ex_volumes.get(ex, 0.0) + bal_vol, 1)
             bal_muscle_volumes[m] = round(bal_muscle_volumes.get(m, 0.0) + bal_vol, 1)
 
@@ -783,14 +947,21 @@ def load_and_parse_csv(filepath):
                 bal_ex_max_orm[ex] = bal_orm
             if bal_orm > bal_muscle_max_orm.get(m, 0.0):
                 bal_muscle_max_orm[m] = bal_orm
+            if eq_weight > bal_ex_max_weight.get(ex, 0.0):
+                bal_ex_max_weight[ex] = eq_weight
+            if eq_weight > bal_muscle_max_weight.get(m, 0.0):
+                bal_muscle_max_weight[m] = eq_weight
 
         sess["balanced_total_volume"] = round(bal_total_vol, 1)
+        sess["balanced_max_weight"] = round(bal_max_weight, 1)
         sess["balanced_exercise_volumes"] = bal_ex_volumes
         sess["balanced_muscle_volumes"] = bal_muscle_volumes
         sess["muscle_volumes_fractional"] = muscle_volumes_fractional
         sess["balanced_muscle_volumes_fractional"] = bal_muscle_volumes_fractional
         sess["balanced_exercise_max_orm"] = bal_ex_max_orm
         sess["balanced_muscle_max_orm"] = bal_muscle_max_orm
+        sess["balanced_exercise_max_weight"] = bal_ex_max_weight
+        sess["balanced_muscle_max_weight"] = bal_muscle_max_weight
         sess["balanced_sum_orm"] = round(sum(bal_ex_max_orm.values()), 1)
     
     file_stat = os.stat(filepath)
@@ -829,6 +1000,7 @@ class DashboardHandler(SimpleHTTPRequestHandler):
                 "exercises": CACHE["exercises"],
                 "exercise_muscle_map": CACHE["exercise_muscle_map"],
                 "exercise_secondary_map": CACHE["exercise_secondary_map"],
+                "exercise_balance_map": CACHE["exercise_balance_map"],
                 "muscle_groups": CACHE["muscle_groups"],
                 "routine_categories": CACHE["routine_categories"],
                 "min_date": CACHE["min_date"],

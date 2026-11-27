@@ -9,6 +9,11 @@ let muscleGroups = [];
 let routineCategories = [];
 let exerciseMuscleMap = {};
 let exerciseSecondaryMap = {};
+let defaultExerciseBalanceMap = {};
+let exerciseBalanceMap = {};
+let userBodyweightKg = 75;
+let userBalanceOverrides = {};
+const BALANCE_CONFIG_STORAGE_KEY = 'hevy_balance_config';
 
 let filteredSessions = [];
 let previousPeriodSessions = [];
@@ -25,7 +30,7 @@ let radarVolumeChartInstance = null;
 let currentSessionIndex = -1;
 let currentBreakdownView = 'muscle'; // 'muscle' | 'routine'
 let useFractionalSets = true; // Toggle for fractional series counting
-let statsMode = 'raw'; // 'raw' (kg brutos) | 'balanced' (normalizada pts)
+let statsMode = 'raw'; // 'raw' (kg brutos) | 'balanced' (kg equivalentes)
 let calendarMode = 'all'; // 'all' | 'split'
 
 const SPANISH_MONTH_NAMES = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
@@ -194,9 +199,69 @@ function setupEventListeners() {
     statsMode = 'balanced';
     btnBalanced.className = "active px-3 py-1 rounded-lg bg-cyan-600 text-white font-bold transition-all shadow-sm";
     btnRaw.className = "px-3 py-1 rounded-lg text-slate-400 hover:text-white font-medium transition-colors";
-    modeHint.innerHTML = 'Esfuerzo normalizado según tu 1RM en cada ejercicio (<code class="text-cyan-300">(peso / 1RM máx) × reps × 100 pts</code>): Prensa, Sentadilla y Banca pesan igual.';
+    modeHint.innerHTML = 'Convirtiendo cargas a <strong>kg equivalentes reales</strong> (<code class="text-cyan-300">(peso + %PC × PC) × lados × factor mec.</code>).';
     updateUI();
   });
+
+  // Balance Calibration Modal
+  const balanceModal = document.getElementById('balanceConfigModal');
+  const btnOpenBalance = document.getElementById('btnOpenBalanceModal');
+  const btnCloseBalance = document.getElementById('btnCloseBalanceModal');
+  const btnDoneBalance = document.getElementById('btnDoneBalanceModal');
+  const btnResetBalance = document.getElementById('btnResetBalanceConfig');
+  const inputBw = document.getElementById('inputBodyweightKg');
+  const balanceSearch = document.getElementById('balanceSearchInput');
+  const balanceUsedOnly = document.getElementById('balanceFilterUsedOnly');
+
+  if (btnOpenBalance && balanceModal) {
+    btnOpenBalance.addEventListener('click', () => {
+      if (inputBw) inputBw.value = userBodyweightKg;
+      renderBalanceModal();
+      balanceModal.classList.remove('hidden');
+    });
+  }
+  const closeBalanceModal = () => {
+    if (balanceModal) balanceModal.classList.add('hidden');
+  };
+  if (btnCloseBalance) btnCloseBalance.addEventListener('click', closeBalanceModal);
+  if (btnDoneBalance) btnDoneBalance.addEventListener('click', closeBalanceModal);
+  if (balanceModal) {
+    balanceModal.addEventListener('click', (e) => {
+      if (e.target === balanceModal) closeBalanceModal();
+    });
+  }
+  if (balanceSearch) balanceSearch.addEventListener('input', () => renderBalanceModal());
+  if (balanceUsedOnly) balanceUsedOnly.addEventListener('change', () => renderBalanceModal());
+  if (inputBw) {
+    inputBw.addEventListener('change', () => {
+      const val = parseFloat(inputBw.value);
+      userBodyweightKg = (!Number.isNaN(val) && val >= 30 && val <= 250) ? val : 75;
+      inputBw.value = userBodyweightKg;
+      saveBalanceConfig();
+      recalculateBalancedMetrics();
+      renderBalanceModal();
+      updateUI();
+      if (currentSessionIndex >= 0 && filteredSessions[currentSessionIndex]) {
+        showSessionDetail(filteredSessions[currentSessionIndex], currentSessionIndex);
+      }
+    });
+  }
+  if (btnResetBalance) {
+    btnResetBalance.addEventListener('click', () => {
+      userBodyweightKg = 75;
+      userBalanceOverrides = {};
+      try { localStorage.removeItem(BALANCE_CONFIG_STORAGE_KEY); } catch (_) {}
+      if (inputBw) inputBw.value = userBodyweightKg;
+      mergeBalanceMap();
+      recalculateBalancedMetrics();
+      renderBalanceModal();
+      updateUI();
+      if (currentSessionIndex >= 0 && filteredSessions[currentSessionIndex]) {
+        showSessionDetail(filteredSessions[currentSessionIndex], currentSessionIndex);
+      }
+      showToast('Factores biomecánicos restaurados a los valores por defecto');
+    });
+  }
 
   // Breakdown Section Tabs (Muscle vs Routine)
   const tabMuscle = document.getElementById('tabBreakdownMuscle');
@@ -312,6 +377,12 @@ async function fetchData() {
     routineCategories = data.routine_categories || [];
     exerciseMuscleMap = data.exercise_muscle_map || {};
     exerciseSecondaryMap = data.exercise_secondary_map || {};
+    defaultExerciseBalanceMap = data.exercise_balance_map || {};
+    loadBalanceConfig();
+    mergeBalanceMap();
+    if (userBodyweightKg !== 75 || Object.keys(userBalanceOverrides).length > 0) {
+      recalculateBalancedMetrics();
+    }
 
     // Source status
     document.getElementById('sourceStatus').innerHTML = `
@@ -335,6 +406,7 @@ async function fetchData() {
     showToast('Fallo de conexión con el servidor local', true);
   }
 }
+
 
 async function handleFileUpload(e) {
   const file = e.target.files[0];
@@ -630,7 +702,7 @@ function getSessionMetricValueForMetric(s, metric, isBal) {
     if (metric === 'pr_count') return s.pr_count;
     if (metric === 'sum_orm') return (isBal ? s.balanced_sum_orm : s.sum_orm) || 0;
     if (metric === 'best_orm') return getSessionBestOrm(s, isBal);
-    if (metric === 'best_weight') return s.max_weight || 0;
+    if (metric === 'best_weight') return (isBal ? s.balanced_max_weight : s.max_weight) || 0;
   } else if (currentFilterType === 'muscle') {
     if (metric === 'volume') {
       const mMap = isBal
@@ -651,7 +723,8 @@ function getSessionMetricValueForMetric(s, metric, isBal) {
       return (oMap && oMap[currentFilterValue]) || 0;
     }
     if (metric === 'best_weight') {
-      return (s.muscle_max_weight && s.muscle_max_weight[currentFilterValue]) || 0;
+      const wMap = isBal ? s.balanced_muscle_max_weight : s.muscle_max_weight;
+      return (wMap && wMap[currentFilterValue]) || 0;
     }
   } else if (currentFilterType === 'exercise') {
     if (metric === 'volume') {
@@ -671,7 +744,8 @@ function getSessionMetricValueForMetric(s, metric, isBal) {
       return (oMap && oMap[currentFilterValue]) || 0;
     }
     if (metric === 'best_weight') {
-      return (s.exercise_max_weight && s.exercise_max_weight[currentFilterValue]) || 0;
+      const wMap = isBal ? s.balanced_exercise_max_weight : s.exercise_max_weight;
+      return (wMap && wMap[currentFilterValue]) || 0;
     }
   }
   return 0;
@@ -701,12 +775,12 @@ function computePeriodMetrics(sessions) {
 
 function updateKPIs() {
   const isBal = statsMode === 'balanced';
-  const volUnit = isBal ? ' pts' : ' kg';
+  const volUnit = isBal ? ' kg eq.' : ' kg';
 
   const curr = computePeriodMetrics(filteredSessions);
   const prev = computePeriodMetrics(previousPeriodSessions);
   const isBestOrm = curr.kpiOrmMetric === 'best_orm';
-  const ormUnit = isBal ? (isBestOrm ? '%' : ' pts') : ' kg';
+  const ormUnit = isBal ? ' kg eq.' : ' kg';
 
   document.getElementById('kpiSessions').textContent = curr.totalCount;
   let subLabel = 'sesiones en el período';
@@ -724,8 +798,10 @@ function updateKPIs() {
 
   document.getElementById('kpiTopRM').textContent = `${curr.max1RM.toFixed(1)}${ormUnit}`;
   document.getElementById('kpiTopRMSub').textContent = isBestOrm
-    ? (isBal ? 'Índice de fuerza relativa (Mejor 1RM)' : 'Mejor 1RM en el filtro')
-    : (isBal ? 'Suma máx. fuerza relativa' : (currentFilterType === 'exercise' && currentFilterValue !== 'ALL' ? 'Suma máx. de 1RM (series)' : 'Suma máx. de 1RM en sesión'));
+    ? (isBal ? 'Mejor 1RM equiv. en el filtro' : 'Mejor 1RM en el filtro')
+    : (isBal
+      ? (currentFilterType === 'exercise' && currentFilterValue !== 'ALL' ? 'Suma máx. de 1RM eq. (series)' : 'Suma máx. de 1RM eq. en sesión')
+      : (currentFilterType === 'exercise' && currentFilterValue !== 'ALL' ? 'Suma máx. de 1RM (series)' : 'Suma máx. de 1RM en sesión'));
 
   document.getElementById('kpiSessionsDiff').innerHTML = renderDiffBadge(curr.totalCount, prev.totalCount, true);
   document.getElementById('kpiVolumeDiff').innerHTML = renderDiffBadge(curr.totalVol, prev.totalVol, false, volUnit);
@@ -736,7 +812,7 @@ function updateKPIs() {
 function updateChartTitles() {
   const titleEl = document.getElementById('chartTitle');
   const isBal = statsMode === 'balanced';
-  const unit = isBal ? 'pts' : 'kg';
+  const unit = isBal ? 'kg eq.' : 'kg';
   const fracBadge = (currentFilterType === 'muscle' && currentFilterValue !== 'ALL')
     ? (useFractionalSets ? ' (Fraccionario 0.5x)' : ' (Directo 1.0x)')
     : '';
@@ -746,20 +822,20 @@ function updateChartTitles() {
   else if (currentFilterType === 'exercise' && currentFilterValue !== 'ALL') filterLabel = `en ${currentFilterValue}`;
 
   if (activeMetric === 'volume') {
-    titleEl.innerHTML = `<i class="fa-solid fa-dumbbell text-brand-400 mr-1.5"></i> ${isBal ? 'Esfuerzo Equilibrado' : 'Volumen Total'} ${filterLabel} (${unit})`;
+    titleEl.innerHTML = `<i class="fa-solid fa-dumbbell text-brand-400 mr-1.5"></i> ${isBal ? 'Volumen Equivalente' : 'Volumen Total'} ${filterLabel} (${unit})`;
   } else if (activeMetric === 'sets') {
     titleEl.innerHTML = `<i class="fa-solid fa-layer-group text-cyan-400 mr-1.5"></i> Series Realizadas ${filterLabel}`;
   } else if (activeMetric === 'pr_count') {
     titleEl.innerHTML = `<i class="fa-solid fa-trophy text-amber-400 mr-1.5"></i> RMs / PRs Conseguidos ${filterLabel}`;
   } else if (activeMetric === 'sum_orm') {
-    const ormLabel = isBal ? 'Índice de Fuerza (pts)' : '1RM Estimado (kg)';
+    const ormLabel = isBal ? '1RM Equiv. (kg eq.)' : '1RM Estimado (kg)';
     const seriesHint = (currentFilterType === 'exercise' && currentFilterValue !== 'ALL') ? ' (series)' : '';
     titleEl.innerHTML = `<i class="fa-solid fa-bolt text-purple-400 mr-1.5"></i> Suma de ${ormLabel}${seriesHint} ${filterLabel}`;
   } else if (activeMetric === 'best_orm') {
-    const ormLabel = isBal ? 'Índice de Fuerza (%)' : '1RM Estimado (kg)';
+    const ormLabel = isBal ? '1RM Equiv. (kg eq.)' : '1RM Estimado (kg)';
     titleEl.innerHTML = `<i class="fa-solid fa-crown text-violet-400 mr-1.5"></i> Serie con Mejor ${ormLabel} ${filterLabel}`;
   } else if (activeMetric === 'best_weight') {
-    titleEl.innerHTML = `<i class="fa-solid fa-weight-hanging text-rose-400 mr-1.5"></i> Serie con Mejor Peso ${filterLabel} (kg)`;
+    titleEl.innerHTML = `<i class="fa-solid fa-weight-hanging text-rose-400 mr-1.5"></i> Serie con Mejor Peso ${isBal ? 'Equiv. ' : ''}${filterLabel} (${unit})`;
   }
 }
 
@@ -838,10 +914,10 @@ function renderChart() {
   });
 
   const isBal = statsMode === 'balanced';
-  let metricUnit = ' kg';
-  let datasetLabel = isBal ? 'Esfuerzo (pts)' : 'Volumen (kg)';
+  let metricUnit = isBal ? ' kg eq.' : ' kg';
+  let datasetLabel = isBal ? 'Volumen Eq. (kg eq.)' : 'Volumen (kg)';
   if (activeMetric === 'volume') {
-    metricUnit = isBal ? ' pts' : ' kg';
+    metricUnit = isBal ? ' kg eq.' : ' kg';
   } else if (activeMetric === 'sets') {
     metricUnit = ' series';
     datasetLabel = 'Series';
@@ -849,14 +925,14 @@ function renderChart() {
     metricUnit = ' RMs';
     datasetLabel = 'RMs Conseguidos';
   } else if (activeMetric === 'sum_orm') {
-    metricUnit = isBal ? ' pts' : ' kg';
-    datasetLabel = isBal ? 'Suma Fuerza Rel. (pts)' : 'Suma de 1RM (kg)';
+    metricUnit = isBal ? ' kg eq.' : ' kg';
+    datasetLabel = isBal ? 'Suma de 1RM Eq. (kg eq.)' : 'Suma de 1RM (kg)';
   } else if (activeMetric === 'best_orm') {
-    metricUnit = isBal ? '%' : ' kg';
-    datasetLabel = isBal ? 'Mejor Fuerza Rel. (%)' : 'Mejor 1RM (kg)';
+    metricUnit = isBal ? ' kg eq.' : ' kg';
+    datasetLabel = isBal ? 'Mejor 1RM Eq. (kg eq.)' : 'Mejor 1RM (kg)';
   } else if (activeMetric === 'best_weight') {
-    metricUnit = ' kg';
-    datasetLabel = 'Mejor Peso (kg)';
+    metricUnit = isBal ? ' kg eq.' : ' kg';
+    datasetLabel = isBal ? 'Mejor Peso Eq. (kg eq.)' : 'Mejor Peso (kg)';
   }
 
   chartInstance = new Chart(ctx, {
@@ -984,7 +1060,7 @@ function highlightSelectedPoint() {
 function renderBreakdownSection() {
   const isMuscle = currentBreakdownView === 'muscle';
   const isBal = statsMode === 'balanced';
-  const volUnit = isBal ? 'pts' : 'kg';
+  const volUnit = isBal ? 'kg eq.' : 'kg';
   const categories = isMuscle ? muscleGroups : routineCategories;
   const colorMap = isMuscle ? MUSCLE_COLORS : ROUTINE_COLORS;
 
@@ -1093,7 +1169,7 @@ function renderBreakdownSection() {
   const subTitleEl = document.getElementById('breakdownBarSubtitle');
   if (subTitleEl) {
     const fracStr = isMuscle && useFractionalSets ? 'Series Fraccionarias' : 'Series Directas';
-    const modeStr = isBal ? 'Equilibrada (pts)' : 'Bruto (kg)';
+    const modeStr = isBal ? 'Equilibrada (kg eq.)' : 'Bruto (kg)';
     subTitleEl.textContent = `(${fracStr} • ${modeStr})`;
   }
 
@@ -1198,7 +1274,7 @@ function renderBarChart(sortedStats, colorMap, volUnit = 'kg') {
           borderWidth: 1,
           padding: 10,
           callbacks: {
-            label: (item) => ` ${volUnit === 'pts' ? 'Esfuerzo' : 'Volumen'}: ${Math.round(item.raw).toLocaleString('es-ES')} ${volUnit}`
+            label: (item) => ` ${volUnit === 'kg eq.' ? 'Volumen Eq.' : 'Volumen'}: ${Math.round(item.raw).toLocaleString('es-ES')} ${volUnit}`
           }
         }
       },
@@ -1387,11 +1463,16 @@ function showSessionDetail(s, index) {
   }
 
   // Stats row
+  const isBal = statsMode === 'balanced';
+  const unit = isBal ? 'kg eq.' : 'kg';
+  const sessVol = isBal ? (s.balanced_total_volume || 0) : (s.total_volume || 0);
+  const sessSumOrm = isBal ? (s.balanced_sum_orm || 0) : (s.sum_orm || 0);
+
   document.getElementById('detailStatsRow').classList.remove('hidden');
-  document.getElementById('detailVol').textContent = `${s.total_volume.toLocaleString('es-ES')} kg`;
+  document.getElementById('detailVol').textContent = `${Math.round(sessVol).toLocaleString('es-ES')} ${unit}`;
   document.getElementById('detailDuration').textContent = s.duration_min > 0 ? `${s.duration_min} min` : 'N/D';
   document.getElementById('detailSetsReps').textContent = `${s.total_sets} series / ${s.total_reps} reps`;
-  document.getElementById('detailSumORM').textContent = `${s.sum_orm.toFixed(1)} kg`;
+  document.getElementById('detailSumORM').textContent = `${sessSumOrm.toFixed(1)} ${unit}`;
 
   // Exercises List
   const container = document.getElementById('detailExercisesList');
@@ -1407,9 +1488,15 @@ function showSessionDetail(s, index) {
 
   exerciseNames.forEach((exName, exIdx) => {
     const sets = grouped[exName];
-    const exVol = (s.exercise_volumes && s.exercise_volumes[exName]) || 0;
-    const exORM = (s.exercise_max_orm && s.exercise_max_orm[exName]) || 0;
-    const exMaxW = (s.exercise_max_weight && s.exercise_max_weight[exName]) || 0;
+    const exVol = isBal
+      ? ((s.balanced_exercise_volumes && s.balanced_exercise_volumes[exName]) || 0)
+      : ((s.exercise_volumes && s.exercise_volumes[exName]) || 0);
+    const exORM = isBal
+      ? ((s.balanced_exercise_max_orm && s.balanced_exercise_max_orm[exName]) || 0)
+      : ((s.exercise_max_orm && s.exercise_max_orm[exName]) || 0);
+    const exMaxW = isBal
+      ? ((s.balanced_exercise_max_weight && s.balanced_exercise_max_weight[exName]) || 0)
+      : ((s.exercise_max_weight && s.exercise_max_weight[exName]) || 0);
     const muscle = exerciseMuscleMap[exName] || 'Otro';
     const mColor = MUSCLE_COLORS[muscle] || { text: 'text-slate-400', light: 'rgba(100, 116, 139, 0.15)' };
     const secondaries = exerciseSecondaryMap[exName] || [];
@@ -1431,6 +1518,11 @@ function showSessionDetail(s, index) {
         prBadgeHtml = `<span class="badge-pr text-[10px] font-bold px-2 py-0.5 rounded-full ml-2 inline-flex items-center gap-1 shadow-sm"><i class="fa-solid fa-trophy"></i> PR</span>`;
       }
 
+      const dispW = isBal ? (st.balanced_weight || 0) : st.weight_kg;
+      const dispOrm = isBal ? (st.balanced_1rm || 0) : st.estimated_1rm;
+      const dispVol = isBal ? (st.balanced_volume || 0) : st.volume_kg;
+      const rawNoteHtml = isBal ? ` <span class="text-[10px] text-slate-500 font-normal">(${st.weight_kg} kg)</span>` : '';
+
       return `
         <tr class="border-b border-dark-800/50 hover:bg-dark-900/60 transition-colors text-xs">
           <td class="py-2.5 px-3 text-slate-400 font-mono font-medium">${i + 1}</td>
@@ -1438,10 +1530,10 @@ function showSessionDetail(s, index) {
             <span class="${badgeClass} px-2 py-0.5 rounded-md text-[10px] font-semibold uppercase tracking-wider">${typeLabel}</span>
             ${prBadgeHtml}
           </td>
-          <td class="py-2.5 px-3 font-bold text-white">${st.weight_kg} <span class="text-slate-400 font-normal">kg</span></td>
+          <td class="py-2.5 px-3 font-bold text-white">${dispW} <span class="${isBal ? 'text-cyan-400' : 'text-slate-400'} font-normal">${unit}</span>${rawNoteHtml}</td>
           <td class="py-2.5 px-3 font-bold text-slate-200">${st.reps} <span class="text-slate-400 font-normal">reps</span></td>
-          <td class="py-2.5 px-3 font-semibold text-purple-300">${st.estimated_1rm > 0 ? st.estimated_1rm + ' kg' : '-'}</td>
-          <td class="py-2.5 px-3 text-emerald-400 font-medium">${st.volume_kg.toLocaleString('es-ES')} kg</td>
+          <td class="py-2.5 px-3 font-semibold text-purple-300">${dispOrm > 0 ? dispOrm + ' ' + unit : '-'}</td>
+          <td class="py-2.5 px-3 text-emerald-400 font-medium">${Math.round(dispVol).toLocaleString('es-ES')} ${unit}</td>
           <td class="py-2.5 px-3 text-slate-400 text-[11px] italic">${st.rpe ? `RPE ${st.rpe} ` : ''}${st.exercise_notes ? `"${st.exercise_notes}"` : '-'}</td>
         </tr>
       `;
@@ -1465,9 +1557,9 @@ function showSessionDetail(s, index) {
           ${prInfo ? `<span class="badge-pr text-xs font-bold px-2.5 py-0.5 rounded-full inline-flex items-center gap-1"><i class="fa-solid fa-trophy"></i> ¡Nuevo RM: ${prInfo.new_orm} kg! (previo: ${prInfo.prev_best} kg)</span>` : ''}
         </div>
         <div class="flex items-center gap-3 text-xs text-slate-400">
-          <span>Volumen: <strong class="text-emerald-400">${exVol.toLocaleString('es-ES')} kg</strong></span>
-          <span>Mejor Peso: <strong class="text-rose-400">${exMaxW} kg</strong></span>
-          <span>Mejor 1RM: <strong class="text-purple-400">${exORM} kg</strong></span>
+          <span>Volumen: <strong class="text-emerald-400">${Math.round(exVol).toLocaleString('es-ES')} ${unit}</strong></span>
+          <span>Mejor Peso: <strong class="text-rose-400">${exMaxW} ${unit}</strong></span>
+          <span>Mejor 1RM: <strong class="text-purple-400">${exORM} ${unit}</strong></span>
         </div>
       </div>
       <div class="overflow-x-auto">
@@ -1567,23 +1659,25 @@ function renderMuscleRadarCharts() {
     return null;
   };
 
+  const isBal = statsMode === 'balanced';
   const aggregateRadar = (sessions) => {
     const reps = Object.fromEntries(axes.map(a => [a, 0]));
     const vol = Object.fromEntries(axes.map(a => [a, 0]));
     sessions.forEach(s => {
       (s.sets || []).forEach(st => {
         if (st.set_type === 'warmup') return;
+        const stVol = (isBal ? st.balanced_volume : st.volume_kg) || 0;
         const primaryAxis = mapMuscleToAxis(st.muscle_group);
         if (primaryAxis) {
           reps[primaryAxis] += st.reps || 0;
-          vol[primaryAxis] += st.volume_kg || 0;
+          vol[primaryAxis] += stVol;
         }
         if (useFractionalSets && st.secondary_muscles) {
           st.secondary_muscles.forEach(([mSec, w]) => {
             const secAxis = mapMuscleToAxis(mSec);
             if (secAxis) {
               reps[secAxis] += (st.reps || 0) * w;
-              vol[secAxis] += (st.volume_kg || 0) * w;
+              vol[secAxis] += stVol * w;
             }
           });
         }
@@ -1659,7 +1753,7 @@ function renderMuscleRadarCharts() {
   });
 
   radarRepsChartInstance = new Chart(repsCanvas.getContext('2d'), buildRadarConfig(currData.reps, prevData.reps, 'reps'));
-  radarVolumeChartInstance = new Chart(volCanvas.getContext('2d'), buildRadarConfig(currData.vol, prevData.vol, 'kg'));
+  radarVolumeChartInstance = new Chart(volCanvas.getContext('2d'), buildRadarConfig(currData.vol, prevData.vol, isBal ? 'kg eq.' : 'kg'));
 }
 
 /**
@@ -1878,4 +1972,278 @@ function renderActivityCalendar() {
       <span>MÁS</span>
     `;
   }
+}
+
+/* =========================================================
+ * Biomechanical kg-equivalent Calibration & Recalculation
+ * ========================================================= */
+
+function loadBalanceConfig() {
+  userBodyweightKg = 75;
+  userBalanceOverrides = {};
+  try {
+    const raw = localStorage.getItem(BALANCE_CONFIG_STORAGE_KEY);
+    if (!raw) return;
+    const parsed = JSON.parse(raw);
+    if (parsed && typeof parsed === 'object') {
+      const bw = parseFloat(parsed.bodyweight_kg);
+      if (!Number.isNaN(bw) && bw >= 30 && bw <= 250) userBodyweightKg = bw;
+      if (parsed.overrides && typeof parsed.overrides === 'object') {
+        userBalanceOverrides = parsed.overrides;
+      }
+    }
+  } catch (_) {}
+}
+
+function saveBalanceConfig() {
+  try {
+    localStorage.setItem(BALANCE_CONFIG_STORAGE_KEY, JSON.stringify({
+      bodyweight_kg: userBodyweightKg,
+      overrides: userBalanceOverrides
+    }));
+  } catch (_) {}
+}
+
+function mergeBalanceMap() {
+  exerciseBalanceMap = {};
+  const allKeys = new Set([
+    ...Object.keys(defaultExerciseBalanceMap || {}),
+    ...Object.keys(userBalanceOverrides || {})
+  ]);
+  allKeys.forEach(ex => {
+    const def = defaultExerciseBalanceMap[ex] || { bw_ratio: 0, bilateral: 1, mech_factor: 1, is_assisted: false, profile: 'Estándar' };
+    const ov = userBalanceOverrides[ex];
+    if (ov) {
+      exerciseBalanceMap[ex] = {
+        bw_ratio: Number(ov.bw_ratio ?? def.bw_ratio) || 0,
+        bilateral: Number(ov.bilateral ?? def.bilateral) || 1,
+        mech_factor: Number(ov.mech_factor ?? def.mech_factor) || 1,
+        is_assisted: Boolean(ov.is_assisted ?? def.is_assisted),
+        profile: 'Personalizado'
+      };
+    } else {
+      exerciseBalanceMap[ex] = { ...def };
+    }
+  });
+}
+
+function calc1rmLocal(weight, reps) {
+  if (weight <= 0 || reps <= 0) return 0;
+  if (reps === 1) return roundOneDecimal(weight);
+  return roundOneDecimal(weight * (1 + reps / 30));
+}
+
+function calcBalancedWeightLocal(weightKg, reps, muscleGroup, bio, bwKg) {
+  if (window.HevyCore && typeof window.HevyCore.calcBalancedWeight === 'function') {
+    return window.HevyCore.calcBalancedWeight(weightKg, reps, muscleGroup, bio, bwKg);
+  }
+  if (reps <= 0 || muscleGroup === 'Cardio / Otro') return 0;
+  const bwRatio = Number(bio && bio.bw_ratio) || 0;
+  const bilateral = Number(bio && bio.bilateral) || 1;
+  const mech = Number(bio && bio.mech_factor) || 1;
+  const isAssisted = Boolean(bio && bio.is_assisted);
+  let base = 0;
+  if (isAssisted) {
+    base = Math.max(0, (bwRatio * bwKg) - weightKg);
+  } else if (bwRatio === 0 && weightKg <= 0) {
+    return 0;
+  } else {
+    base = weightKg + (bwRatio * bwKg);
+  }
+  return roundOneDecimal(base * bilateral * mech);
+}
+
+function recalculateBalancedMetrics() {
+  allSessions.forEach(sess => {
+    let balTotal = 0;
+    let balMaxWeight = 0;
+    const balExVol = {};
+    const balMVol = {};
+    const balMVolFrac = {};
+    const balExOrm = {};
+    const balMOrm = {};
+    const balExWeight = {};
+    const balMWeight = {};
+
+    (sess.sets || []).forEach(s => {
+      const ex = s.exercise_title;
+      const m = s.muscle_group || 'Otro';
+      const bio = exerciseBalanceMap[ex] || defaultExerciseBalanceMap[ex] || { bw_ratio: 0, bilateral: 1, mech_factor: 1, is_assisted: false };
+      const eqWeight = calcBalancedWeightLocal(s.weight_kg || 0, s.reps || 0, m, bio, userBodyweightKg);
+      let balVol = 0;
+      let balOrm = 0;
+      if (eqWeight > 0 && s.reps > 0) {
+        balVol = roundOneDecimal(eqWeight * s.reps);
+        balOrm = calc1rmLocal(eqWeight, s.reps);
+      }
+      s.balanced_weight = eqWeight;
+      s.balanced_volume = balVol;
+      s.balanced_1rm = balOrm;
+
+      balTotal += balVol;
+      if (eqWeight > balMaxWeight) balMaxWeight = eqWeight;
+      balExVol[ex] = roundOneDecimal((balExVol[ex] || 0) + balVol);
+      balMVol[m] = roundOneDecimal((balMVol[m] || 0) + balVol);
+      balMVolFrac[m] = roundOneDecimal((balMVolFrac[m] || 0) + balVol);
+      (s.secondary_muscles || []).forEach(([ms, wt]) => {
+        balMVolFrac[ms] = roundOneDecimal((balMVolFrac[ms] || 0) + balVol * wt);
+      });
+      if (balOrm > (balExOrm[ex] || 0)) balExOrm[ex] = balOrm;
+      if (balOrm > (balMOrm[m] || 0)) balMOrm[m] = balOrm;
+      if (eqWeight > (balExWeight[ex] || 0)) balExWeight[ex] = eqWeight;
+      if (eqWeight > (balMWeight[m] || 0)) balMWeight[m] = eqWeight;
+    });
+
+    sess.balanced_total_volume = roundOneDecimal(balTotal);
+    sess.balanced_max_weight = roundOneDecimal(balMaxWeight);
+    sess.balanced_exercise_volumes = balExVol;
+    sess.balanced_muscle_volumes = balMVol;
+    sess.balanced_muscle_volumes_fractional = balMVolFrac;
+    sess.balanced_exercise_max_orm = balExOrm;
+    sess.balanced_muscle_max_orm = balMOrm;
+    sess.balanced_exercise_max_weight = balExWeight;
+    sess.balanced_muscle_max_weight = balMWeight;
+    sess.balanced_sum_orm = roundOneDecimal(Object.values(balExOrm).reduce((a, b) => a + b, 0));
+  });
+}
+
+function getLatestExerciseSample() {
+  const sample = {};
+  for (let i = allSessions.length - 1; i >= 0; i--) {
+    const sets = allSessions[i].sets || [];
+    for (let j = sets.length - 1; j >= 0; j--) {
+      const st = sets[j];
+      if (!sample[st.exercise_title] && st.reps > 0) {
+        sample[st.exercise_title] = { weight_kg: st.weight_kg || 0, reps: st.reps, muscle: st.muscle_group || 'Otro' };
+      }
+    }
+  }
+  return sample;
+}
+
+function renderBalanceModal() {
+  const tbody = document.getElementById('balanceModalTableBody');
+  if (!tbody) return;
+
+  const searchQ = (document.getElementById('balanceSearchInput')?.value || '').trim().toLowerCase();
+  const usedOnly = Boolean(document.getElementById('balanceFilterUsedOnly')?.checked);
+  const usedSet = new Set(allExercises);
+  const sampleMap = getLatestExerciseSample();
+
+  let keys = Object.keys(exerciseBalanceMap);
+  if (usedOnly && usedSet.size > 0) {
+    keys = keys.filter(k => usedSet.has(k));
+  }
+  if (searchQ) {
+    keys = keys.filter(k => {
+      const prof = (exerciseBalanceMap[k]?.profile || '').toLowerCase();
+      return k.toLowerCase().includes(searchQ) || prof.includes(searchQ);
+    });
+  }
+
+  keys.sort((a, b) => {
+    const aUsed = usedSet.has(a) ? 0 : 1;
+    const bUsed = usedSet.has(b) ? 0 : 1;
+    if (aUsed !== bUsed) return aUsed - bUsed;
+    return a.localeCompare(b);
+  });
+
+  if (keys.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="7" class="py-8 text-center text-slate-500">No hay ejercicios que coincidan con el filtro.</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = '';
+  keys.forEach(ex => {
+    const bio = exerciseBalanceMap[ex];
+    const isCustom = Boolean(userBalanceOverrides[ex]);
+    const samp = sampleMap[ex] || { weight_kg: 50, reps: 10, muscle: exerciseMuscleMap[ex] || 'Otro' };
+    const eqW = calcBalancedWeightLocal(samp.weight_kg, samp.reps, samp.muscle, bio, userBodyweightKg);
+    const muscle = exerciseMuscleMap[ex] || 'Otro';
+
+    const tr = document.createElement('tr');
+    tr.className = 'hover:bg-dark-800/40 transition-colors';
+
+    const tdName = document.createElement('td');
+    tdName.className = 'py-2.5 px-4';
+    tdName.innerHTML = `
+      <div class="font-semibold text-white">${ex}</div>
+      <div class="text-[10px] text-slate-500">${muscle}</div>
+    `;
+
+    const tdProf = document.createElement('td');
+    tdProf.className = 'py-2.5 px-3';
+    tdProf.innerHTML = `<span class="px-2 py-0.5 rounded-md text-[10px] font-medium ${isCustom ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30' : 'bg-dark-800 text-slate-300'}">${bio.profile || 'Estándar'}</span>`;
+
+    const makeNumInput = (field, val, step, min, max) => {
+      const td = document.createElement('td');
+      td.className = 'py-2 px-3 text-center';
+      const inp = document.createElement('input');
+      inp.type = 'number';
+      inp.step = String(step);
+      inp.min = String(min);
+      inp.max = String(max);
+      inp.value = val;
+      inp.className = 'w-16 bg-dark-950 border border-dark-700 rounded px-2 py-1 text-center text-white font-mono focus:outline-none focus:border-cyan-500';
+      inp.addEventListener('change', () => {
+        const parsed = parseFloat(inp.value);
+        const def = defaultExerciseBalanceMap[ex] || bio;
+        const cur = userBalanceOverrides[ex] || { ...def };
+        cur[field] = Number.isNaN(parsed) ? def[field] : parsed;
+        userBalanceOverrides[ex] = cur;
+        saveBalanceConfig();
+        mergeBalanceMap();
+        recalculateBalancedMetrics();
+        updateExample();
+        tdProf.innerHTML = `<span class="px-2 py-0.5 rounded-md text-[10px] font-medium bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">Personalizado</span>`;
+        updateUI();
+        if (currentSessionIndex >= 0 && filteredSessions[currentSessionIndex]) {
+          showSessionDetail(filteredSessions[currentSessionIndex], currentSessionIndex);
+        }
+      });
+      td.appendChild(inp);
+      return td;
+    };
+
+    const tdAssisted = document.createElement('td');
+    tdAssisted.className = 'py-2 px-3 text-center';
+    const chk = document.createElement('input');
+    chk.type = 'checkbox';
+    chk.checked = Boolean(bio.is_assisted);
+    chk.className = 'rounded border-dark-700 bg-dark-950 text-cyan-500 focus:ring-0 cursor-pointer';
+    chk.addEventListener('change', () => {
+      const def = defaultExerciseBalanceMap[ex] || bio;
+      const cur = userBalanceOverrides[ex] || { ...def };
+      cur.is_assisted = chk.checked;
+      userBalanceOverrides[ex] = cur;
+      saveBalanceConfig();
+      mergeBalanceMap();
+      recalculateBalancedMetrics();
+      updateExample();
+      tdProf.innerHTML = `<span class="px-2 py-0.5 rounded-md text-[10px] font-medium bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">Personalizado</span>`;
+      updateUI();
+      if (currentSessionIndex >= 0 && filteredSessions[currentSessionIndex]) {
+        showSessionDetail(filteredSessions[currentSessionIndex], currentSessionIndex);
+      }
+    });
+    tdAssisted.appendChild(chk);
+
+    const tdExample = document.createElement('td');
+    tdExample.className = 'py-2.5 px-4 text-right font-mono whitespace-nowrap';
+    const updateExample = () => {
+      const updatedBio = exerciseBalanceMap[ex] || bio;
+      const updatedEq = calcBalancedWeightLocal(samp.weight_kg, samp.reps, samp.muscle, updatedBio, userBodyweightKg);
+      tdExample.innerHTML = `<span class="text-slate-400">${samp.weight_kg} kg</span> <span class="text-slate-600">&rarr;</span> <strong class="text-cyan-300">${updatedEq} kg eq.</strong>`;
+    };
+    tdExample.innerHTML = `<span class="text-slate-400">${samp.weight_kg} kg</span> <span class="text-slate-600">&rarr;</span> <strong class="text-cyan-300">${eqW} kg eq.</strong>`;
+
+    tr.appendChild(tdName);
+    tr.appendChild(tdProf);
+    tr.appendChild(makeNumInput('bw_ratio', bio.bw_ratio, 0.05, 0, 2));
+    tr.appendChild(makeNumInput('bilateral', bio.bilateral, 1, 1, 2));
+    tr.appendChild(makeNumInput('mech_factor', bio.mech_factor, 0.05, 0.1, 3));
+    tr.appendChild(tdAssisted);
+    tr.appendChild(tdExample);
+    tbody.appendChild(tr);
+  });
 }

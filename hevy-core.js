@@ -611,6 +611,163 @@
   const MONTHS = {"ene": 1, "feb": 2, "mar": 3, "abr": 4, "may": 5, "jun": 6, "jul": 7, "ago": 8, "sep": 9, "sept": 9, "oct": 10, "nov": 11, "dic": 12, "jan": 1, "apr": 4, "aug": 8, "dec": 12};
 
   const ORDERED_MUSCLE_GROUPS = ["Pierna", "Espalda", "Pecho", "Bíceps", "Hombro", "Tríceps", "Abdomen", "Cardio / Otro"];
+  const DEFAULT_BODYWEIGHT_KG = 75.0;
+
+  const EXERCISE_BIOMECHANICS_OVERRIDES = {
+    'Leg Press (Machine)': [0.0, 1, 0.50, false, 'Prensa 45°'],
+    'Leg Press Horizontal (Machine)': [0.0, 1, 0.90, false, 'Prensa Horiz.'],
+    'Single Leg Press (Machine)': [0.0, 2, 0.50, false, 'Prensa 1 Pierna'],
+    'Hack Squat (Machine)': [0.85, 1, 0.85, false, 'Hacka'],
+    'Pendulum Squat (Machine)': [0.75, 1, 0.85, false, 'Péndulo'],
+    'Belt Squat (Machine)': [0.65, 1, 0.90, false, 'Sentadilla Cinturón'],
+    'Squat (Barbell)': [0.75, 1, 1.00, false, 'Sentadilla Libre'],
+    'Front Squat': [0.75, 1, 1.00, false, 'Sentadilla Frontal'],
+    'Overhead Squat': [0.75, 1, 1.00, false, 'Sentadilla Overhead'],
+    'Box Squat (Barbell)': [0.75, 1, 1.00, false, 'Sentadilla Cajón'],
+    'Pause Squat (Barbell)': [0.75, 1, 1.00, false, 'Sentadilla Pausa'],
+    'Squat (Smith Machine)': [0.75, 1, 0.88, false, 'Multipower + PC'],
+    'Goblet Squat': [0.75, 1, 1.00, false, 'Peso Libre + PC'],
+    'Squat (Dumbbell)': [0.75, 2, 1.00, false, 'Mancuernas + PC'],
+    'Squat (Bodyweight)': [0.75, 1, 1.00, false, 'Peso Corporal'],
+    'Jump Squat': [0.75, 1, 1.00, false, 'Peso Corporal'],
+    'Leg Extension (Machine)': [0.0, 1, 0.75, false, 'Máquina Pierna'],
+    'Seated Leg Curl (Machine)': [0.0, 1, 0.75, false, 'Máquina Pierna'],
+    'Lying Leg Curl (Machine)': [0.0, 1, 0.75, false, 'Máquina Pierna'],
+    'Hip Thrust (Machine)': [0.0, 1, 0.75, false, 'Máquina Glúteo'],
+    'Hip Thrust (Barbell)': [0.0, 1, 0.85, false, 'Empuje Cadera'],
+    'Hip Adduction (Machine)': [0.0, 1, 0.45, false, 'Máquina Aductor'],
+    'Hip Abduction (Machine)': [0.0, 1, 0.45, false, 'Máquina Abductor'],
+    'Calf Extension (Machine)': [0.0, 1, 0.55, false, 'Prensa Gemelo'],
+    'Calf Press (Machine)': [0.0, 1, 0.55, false, 'Prensa Gemelo'],
+    'Standing Calf Raise (Smith)': [0.75, 1, 0.85, false, 'Multipower + PC'],
+    'Seated Calf Raise': [0.0, 1, 0.75, false, 'Máquina Gemelo'],
+
+    'Lateral Raise (Cable)': [0.0, 2, 0.50, false, 'Polea 2:1 Unil.'],
+    'Lateral Raise (Machine)': [0.0, 1, 0.40, false, 'Máquina Hombro'],
+    'Lateral Raise (Dumbbell)': [0.0, 2, 1.00, false, 'Mancuernas ×2'],
+    'Lateral Raise (Band)': [0.0, 2, 0.80, false, 'Banda Unil.'],
+    'Rear Delt Reverse Fly (Machine)': [0.0, 1, 0.55, false, 'Máquina Hombro'],
+    'Reverse Fly Single Arm (Cable)': [0.0, 2, 0.50, false, 'Polea 2:1 Unil.'],
+    'Face Pull': [0.0, 1, 0.50, false, 'Polea 2:1 Bilat.'],
+    'Seated Shoulder Press (Machine)': [0.0, 1, 0.80, false, 'Máquina Hombro'],
+
+    'Butterfly (Pec Deck)': [0.0, 1, 0.55, false, 'Máquina Pec Deck'],
+    'Chest Press (Machine)': [0.0, 1, 0.80, false, 'Máquina Palanca'],
+    'Incline Chest Press (Machine)': [0.0, 1, 0.80, false, 'Máquina Palanca'],
+    'Iso-Lateral Chest Press (Machine)': [0.0, 1, 0.80, false, 'Máquina Palanca'],
+    'Cable Fly Crossovers': [0.0, 2, 0.50, false, 'Polea 2:1 Dual'],
+    'Low Cable Fly Crossovers': [0.0, 2, 0.50, false, 'Polea 2:1 Dual'],
+    'Seated Chest Flys (Cable)': [0.0, 2, 0.50, false, 'Polea 2:1 Dual'],
+    'Single Arm Cable Crossover': [0.0, 2, 0.50, false, 'Polea 2:1 Unil.'],
+    'Pullover (Dumbbell)': [0.0, 1, 1.00, false, 'Mancuerna Única'],
+    'Lat Pulldown (Cable)': [0.0, 1, 1.00, false, 'Polea 1:1 Bilat.'],
+    'Lat Pulldown - Close Grip (Cable)': [0.0, 1, 1.00, false, 'Polea 1:1 Bilat.'],
+    'Lat Pulldown (Machine)': [0.0, 1, 0.85, false, 'Máquina Palanca'],
+    'Seated Cable Row - Bar Grip': [0.0, 1, 1.00, false, 'Polea 1:1 Remo'],
+    'Seated Cable Row - Bar Wide Grip': [0.0, 1, 1.00, false, 'Polea 1:1 Remo'],
+    'Seated Cable Row - V Grip (Cable)': [0.0, 1, 1.00, false, 'Polea 1:1 Remo'],
+    'Seated Row (Machine)': [0.0, 1, 0.80, false, 'Máquina Palanca'],
+    'Iso-Lateral Row (Machine)': [0.0, 1, 0.70, false, 'Máquina Palanca'],
+    'Iso-Lateral High Row (Machine)': [0.0, 1, 0.70, false, 'Máquina Palanca'],
+    'Iso-Lateral Low Row': [0.0, 1, 0.70, false, 'Máquina Palanca'],
+    'Single Arm Cable Row': [0.0, 2, 0.50, false, 'Polea 2:1 Unil.'],
+    'Rope Straight Arm Pulldown': [0.0, 1, 0.50, false, 'Polea 2:1 Bilat.'],
+    'Straight Arm Lat Pulldown (Cable)': [0.0, 2, 0.50, false, 'Polea 2:1 Unil.'],
+    'Preacher Curl (Machine)': [0.0, 1, 0.70, false, 'Máquina Bíceps'],
+    'Bayesian': [0.0, 2, 0.50, false, 'Polea 2:1 Unil.'],
+    'Curl Martillo Cable Unilateral': [0.0, 2, 0.50, false, 'Polea 2:1 Unil.'],
+    'Bicep Curl (Cable)': [0.0, 1, 0.50, false, 'Polea 2:1 Bilat.'],
+    'Hammer Curl (Cable)': [0.0, 1, 0.50, false, 'Polea 2:1 Bilat.'],
+    'Triceps Extension (Cable)': [0.0, 1, 0.50, false, 'Polea 2:1 Bilat.'],
+    'Overhead Triceps Extension (Cable)': [0.0, 1, 0.50, false, 'Polea 2:1 Bilat.'],
+    'Triceps Pushdown': [0.0, 1, 0.50, false, 'Polea 2:1 Bilat.'],
+    'Triceps Pressdown': [0.0, 1, 0.50, false, 'Polea 2:1 Bilat.'],
+    'Triceps Rope Pushdown': [0.0, 1, 0.50, false, 'Polea 2:1 Bilat.'],
+    'Single Arm Triceps Pushdown (Cable)': [0.0, 2, 0.50, false, 'Polea 2:1 Unil.'],
+    'Triceps Kickback (Cable)': [0.0, 2, 0.50, false, 'Polea 2:1 Unil.'],
+    'Tríceps Bastardo': [0.0, 2, 0.50, false, 'Polea 2:1 Unil.'],
+    'Tríceps Bastardo Alto Barra': [0.0, 2, 0.50, false, 'Polea 2:1 Unil.'],
+    'Tríceps Lonamico': [0.0, 2, 0.50, false, 'Polea 2:1 Unil.'],
+    'Tríceps En Abdominales': [0.0, 1, 0.50, false, 'Polea 2:1 Bilat.'],
+    'Triceps Extension (Machine)': [0.0, 1, 0.75, false, 'Máquina Tríceps'],
+    'Behind the Back Wrist Curl (Barbell)': [0.0, 1, 1.00, false, 'Peso Libre'],
+
+    'Crunch (Machine)': [0.0, 1, 0.70, false, 'Máquina Abdomen'],
+    'Dragonfly': [0.65, 1, 1.00, false, 'Peso Corporal'],
+    'Decline Crunch': [0.40, 1, 1.00, false, 'Peso Corporal'],
+    'Decline Crunch (Weighted)': [0.40, 1, 1.00, false, 'PC + Lastre'],
+    'Crunch (Weighted)': [0.35, 1, 1.00, false, 'PC + Lastre'],
+  };
+
+  function inferBiomechanics(exerciseTitle) {
+    const ov = EXERCISE_BIOMECHANICS_OVERRIDES[exerciseTitle];
+    if (ov) return { bw_ratio: ov[0], bilateral: ov[1], mech_factor: ov[2], is_assisted: ov[3], profile: ov[4] };
+
+    const tl = exerciseTitle.toLowerCase();
+    const isUnil = ['single arm', 'one arm', 'single leg', 'unilateral', 'concentration curl'].some((k) => tl.includes(k));
+
+    if (tl.includes('(assisted)')) {
+      return { bw_ratio: 1.0, bilateral: 1, mech_factor: 1.0, is_assisted: true, profile: 'Asistida (PC - Asist.)' };
+    }
+    if (['pull up', 'chin up', 'chest dip', 'triceps dip', 'muscle up'].some((k) => tl.includes(k)) || tl === 'dips') {
+      return { bw_ratio: 1.0, bilateral: 1, mech_factor: 1.0, is_assisted: false, profile: 'Peso Corporal 100%' };
+    }
+    if (tl.includes('push up')) {
+      const bwR = tl.includes('incline') ? 0.45 : (tl.includes('decline') ? 0.75 : 0.65);
+      return { bw_ratio: bwR, bilateral: 1, mech_factor: 1.0, is_assisted: false, profile: 'Peso Corporal' };
+    }
+    if (['bulgarian', 'split squat', 'lunge', 'step up'].some((k) => tl.includes(k))) {
+      const bilat = (tl.includes('(dumbbell)') || tl.includes('(kettlebell)')) ? 2 : 1;
+      return { bw_ratio: 0.70, bilateral: bilat, mech_factor: 1.0, is_assisted: false, profile: 'Unil. + Peso Corp.' };
+    }
+    if (tl.includes('squat') && tl.includes('(machine)')) {
+      return { bw_ratio: 0.70, bilateral: 1, mech_factor: 0.85, is_assisted: false, profile: 'Máquina Sentadilla' };
+    }
+    if (tl.includes('(smith machine)')) {
+      const bwR = ['squat', 'lunge', 'calf'].some((k) => tl.includes(k)) ? 0.75 : 0.0;
+      return { bw_ratio: bwR, bilateral: 1, mech_factor: 0.85, is_assisted: false, profile: 'Multipower' };
+    }
+    if (tl.includes('(dumbbell)') || tl.includes('(kettlebell)')) {
+      const twoHandSingle = ['pullover', 'goblet', 'shrug'].some((k) => tl.includes(k));
+      return { bw_ratio: 0.0, bilateral: twoHandSingle ? 1 : 2, mech_factor: 1.0, is_assisted: false, profile: twoHandSingle ? 'Mancuerna ×1' : 'Mancuernas ×2' };
+    }
+    if (tl.includes('(cable)')) {
+      const bilat = (isUnil || tl.includes('crossover') || tl.includes('fly')) ? 2 : 1;
+      return { bw_ratio: 0.0, bilateral: bilat, mech_factor: 0.50, is_assisted: false, profile: 'Polea 2:1' };
+    }
+    if (tl.includes('(machine)')) {
+      return { bw_ratio: 0.0, bilateral: isUnil ? 2 : 1, mech_factor: 0.75, is_assisted: false, profile: 'Máquina Palanca' };
+    }
+    if (['crunch', 'leg raise', 'knee raise', 'sit up', 'plank', 'ab wheel', 'russian twist', 'v-up', 'side bend'].some((k) => tl.includes(k))) {
+      const bwR = (tl.includes('hanging') || tl.includes('leg raise')) ? 0.50 : 0.35;
+      return { bw_ratio: bwR, bilateral: 1, mech_factor: 1.0, is_assisted: false, profile: 'Abdomen PC' };
+    }
+    if (tl.includes('back extension') || tl.includes('hyperextension')) {
+      return { bw_ratio: 0.45, bilateral: 1, mech_factor: 1.0, is_assisted: false, profile: 'PC + Lastre' };
+    }
+    if (tl.includes('(barbell)') || tl.includes('(ez bar)') || tl.includes('(trap bar)')) {
+      return { bw_ratio: 0.0, bilateral: 1, mech_factor: 1.0, is_assisted: false, profile: 'Peso Libre Barra' };
+    }
+    return { bw_ratio: 0.0, bilateral: isUnil ? 2 : 1, mech_factor: 1.0, is_assisted: false, profile: 'Estándar' };
+  }
+
+  function calcBalancedWeight(weightKg, reps, muscleGroup, bio, bwKg = DEFAULT_BODYWEIGHT_KG) {
+    if (reps <= 0 || muscleGroup === 'Cardio / Otro') return 0;
+    const bwRatio = Number(bio && bio.bw_ratio) || 0;
+    const bilateral = Number(bio && bio.bilateral) || 1;
+    const mech = Number(bio && bio.mech_factor) || 1;
+    const isAssisted = Boolean(bio && bio.is_assisted);
+    let base = 0;
+    if (isAssisted) {
+      base = Math.max(0, (bwRatio * bwKg) - weightKg);
+    } else if (bwRatio === 0 && weightKg <= 0) {
+      return 0;
+    } else {
+      base = weightKg + (bwRatio * bwKg);
+    }
+    return round(base * bilateral * mech, 1);
+  }
+
   const ORDERED_ROUTINES = [
     'Push (Empuje)',
     'Pull (Tirón)',
@@ -889,23 +1046,32 @@
       });
     }
 
-    // Second pass: balanced metrics relative to all-time 1RM per exercise
+    const balanceMap = {};
+    for (const ex of new Set([...Object.keys(EXERCISE_MUSCLE_MAP), ...allExercises])) {
+      balanceMap[ex] = inferBiomechanics(ex);
+    }
+
+    // Second pass: biomechanically balanced metrics (equivalent kg)
     for (const sess of sessions) {
       let balTotal = 0;
-      const balExVol = {}, balMVol = {}, balMVolFrac = {}, mVolFrac = {}, balExOrm = {}, balMOrm = {};
+      let balMaxWeight = 0;
+      const balExVol = {}, balMVol = {}, balMVolFrac = {}, mVolFrac = {}, balExOrm = {}, balMOrm = {}, balExWeight = {}, balMWeight = {};
 
       for (const s of sess.sets) {
         const ex = s.exercise_title, m = s.muscle_group;
-        const peak = historyMax[ex] || 0;
+        const bio = balanceMap[ex] || inferBiomechanics(ex);
+        const eqWeight = calcBalancedWeight(s.weight_kg, s.reps, m, bio, DEFAULT_BODYWEIGHT_KG);
         let balVol = 0, balOrm = 0;
-        if (peak > 0 && s.weight_kg > 0 && s.reps > 0) {
-          balVol = round((s.weight_kg / peak) * s.reps * 100, 1);
-          balOrm = round((s.estimated_1rm / peak) * 100, 1);
+        if (eqWeight > 0 && s.reps > 0) {
+          balVol = round(eqWeight * s.reps, 1);
+          balOrm = calc1rm(eqWeight, s.reps);
         }
+        s.balanced_weight = eqWeight;
         s.balanced_volume = balVol;
         s.balanced_1rm = balOrm;
 
         balTotal += balVol;
+        if (eqWeight > balMaxWeight) balMaxWeight = eqWeight;
         add(balExVol, ex, balVol);
         add(balMVol, m, balVol);
         add(mVolFrac, m, s.volume_kg);
@@ -916,16 +1082,21 @@
         }
         if (balOrm > (balExOrm[ex] || 0)) balExOrm[ex] = balOrm;
         if (balOrm > (balMOrm[m] || 0)) balMOrm[m] = balOrm;
+        if (eqWeight > (balExWeight[ex] || 0)) balExWeight[ex] = eqWeight;
+        if (eqWeight > (balMWeight[m] || 0)) balMWeight[m] = eqWeight;
       }
 
       Object.assign(sess, {
         balanced_total_volume: round(balTotal, 1),
+        balanced_max_weight: round(balMaxWeight, 1),
         balanced_exercise_volumes: balExVol,
         balanced_muscle_volumes: balMVol,
         muscle_volumes_fractional: mVolFrac,
         balanced_muscle_volumes_fractional: balMVolFrac,
         balanced_exercise_max_orm: balExOrm,
         balanced_muscle_max_orm: balMOrm,
+        balanced_exercise_max_weight: balExWeight,
+        balanced_muscle_max_weight: balMWeight,
         balanced_sum_orm: round(Object.values(balExOrm).reduce((a, b) => a + b, 0), 1),
       });
     }
@@ -935,6 +1106,7 @@
       exercises: [...allExercises].sort(),
       exercise_muscle_map: EXERCISE_MUSCLE_MAP,
       exercise_secondary_map: EXERCISE_SECONDARY_MUSCLES,
+      exercise_balance_map: balanceMap,
       muscle_groups: ORDERED_MUSCLE_GROUPS,
       routine_categories: ORDERED_ROUTINES,
       min_date: sessions.length ? sessions[0].date_day : '',
@@ -943,5 +1115,5 @@
     };
   }
 
-  window.HevyCore = { parseCsv, EXERCISE_MUSCLE_MAP, EXERCISE_SECONDARY_MUSCLES, ORDERED_MUSCLE_GROUPS, ORDERED_ROUTINES };
+  window.HevyCore = { parseCsv, EXERCISE_MUSCLE_MAP, EXERCISE_SECONDARY_MUSCLES, ORDERED_MUSCLE_GROUPS, ORDERED_ROUTINES, DEFAULT_BODYWEIGHT_KG, inferBiomechanics, calcBalancedWeight, calc1rm };
 })();
