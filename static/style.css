@@ -1,4 +1,4 @@
-/* Hevy Analytics — Hevy Web Dark Theme (#000000 canvas + #121212 cards + #1b85f3 accent) */
+/* Hevy Analytics — Original Dark Telemetry Theme */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 :root {
@@ -7,8 +7,8 @@
 
 body {
   font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-  background-color: #000000;
-  color: #ffffff;
+  background-color: #0a0a0c;
+  color: #f4f4f5;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -26,35 +26,35 @@ body {
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #000000;
+  background: #0a0a0c;
 }
 ::-webkit-scrollbar-thumb {
-  background: #262626;
+  background: #26262c;
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #3a3a3a;
+  background: #3f3f46;
 }
 
 /* Sidebar nav item */
 .hevy-nav-item {
-  color: #e4e4e7;
+  color: #a1a1aa;
   transition: background-color 0.15s ease, color 0.15s ease;
 }
 .hevy-nav-item:hover {
-  background-color: #1c1c1e;
+  background-color: #1a1a1f;
   color: #ffffff;
 }
 .hevy-nav-item.active {
-  background-color: rgba(27, 133, 243, 0.14);
-  color: #1b85f3;
+  background-color: rgba(37, 99, 235, 0.15);
+  color: #60a5fa;
 }
 
 /* Set Type Badges */
 .badge-normal {
-  background-color: rgba(27, 133, 243, 0.14);
-  color: #60a5fa;
-  border: 1px solid rgba(27, 133, 243, 0.28);
+  background-color: rgba(59, 130, 246, 0.12);
+  color: #93c5fd;
+  border: 1px solid rgba(59, 130, 246, 0.25);
 }
 
 .badge-warmup {

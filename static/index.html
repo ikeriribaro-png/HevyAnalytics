@@ -14,17 +14,17 @@
           colors: {
             brand: {
               50: '#eff6ff',
-              400: '#3898ff',
-              500: '#1b85f3',
-              600: '#1b85f3',
-              700: '#1574d8',
+              400: '#60a5fa',
+              500: '#3b82f6',
+              600: '#2563eb',
+              700: '#1d4ed8',
             },
             dark: {
-              950: '#000000',
-              900: '#121212',
-              850: '#1a1a1a',
-              800: '#242424',
-              700: '#2e2e2e',
+              950: '#0a0a0c',
+              900: '#121215',
+              850: '#1a1a1f',
+              800: '#26262c',
+              700: '#32323a',
               600: '#3f3f46'
             },
             gold: {
@@ -43,20 +43,17 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link rel="stylesheet" href="/style.css">
 </head>
-<body class="bg-black text-white min-h-screen flex flex-col lg:flex-row font-sans antialiased selection:bg-[#1b85f3] selection:text-white">
+<body class="bg-dark-950 text-zinc-100 min-h-screen flex flex-col lg:flex-row font-sans antialiased selection:bg-brand-600 selection:text-white">
 
-  <!-- LEFT SIDEBAR (Desktop, Hevy Web style) -->
-  <aside class="hidden lg:flex flex-col w-60 shrink-0 bg-[#121212] border-r border-[#242424] sticky top-0 h-screen justify-between p-4 z-40">
+  <!-- LEFT SIDEBAR (Desktop) -->
+  <aside class="hidden lg:flex flex-col w-56 shrink-0 bg-dark-900 border-r border-dark-800 sticky top-0 h-screen justify-between p-4 z-40">
     <div class="flex flex-col gap-6">
       <!-- Brand -->
       <div class="flex items-center gap-2.5 px-2 pt-1">
-        <svg class="w-6 h-6 text-white shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M6.5 6.5v11M17.5 6.5v11M3 9v6M21 9v6M6.5 12h11"/>
-        </svg>
-        <div class="flex items-baseline gap-1.5">
-          <span class="text-lg font-bold tracking-wider text-white">HEVY</span>
-          <span class="text-[11px] font-medium text-[#8e8e93]">Analytics</span>
+        <div class="w-7 h-7 rounded-lg bg-brand-600/15 border border-brand-500/30 flex items-center justify-center text-brand-400 shrink-0">
+          <i class="fa-solid fa-chart-simple text-xs"></i>
         </div>
+        <span class="text-sm font-semibold tracking-tight text-white">Hevy Analytics</span>
       </div>
 
       <!-- Navigation -->
@@ -93,15 +90,15 @@
     </div>
 
     <!-- Sidebar Footer: Actions & Source Status -->
-    <div class="flex flex-col gap-2.5 pt-4 border-t border-[#242424]">
+    <div class="flex flex-col gap-2.5 pt-4 border-t border-[#26262c]">
 
-      <label class="w-full flex items-center justify-center gap-2 px-3 py-2 text-xs font-semibold rounded-lg bg-[#1b85f3] hover:bg-[#1574d8] text-white transition-colors cursor-pointer">
+      <label class="w-full flex items-center justify-center gap-2 px-3 py-2 text-xs font-semibold rounded-lg bg-brand-600 hover:bg-[#1d4ed8] text-white transition-colors cursor-pointer">
         <i class="fa-solid fa-arrow-up-from-bracket text-[11px]"></i>
         <span>Importar CSV</span>
         <input type="file" id="fileInput" accept=".csv" class="hidden">
       </label>
 
-      <p id="sourceStatus" class="text-[11px] text-[#8e8e93] flex items-center gap-1.5 px-1 pt-1 leading-tight">
+      <p id="sourceStatus" class="text-[11px] text-[#a1a1aa] flex items-center gap-1.5 px-1 pt-1 leading-tight">
         <span class="inline-block w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0"></span>
         Cargando datos...
       </p>
@@ -109,18 +106,15 @@
   </aside>
 
   <!-- MOBILE TOP BAR -->
-  <header class="lg:hidden border-b border-[#242424] bg-[#121212] sticky top-0 z-40 px-4 py-3 flex items-center justify-between gap-3">
+  <header class="lg:hidden border-b border-[#26262c] bg-[#121215] sticky top-0 z-40 px-4 py-3 flex items-center justify-between gap-3">
     <div class="flex items-center gap-2">
-      <svg class="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M6.5 6.5v11M17.5 6.5v11M3 9v6M21 9v6M6.5 12h11"/>
-      </svg>
-      <span class="text-base font-bold tracking-wider">HEVY</span>
+      <i class="fa-solid fa-chart-simple text-brand-400 text-sm"></i><span class="text-sm font-semibold">Hevy Analytics</span>
     </div>
     <div class="flex items-center gap-2">
-      <button type="button" onclick="document.getElementById('btnSyncDrive')?.click()" class="px-2.5 py-1.5 text-xs font-medium rounded-lg bg-[#1c1c1e] text-zinc-200 border border-[#2e2e2e]">
-        <i class="fa-solid fa-arrows-rotate text-[#1b85f3]"></i>
+      <button type="button" onclick="document.getElementById('btnSyncDrive')?.click()" class="px-2.5 py-1.5 text-xs font-medium rounded-lg bg-[#1a1a1f] text-zinc-200 border border-[#32323a]">
+        <i class="fa-solid fa-arrows-rotate text-[#2563eb]"></i>
       </button>
-      <label class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-[#1b85f3] text-white cursor-pointer">
+      <label class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-brand-600 text-white cursor-pointer">
         CSV
         <input type="file" class="hidden" onchange="document.getElementById('fileInput').files = this.files; document.getElementById('fileInput').dispatchEvent(new Event('change'));">
       </label>
@@ -142,118 +136,118 @@
     <!-- KPI SUMMARY STRIP -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
       <!-- KPI Sesiones -->
-      <div class="bg-[#121212] border border-[#242424] rounded-xl p-4 flex flex-col justify-between hover:border-[#333333] transition-colors">
-        <div class="flex items-center justify-between text-[#8e8e93] mb-2">
+      <div class="bg-[#121215] border border-[#26262c] rounded-xl p-4 flex flex-col justify-between hover:border-[#333333] transition-colors">
+        <div class="flex items-center justify-between text-[#a1a1aa] mb-2">
           <span class="text-xs font-medium">Entrenamientos</span>
           <i class="fa-regular fa-calendar-check text-xs"></i>
         </div>
         <div>
           <div id="kpiSessions" class="text-2xl font-bold text-white tabular-nums">0</div>
-          <div id="kpiSessionsSub" class="text-xs text-[#8e8e93] mt-0.5">en el período</div>
+          <div id="kpiSessionsSub" class="text-xs text-[#a1a1aa] mt-0.5">en el período</div>
         </div>
-        <div id="kpiSessionsDiff" class="mt-3 pt-2.5 border-t border-[#242424] text-[11px] font-medium flex items-center gap-1.5 tabular-nums">
-          <span class="text-[#8e8e93]">Comparativa: -</span>
+        <div id="kpiSessionsDiff" class="mt-3 pt-2.5 border-t border-[#26262c] text-[11px] font-medium flex items-center gap-1.5 tabular-nums">
+          <span class="text-[#a1a1aa]">Comparativa: -</span>
         </div>
       </div>
 
       <!-- KPI Volumen -->
-      <div class="bg-[#121212] border border-[#242424] rounded-xl p-4 flex flex-col justify-between hover:border-[#333333] transition-colors">
-        <div class="flex items-center justify-between text-[#8e8e93] mb-2">
+      <div class="bg-[#121215] border border-[#26262c] rounded-xl p-4 flex flex-col justify-between hover:border-[#333333] transition-colors">
+        <div class="flex items-center justify-between text-[#a1a1aa] mb-2">
           <span class="text-xs font-medium">Volumen</span>
           <i class="fa-solid fa-dumbbell text-xs"></i>
         </div>
         <div>
           <div id="kpiVolume" class="text-2xl font-bold text-white tabular-nums">0 kg</div>
-          <div id="kpiVolumeSub" class="text-xs text-[#8e8e93] mt-0.5 tabular-nums">Promedio: 0 kg / sesión</div>
+          <div id="kpiVolumeSub" class="text-xs text-[#a1a1aa] mt-0.5 tabular-nums">Promedio: 0 kg / sesión</div>
         </div>
-        <div id="kpiVolumeDiff" class="mt-3 pt-2.5 border-t border-[#242424] text-[11px] font-medium flex items-center gap-1.5 tabular-nums">
-          <span class="text-[#8e8e93]">Comparativa: -</span>
+        <div id="kpiVolumeDiff" class="mt-3 pt-2.5 border-t border-[#26262c] text-[11px] font-medium flex items-center gap-1.5 tabular-nums">
+          <span class="text-[#a1a1aa]">Comparativa: -</span>
         </div>
       </div>
 
       <!-- KPI RMs -->
-      <div class="bg-[#121212] border border-[#242424] rounded-xl p-4 flex flex-col justify-between hover:border-[#333333] transition-colors">
-        <div class="flex items-center justify-between text-[#8e8e93] mb-2">
+      <div class="bg-[#121215] border border-[#26262c] rounded-xl p-4 flex flex-col justify-between hover:border-[#333333] transition-colors">
+        <div class="flex items-center justify-between text-[#a1a1aa] mb-2">
           <span class="text-xs font-medium">Récords</span>
           <i class="fa-solid fa-trophy text-amber-400 text-xs"></i>
         </div>
         <div>
           <div id="kpiPRs" class="text-2xl font-bold text-white tabular-nums">0</div>
-          <div id="kpiPRsSub" class="text-xs text-[#8e8e93] mt-0.5">Récords personales</div>
+          <div id="kpiPRsSub" class="text-xs text-[#a1a1aa] mt-0.5">Récords personales</div>
         </div>
-        <div id="kpiPRsDiff" class="mt-3 pt-2.5 border-t border-[#242424] text-[11px] font-medium flex items-center gap-1.5 tabular-nums">
-          <span class="text-[#8e8e93]">Comparativa: -</span>
+        <div id="kpiPRsDiff" class="mt-3 pt-2.5 border-t border-[#26262c] text-[11px] font-medium flex items-center gap-1.5 tabular-nums">
+          <span class="text-[#a1a1aa]">Comparativa: -</span>
         </div>
       </div>
 
       <!-- KPI Mejor 1RM / Suma -->
-      <div class="bg-[#121212] border border-[#242424] rounded-xl p-4 flex flex-col justify-between hover:border-[#333333] transition-colors">
-        <div class="flex items-center justify-between text-[#8e8e93] mb-2">
+      <div class="bg-[#121215] border border-[#26262c] rounded-xl p-4 flex flex-col justify-between hover:border-[#333333] transition-colors">
+        <div class="flex items-center justify-between text-[#a1a1aa] mb-2">
           <span class="text-xs font-medium">Mejor 1RM / Suma Máx</span>
           <i class="fa-solid fa-bolt text-xs"></i>
         </div>
         <div>
           <div id="kpiTopRM" class="text-2xl font-bold text-white tabular-nums">0 kg</div>
-          <div id="kpiTopRMSub" class="text-xs text-[#8e8e93] mt-0.5">Pico histórico</div>
+          <div id="kpiTopRMSub" class="text-xs text-[#a1a1aa] mt-0.5">Pico histórico</div>
         </div>
-        <div id="kpiTopRMDiff" class="mt-3 pt-2.5 border-t border-[#242424] text-[11px] font-medium flex items-center gap-1.5 tabular-nums">
-          <span class="text-[#8e8e93]">Comparativa: -</span>
+        <div id="kpiTopRMDiff" class="mt-3 pt-2.5 border-t border-[#26262c] text-[11px] font-medium flex items-center gap-1.5 tabular-nums">
+          <span class="text-[#a1a1aa]">Comparativa: -</span>
         </div>
       </div>
     </div>
 
     <!-- FILTER & CONTROL PANEL -->
-    <div class="bg-[#121212] border border-[#242424] rounded-xl p-4 flex flex-col gap-3.5">
-      <div class="flex flex-col lg:flex-row items-stretch lg:items-end justify-between gap-4">
+    <div class="bg-dark-900 border border-dark-800 rounded-xl p-4 flex flex-col gap-3.5">
+      <div class="flex flex-col xl:flex-row items-stretch xl:items-end justify-between gap-3.5">
 
         <!-- Metric Selector -->
-        <div class="flex flex-col gap-1.5 flex-1">
-          <label class="text-xs font-medium text-[#8e8e93]">Métrica</label>
-          <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-1 p-1 bg-[#1c1c1e] rounded-lg border border-[#2a2a2d]" id="metricTabs">
-            <button data-metric="volume" class="metric-tab active py-1.5 px-2.5 rounded-md text-xs font-medium transition-colors flex items-center justify-center gap-1.5 bg-[#1b85f3] text-white">
+        <div class="flex flex-col gap-1.5">
+          <label class="text-[11px] font-medium uppercase tracking-wider text-zinc-400">Métrica</label>
+          <div class="flex flex-wrap items-center gap-1 p-1 bg-dark-850 rounded-lg border border-dark-800" id="metricTabs">
+            <button data-metric="volume" class="metric-tab active py-1.5 px-3 rounded-md text-xs font-medium transition-colors flex items-center justify-center gap-1.5 bg-brand-600 text-white whitespace-nowrap">
               <i class="fa-solid fa-dumbbell text-[11px]"></i>
-              <span class="truncate">Volumen</span>
+              <span>Volumen</span>
             </button>
-            <button data-metric="sets" class="metric-tab py-1.5 px-2.5 rounded-md text-xs font-medium text-zinc-400 hover:text-white transition-colors flex items-center justify-center gap-1.5">
+            <button data-metric="sets" class="metric-tab py-1.5 px-3 rounded-md text-xs font-medium text-zinc-400 hover:text-white transition-colors flex items-center justify-center gap-1.5 whitespace-nowrap">
               <i class="fa-solid fa-layer-group text-[11px]"></i>
-              <span class="truncate">Series</span>
+              <span>Series</span>
             </button>
-            <button data-metric="pr_count" class="metric-tab py-1.5 px-2.5 rounded-md text-xs font-medium text-zinc-400 hover:text-white transition-colors flex items-center justify-center gap-1.5">
+            <button data-metric="pr_count" class="metric-tab py-1.5 px-3 rounded-md text-xs font-medium text-zinc-400 hover:text-white transition-colors flex items-center justify-center gap-1.5 whitespace-nowrap">
               <i class="fa-solid fa-trophy text-[11px]"></i>
-              <span class="truncate">Récords</span>
+              <span>RMs</span>
             </button>
-            <button data-metric="sum_orm" class="metric-tab py-1.5 px-2.5 rounded-md text-xs font-medium text-zinc-400 hover:text-white transition-colors flex items-center justify-center gap-1.5" title="Suma de 1RM (por ejercicios en sesión/músculo o por series en un ejercicio)">
+            <button data-metric="sum_orm" class="metric-tab py-1.5 px-3 rounded-md text-xs font-medium text-zinc-400 hover:text-white transition-colors flex items-center justify-center gap-1.5 whitespace-nowrap" title="Suma de 1RM (por ejercicios en sesión/músculo o por series en un ejercicio)">
               <i class="fa-solid fa-bolt text-[11px]"></i>
-              <span class="truncate">Suma 1RM</span>
+              <span>Suma 1RM</span>
             </button>
-            <button data-metric="best_orm" class="metric-tab py-1.5 px-2.5 rounded-md text-xs font-medium text-zinc-400 hover:text-white transition-colors flex items-center justify-center gap-1.5" title="Serie con mejor 1RM estimado">
+            <button data-metric="best_orm" class="metric-tab py-1.5 px-3 rounded-md text-xs font-medium text-zinc-400 hover:text-white transition-colors flex items-center justify-center gap-1.5 whitespace-nowrap" title="Serie con mejor 1RM estimado">
               <i class="fa-solid fa-crown text-[11px]"></i>
-              <span class="truncate">Mejor 1RM</span>
+              <span>Mejor 1RM</span>
             </button>
-            <button data-metric="best_weight" class="metric-tab py-1.5 px-2.5 rounded-md text-xs font-medium text-zinc-400 hover:text-white transition-colors flex items-center justify-center gap-1.5" title="Serie con mayor peso levantado (kg)">
+            <button data-metric="best_weight" class="metric-tab py-1.5 px-3 rounded-md text-xs font-medium text-zinc-400 hover:text-white transition-colors flex items-center justify-center gap-1.5 whitespace-nowrap" title="Serie con mayor peso levantado (kg)">
               <i class="fa-solid fa-weight-hanging text-[11px]"></i>
-              <span class="truncate">Mejor Peso</span>
+              <span>Mejor Peso</span>
             </button>
           </div>
         </div>
 
         <!-- Filter Mode Switcher -->
-        <div class="flex flex-col gap-1.5 flex-1 lg:max-w-md">
+        <div class="flex flex-col gap-1.5 flex-1 xl:max-w-sm">
           <div class="flex items-center justify-between">
-            <label class="text-xs font-medium text-[#8e8e93]">Filtrar por</label>
+            <label class="text-[11px] font-medium uppercase tracking-wider text-zinc-400">Filtrar por</label>
             <div class="flex items-center gap-1 text-[11px]" id="filterTypeButtons">
-              <button data-type="all" class="filter-type-btn active px-2.5 py-0.5 rounded-md bg-[#1b85f3] text-white font-medium">Todo</button>
-              <button data-type="muscle" class="filter-type-btn px-2.5 py-0.5 rounded-md bg-[#1c1c1e] text-zinc-400 hover:text-white font-medium">Músculo</button>
-              <button data-type="routine" class="filter-type-btn px-2.5 py-0.5 rounded-md bg-[#1c1c1e] text-zinc-400 hover:text-white font-medium">Rutina</button>
-              <button data-type="exercise" class="filter-type-btn px-2.5 py-0.5 rounded-md bg-[#1c1c1e] text-zinc-400 hover:text-white font-medium">Ejercicio</button>
+              <button data-type="all" class="filter-type-btn active px-2.5 py-0.5 rounded-md bg-brand-600 text-white font-medium">Todo</button>
+              <button data-type="muscle" class="filter-type-btn px-2.5 py-0.5 rounded-md bg-dark-850 text-zinc-400 hover:text-white font-medium">Músculo</button>
+              <button data-type="routine" class="filter-type-btn px-2.5 py-0.5 rounded-md bg-dark-850 text-zinc-400 hover:text-white font-medium">Rutina</button>
+              <button data-type="exercise" class="filter-type-btn px-2.5 py-0.5 rounded-md bg-dark-850 text-zinc-400 hover:text-white font-medium">Ejercicio</button>
             </div>
           </div>
 
           <div class="relative">
-            <select id="mainFilterSelect" class="w-full bg-[#1c1c1e] border border-[#2a2a2d] rounded-lg py-1.5 px-3 text-xs text-white focus:outline-none focus:border-[#1b85f3] font-medium transition-colors cursor-pointer appearance-none pr-8">
+            <select id="mainFilterSelect" class="w-full bg-dark-850 border border-dark-800 rounded-lg py-1.5 px-3 text-xs text-white focus:outline-none focus:border-brand-500 font-medium transition-colors cursor-pointer appearance-none pr-8">
               <option value="ALL">Toda la sesión (Sin filtro)</option>
             </select>
-            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2.5 text-[#8e8e93] text-xs">
+            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2.5 text-zinc-400 text-xs">
               <i class="fa-solid fa-chevron-down"></i>
             </div>
           </div>
@@ -261,19 +255,19 @@
       </div>
 
       <!-- Date Range Controls -->
-      <div class="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-[#242424]">
+      <div class="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-[#26262c]">
         <div class="flex flex-wrap items-center gap-1">
-          <span class="text-xs text-[#8e8e93] mr-1.5">Rango:</span>
-          <button data-range="1w" class="range-preset px-2.5 py-1 text-xs rounded-md bg-[#1c1c1e] hover:bg-[#262629] text-zinc-300 font-medium transition-colors">1 Sem</button>
-          <button data-range="1m" class="range-preset px-2.5 py-1 text-xs rounded-md bg-[#1c1c1e] hover:bg-[#262629] text-zinc-300 font-medium transition-colors">1 Mes</button>
-          <button data-range="3m" class="range-preset px-2.5 py-1 text-xs rounded-md bg-[#1c1c1e] hover:bg-[#262629] text-zinc-300 font-medium transition-colors">3 Meses</button>
-          <button data-range="6m" class="range-preset px-2.5 py-1 text-xs rounded-md bg-[#1c1c1e] hover:bg-[#262629] text-zinc-300 font-medium transition-colors">6 Meses</button>
-          <button data-range="1y" class="range-preset px-2.5 py-1 text-xs rounded-md bg-[#1c1c1e] hover:bg-[#262629] text-zinc-300 font-medium transition-colors">1 Año</button>
-          <button data-range="all" class="range-preset active px-2.5 py-1 text-xs rounded-md bg-[#1b85f3]/20 border border-[#1b85f3]/40 text-[#3898ff] font-medium transition-colors">Todo</button>
+          <span class="text-xs text-[#a1a1aa] mr-1.5">Rango:</span>
+          <button data-range="1w" class="range-preset px-2.5 py-1 text-xs rounded-md bg-[#1a1a1f] hover:bg-[#262629] text-zinc-300 font-medium transition-colors">1 Sem</button>
+          <button data-range="1m" class="range-preset px-2.5 py-1 text-xs rounded-md bg-[#1a1a1f] hover:bg-[#262629] text-zinc-300 font-medium transition-colors">1 Mes</button>
+          <button data-range="3m" class="range-preset px-2.5 py-1 text-xs rounded-md bg-[#1a1a1f] hover:bg-[#262629] text-zinc-300 font-medium transition-colors">3 Meses</button>
+          <button data-range="6m" class="range-preset px-2.5 py-1 text-xs rounded-md bg-[#1a1a1f] hover:bg-[#262629] text-zinc-300 font-medium transition-colors">6 Meses</button>
+          <button data-range="1y" class="range-preset px-2.5 py-1 text-xs rounded-md bg-[#1a1a1f] hover:bg-[#262629] text-zinc-300 font-medium transition-colors">1 Año</button>
+          <button data-range="all" class="range-preset active px-2.5 py-1 text-xs rounded-md bg-brand-600/20 border border-[#2563eb]/40 text-[#60a5fa] font-medium transition-colors">Todo</button>
         </div>
 
         <!-- Week Stepper Navigation -->
-        <div class="flex items-center gap-1 bg-[#1c1c1e] p-0.5 rounded-lg border border-[#2a2a2d] text-xs">
+        <div class="flex items-center gap-1 bg-[#1a1a1f] p-0.5 rounded-lg border border-[#26262c] text-xs">
           <button id="btnPrevWeek" class="px-2.5 py-1 rounded-md hover:bg-[#262629] text-zinc-400 hover:text-white font-medium transition-colors flex items-center gap-1" title="Retroceder 1 Semana">
             <i class="fa-solid fa-chevron-left text-[10px]"></i> Ant.
           </button>
@@ -288,69 +282,69 @@
         <!-- Custom Date Inputs & Chart Type Toggle -->
         <div class="flex flex-wrap items-center gap-2.5">
           <div class="flex items-center gap-1.5 text-xs">
-            <span class="text-[#8e8e93] text-[11px]">Desde</span>
-            <input type="date" id="dateStart" class="bg-[#1c1c1e] border border-[#2a2a2d] rounded-md px-2 py-1 text-xs text-white focus:outline-none focus:border-[#1b85f3]">
-            <span class="text-[#8e8e93] text-[11px]">Hasta</span>
-            <input type="date" id="dateEnd" class="bg-[#1c1c1e] border border-[#2a2a2d] rounded-md px-2 py-1 text-xs text-white focus:outline-none focus:border-[#1b85f3]">
+            <span class="text-[#a1a1aa] text-[11px]">Desde</span>
+            <input type="date" id="dateStart" class="bg-[#1a1a1f] border border-[#26262c] rounded-md px-2 py-1 text-xs text-white focus:outline-none focus:border-[#2563eb]">
+            <span class="text-[#a1a1aa] text-[11px]">Hasta</span>
+            <input type="date" id="dateEnd" class="bg-[#1a1a1f] border border-[#26262c] rounded-md px-2 py-1 text-xs text-white focus:outline-none focus:border-[#2563eb]">
           </div>
 
-          <div class="flex items-center bg-[#1c1c1e] rounded-lg p-0.5 border border-[#2a2a2d] text-xs">
-            <button id="btnChartLine" class="px-2.5 py-1 rounded-md bg-[#2a2a2d] text-white font-medium" title="Gráfico de Línea"><i class="fa-solid fa-chart-area"></i></button>
+          <div class="flex items-center bg-[#1a1a1f] rounded-lg p-0.5 border border-[#26262c] text-xs">
+            <button id="btnChartLine" class="px-2.5 py-1 rounded-md bg-[#26262c] text-white font-medium" title="Gráfico de Línea"><i class="fa-solid fa-chart-area"></i></button>
             <button id="btnChartBar" class="px-2.5 py-1 rounded-md text-zinc-400 hover:text-white" title="Gráfico de Barras"><i class="fa-solid fa-chart-column"></i></button>
           </div>
         </div>
       </div>
 
       <!-- Stats Mode & Fractional Toggle Bar -->
-      <div class="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-[#242424]">
+      <div class="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-[#26262c]">
         <div class="flex flex-wrap items-center gap-4 text-xs">
           <div class="flex flex-wrap items-center gap-2">
-            <span class="text-xs text-[#8e8e93]">Carga:</span>
-            <div class="flex items-center bg-[#1c1c1e] p-0.5 rounded-lg border border-[#2a2a2d]">
-              <button id="btnStatsRaw" class="active px-2.5 py-1 rounded-md bg-[#1b85f3] text-white font-medium transition-colors" title="Muestra los kg exactos registrados en Hevy (peso × reps)">
+            <span class="text-xs text-[#a1a1aa]">Carga:</span>
+            <div class="flex items-center bg-[#1a1a1f] p-0.5 rounded-lg border border-[#26262c]">
+              <button id="btnStatsRaw" class="active px-2.5 py-1 rounded-md bg-brand-600 text-white font-medium transition-colors" title="Muestra los kg exactos registrados en Hevy (peso × reps)">
                 Bruto (kg)
               </button>
               <button id="btnStatsBalanced" class="px-2.5 py-1 rounded-md text-zinc-400 hover:text-white font-medium transition-colors" title="Convierte las cargas a kg equivalentes reales">
                 Equilibrada (kg eq.)
               </button>
             </div>
-            <button id="btnOpenBalanceModal" class="px-2.5 py-1 rounded-md bg-[#1c1c1e] hover:bg-[#262629] text-zinc-200 border border-[#2a2a2d] font-medium transition-colors flex items-center gap-1.5" title="Ajustar factores biomecánicos">
-              <i class="fa-solid fa-sliders text-[#1b85f3] text-[11px]"></i> Calibrar
+            <button id="btnOpenBalanceModal" class="px-2.5 py-1 rounded-md bg-[#1a1a1f] hover:bg-[#262629] text-zinc-200 border border-[#26262c] font-medium transition-colors flex items-center gap-1.5" title="Ajustar factores biomecánicos">
+              <i class="fa-solid fa-sliders text-[#2563eb] text-[11px]"></i> Calibrar
             </button>
           </div>
 
           <div class="flex flex-wrap items-center gap-2">
-            <span class="text-xs text-[#8e8e93]">Series:</span>
-            <div class="flex items-center bg-[#1c1c1e] p-0.5 rounded-lg border border-[#2a2a2d]">
+            <span class="text-xs text-[#a1a1aa]">Series:</span>
+            <div class="flex items-center bg-[#1a1a1f] p-0.5 rounded-lg border border-[#26262c]">
               <button id="btnTopModeDirect" class="px-2.5 py-1 rounded-md text-zinc-400 hover:text-white font-medium transition-colors">
                 Directo (1.0x)
               </button>
-              <button id="btnTopModeFractional" class="active px-2.5 py-1 rounded-md bg-[#1b85f3] text-white font-medium transition-colors">
+              <button id="btnTopModeFractional" class="active px-2.5 py-1 rounded-md bg-brand-600 text-white font-medium transition-colors">
                 Fraccionario (0.5x)
               </button>
             </div>
           </div>
         </div>
-        <p id="statsModeHint" class="text-[11px] text-[#8e8e93]">
+        <p id="statsModeHint" class="text-[11px] text-[#a1a1aa]">
           Mostrando kilogramos reales brutos (<code class="text-zinc-300">peso × reps</code>).
         </p>
       </div>
     </div>
 
     <!-- MAIN CHART CARD -->
-    <div id="chartSection" class="bg-[#121212] border border-[#242424] rounded-xl p-5 flex flex-col gap-3 relative scroll-mt-6">
+    <div id="chartSection" class="bg-[#121215] border border-[#26262c] rounded-xl p-5 flex flex-col gap-3 relative scroll-mt-6">
       <div class="flex items-center justify-between gap-2">
         <div>
           <h2 id="chartTitle" class="text-base font-semibold text-white flex items-center gap-2">
             Volumen Total por Sesión
           </h2>
-          <p id="chartSubtitle" class="text-xs text-[#8e8e93] mt-0.5">
+          <p id="chartSubtitle" class="text-xs text-[#a1a1aa] mt-0.5">
             Haz clic en cualquier punto para ver el desglose completo de esa sesión.
           </p>
         </div>
         <div class="flex items-center gap-2">
-          <span id="selectedSessionTag" class="hidden text-xs px-2.5 py-1 rounded-lg bg-[#1c1c1e] text-zinc-200 border border-[#2e2e2e] flex items-center gap-1.5 font-medium">
-            <i class="fa-solid fa-circle-check text-[#1b85f3] text-[11px]"></i> <span id="selectedSessionTagName"></span>
+          <span id="selectedSessionTag" class="hidden text-xs px-2.5 py-1 rounded-lg bg-[#1a1a1f] text-zinc-200 border border-[#32323a] flex items-center gap-1.5 font-medium">
+            <i class="fa-solid fa-circle-check text-[#2563eb] text-[11px]"></i> <span id="selectedSessionTagName"></span>
           </span>
         </div>
       </div>
@@ -361,30 +355,30 @@
     </div>
 
     <!-- SECTION: BREAKDOWN BY ROUTINE OR MUSCLE GROUP -->
-    <section id="breakdownSection" class="bg-[#121212] border border-[#242424] rounded-xl p-5 flex flex-col gap-5 scroll-mt-6">
-      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-[#242424]">
+    <section id="breakdownSection" class="bg-[#121215] border border-[#26262c] rounded-xl p-5 flex flex-col gap-5 scroll-mt-6">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-[#26262c]">
         <div>
           <h2 class="text-base font-semibold text-white">
             Rutinas y Grupos Musculares
           </h2>
-          <p class="text-xs text-[#8e8e93] mt-0.5">
+          <p class="text-xs text-[#a1a1aa] mt-0.5">
             Distribución de volumen, series efectivas y comparación con el período anterior.
           </p>
         </div>
 
         <div class="flex flex-wrap items-center gap-2.5">
-          <div class="flex items-center bg-[#1c1c1e] p-0.5 rounded-lg border border-[#2a2a2d] text-xs">
-            <span class="text-[#8e8e93] px-2 font-medium text-[11px]">Conteo:</span>
+          <div class="flex items-center bg-[#1a1a1f] p-0.5 rounded-lg border border-[#26262c] text-xs">
+            <span class="text-[#a1a1aa] px-2 font-medium text-[11px]">Conteo:</span>
             <button id="btnSetModeDirect" class="px-2.5 py-1 rounded-md text-zinc-400 hover:text-white font-medium transition-colors">
               Directas (1.0x)
             </button>
-            <button id="btnSetModeFractional" class="active px-2.5 py-1 rounded-md bg-[#1b85f3] text-white font-medium transition-colors">
+            <button id="btnSetModeFractional" class="active px-2.5 py-1 rounded-md bg-brand-600 text-white font-medium transition-colors">
               Fraccionarias (0.5x)
             </button>
           </div>
 
-          <div class="flex items-center p-0.5 bg-[#1c1c1e] rounded-lg border border-[#2a2a2d]" id="breakdownTabs">
-            <button id="tabBreakdownMuscle" class="active py-1 px-3 rounded-md text-xs font-medium transition-colors flex items-center gap-1.5 bg-[#1b85f3] text-white">
+          <div class="flex items-center p-0.5 bg-[#1a1a1f] rounded-lg border border-[#26262c]" id="breakdownTabs">
+            <button id="tabBreakdownMuscle" class="active py-1 px-3 rounded-md text-xs font-medium transition-colors flex items-center gap-1.5 bg-brand-600 text-white">
               <span>Por Músculo</span>
             </button>
             <button id="tabBreakdownRoutine" class="py-1 px-3 rounded-md text-xs font-medium text-zinc-400 hover:text-white transition-colors flex items-center gap-1.5">
@@ -394,16 +388,16 @@
         </div>
       </div>
 
-      <div id="fractionalNoteBanner" class="px-3.5 py-2.5 bg-[#1a1a1a] border border-[#262626] rounded-lg text-xs text-[#8e8e93] flex items-center gap-2.5">
-        <i class="fa-solid fa-circle-info text-[#1b85f3] text-xs"></i>
+      <div id="fractionalNoteBanner" class="px-3.5 py-2.5 bg-[#16161b] border border-[#26262c] rounded-lg text-xs text-[#a1a1aa] flex items-center gap-2.5">
+        <i class="fa-solid fa-circle-info text-[#2563eb] text-xs"></i>
         <span>
           <strong class="text-zinc-200 font-medium">Series Fraccionarias:</strong> los compuestos suman <strong class="text-zinc-200">1.0</strong> serie al músculo principal y <strong class="text-zinc-200">0.5</strong> a los sinergistas secundarios.
         </span>
       </div>
 
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
-        <div class="lg:col-span-5 bg-[#1a1a1a] border border-[#262626] rounded-xl p-4 flex flex-col items-center justify-center relative">
-          <h3 id="breakdownDonutTitle" class="text-xs font-medium text-[#8e8e93] mb-2 self-start">
+        <div class="lg:col-span-5 bg-[#16161b] border border-[#26262c] rounded-xl p-4 flex flex-col items-center justify-center relative">
+          <h3 id="breakdownDonutTitle" class="text-xs font-medium text-[#a1a1aa] mb-2 self-start">
             Distribución de Volumen (%)
           </h3>
           <div class="relative w-full max-w-[280px] h-[260px] flex items-center justify-center">
@@ -411,12 +405,12 @@
           </div>
         </div>
 
-        <div class="lg:col-span-7 bg-[#1a1a1a] border border-[#262626] rounded-xl p-4 flex flex-col justify-between">
+        <div class="lg:col-span-7 bg-[#16161b] border border-[#26262c] rounded-xl p-4 flex flex-col justify-between">
           <div class="flex items-center justify-between mb-2">
-            <h3 id="breakdownBarTitle" class="text-xs font-medium text-[#8e8e93]">
+            <h3 id="breakdownBarTitle" class="text-xs font-medium text-[#a1a1aa]">
               Comparativa de Volumen Total (kg)
             </h3>
-            <span id="breakdownBarSubtitle" class="text-[11px] text-[#8e8e93] font-mono"></span>
+            <span id="breakdownBarSubtitle" class="text-[11px] text-[#a1a1aa] font-mono"></span>
           </div>
           <div class="relative w-full h-[260px]">
             <canvas id="breakdownBarChart"></canvas>
@@ -426,10 +420,10 @@
 
       <div>
         <div class="flex items-center justify-between mb-3">
-          <h3 id="cardsGridTitle" class="text-xs font-medium text-[#8e8e93]">
+          <h3 id="cardsGridTitle" class="text-xs font-medium text-[#a1a1aa]">
             Desglose por grupo
           </h3>
-          <span class="text-[11px] text-[#8e8e93]">Pulsa en una tarjeta para filtrar la gráfica</span>
+          <span class="text-[11px] text-[#a1a1aa]">Pulsa en una tarjeta para filtrar la gráfica</span>
         </div>
         <div id="breakdownCardsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
         </div>
@@ -437,10 +431,10 @@
     </section>
 
     <!-- SESSION DETAILS (Hevy Feed Card style) -->
-    <div id="sessionDetailContainer" class="bg-[#121212] border border-[#242424] rounded-xl p-5 flex flex-col gap-4 scroll-mt-6">
-      <div class="flex flex-col md:flex-row md:items-center justify-between pb-4 border-b border-[#242424] gap-3">
+    <div id="sessionDetailContainer" class="bg-[#121215] border border-[#26262c] rounded-xl p-5 flex flex-col gap-4 scroll-mt-6">
+      <div class="flex flex-col md:flex-row md:items-center justify-between pb-4 border-b border-[#26262c] gap-3">
         <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-full bg-[#1c1c1e] border border-[#2e2e2e] flex items-center justify-center text-[#1b85f3] text-sm">
+          <div class="w-10 h-10 rounded-full bg-[#1a1a1f] border border-[#32323a] flex items-center justify-center text-[#2563eb] text-sm">
             <i class="fa-solid fa-dumbbell"></i>
           </div>
           <div>
@@ -449,64 +443,64 @@
               <span id="detailBadge" class="hidden px-2 py-0.5 text-[11px] font-medium rounded-md bg-amber-500/10 text-amber-400 border border-amber-500/30">
                 Contiene RMs
               </span>
-              <span id="detailRoutineBadge" class="hidden px-2 py-0.5 text-[11px] font-medium rounded-md bg-[#1c1c1e] text-zinc-300 border border-[#2e2e2e]">
+              <span id="detailRoutineBadge" class="hidden px-2 py-0.5 text-[11px] font-medium rounded-md bg-[#1a1a1f] text-zinc-300 border border-[#32323a]">
               </span>
             </div>
-            <p id="detailDateTime" class="text-xs text-[#8e8e93] flex items-center gap-2 mt-0.5">
+            <p id="detailDateTime" class="text-xs text-[#a1a1aa] flex items-center gap-2 mt-0.5">
               <i class="fa-regular fa-clock"></i> Haz clic en un punto de la gráfica para ver los detalles
             </p>
           </div>
         </div>
 
         <div id="detailNav" class="hidden flex items-center gap-1.5">
-          <button id="btnPrevSession" class="px-3 py-1.5 text-xs rounded-lg bg-[#1c1c1e] hover:bg-[#262629] text-zinc-200 border border-[#2a2a2d] transition-colors flex items-center gap-1.5">
+          <button id="btnPrevSession" class="px-3 py-1.5 text-xs rounded-lg bg-[#1a1a1f] hover:bg-[#262629] text-zinc-200 border border-[#26262c] transition-colors flex items-center gap-1.5">
             <i class="fa-solid fa-chevron-left text-[10px]"></i> Anterior
           </button>
-          <button id="btnNextSession" class="px-3 py-1.5 text-xs rounded-lg bg-[#1c1c1e] hover:bg-[#262629] text-zinc-200 border border-[#2a2a2d] transition-colors flex items-center gap-1.5">
+          <button id="btnNextSession" class="px-3 py-1.5 text-xs rounded-lg bg-[#1a1a1f] hover:bg-[#262629] text-zinc-200 border border-[#26262c] transition-colors flex items-center gap-1.5">
             Siguiente <i class="fa-solid fa-chevron-right text-[10px]"></i>
           </button>
         </div>
       </div>
 
-      <div id="detailDescBox" class="hidden p-3 bg-[#1a1a1a] border border-[#262626] rounded-lg text-xs text-zinc-300 flex items-start gap-2.5">
-        <i class="fa-solid fa-quote-left text-[#8e8e93] text-xs mt-0.5"></i>
+      <div id="detailDescBox" class="hidden p-3 bg-[#16161b] border border-[#26262c] rounded-lg text-xs text-zinc-300 flex items-start gap-2.5">
+        <i class="fa-solid fa-quote-left text-[#a1a1aa] text-xs mt-0.5"></i>
         <div id="detailDescription" class="flex-1"></div>
       </div>
 
-      <div id="detailStatsRow" class="hidden grid grid-cols-2 md:grid-cols-4 gap-4 py-2 border-b border-[#242424]">
+      <div id="detailStatsRow" class="hidden grid grid-cols-2 md:grid-cols-4 gap-4 py-2 border-b border-[#26262c]">
         <div>
-          <span class="text-[11px] text-[#8e8e93]">Volumen</span>
+          <span class="text-[11px] text-[#a1a1aa]">Volumen</span>
           <div id="detailVol" class="text-base font-semibold text-white mt-0.5 tabular-nums">0 kg</div>
         </div>
         <div>
-          <span class="text-[11px] text-[#8e8e93]">Duración</span>
+          <span class="text-[11px] text-[#a1a1aa]">Duración</span>
           <div id="detailDuration" class="text-base font-semibold text-white mt-0.5 tabular-nums">0 min</div>
         </div>
         <div>
-          <span class="text-[11px] text-[#8e8e93]">Series / Reps</span>
+          <span class="text-[11px] text-[#a1a1aa]">Series / Reps</span>
           <div id="detailSetsReps" class="text-base font-semibold text-white mt-0.5 tabular-nums">0 / 0</div>
         </div>
         <div>
-          <span class="text-[11px] text-[#8e8e93]">Suma 1RM Est.</span>
+          <span class="text-[11px] text-[#a1a1aa]">Suma 1RM Est.</span>
           <div id="detailSumORM" class="text-base font-semibold text-white mt-0.5 tabular-nums">0 kg</div>
         </div>
       </div>
 
       <div id="detailExercisesList" class="flex flex-col gap-3">
-        <div class="p-8 text-center text-[#8e8e93] text-xs">
+        <div class="p-8 text-center text-[#a1a1aa] text-xs">
           Pulsa en cualquier punto de la gráfica para ver las series, pesos, repeticiones y récords de esa sesión.
         </div>
       </div>
     </div>
 
     <!-- SECTION: BY MUSCLE GROUP RADAR CHARTS -->
-    <section id="muscleRadarSection" class="bg-[#121212] border border-[#242424] rounded-xl p-5 flex flex-col gap-4 scroll-mt-6">
-      <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 pb-4 border-b border-[#242424]">
+    <section id="muscleRadarSection" class="bg-[#121215] border border-[#26262c] rounded-xl p-5 flex flex-col gap-4 scroll-mt-6">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 pb-4 border-b border-[#26262c]">
         <div>
           <h2 class="text-base font-semibold text-white">
             Balance Muscular
           </h2>
-          <p id="radarSubtitle" class="text-xs text-[#8e8e93] mt-0.5">
+          <p id="radarSubtitle" class="text-xs text-[#a1a1aa] mt-0.5">
             Series efectivas · Actual vs Anterior
           </p>
         </div>
@@ -514,7 +508,7 @@
         <div class="flex flex-wrap items-center gap-4">
           <div class="flex items-center gap-4 text-xs text-zinc-300">
             <span class="flex items-center gap-1.5">
-              <span class="w-2.5 h-2.5 rounded-sm inline-block bg-[#1b85f3]"></span>
+              <span class="w-2.5 h-2.5 rounded-sm inline-block bg-brand-600"></span>
               <span id="radarLegendCurrent">Últimos 30 días</span>
             </span>
             <span class="flex items-center gap-1.5">
@@ -523,7 +517,7 @@
             </span>
           </div>
 
-          <select id="radarPeriodSelect" class="bg-[#1c1c1e] border border-[#2a2a2d] rounded-lg py-1.5 px-3 text-xs text-white focus:outline-none focus:border-[#1b85f3] cursor-pointer">
+          <select id="radarPeriodSelect" class="bg-[#1a1a1f] border border-[#26262c] rounded-lg py-1.5 px-3 text-xs text-white focus:outline-none focus:border-[#2563eb] cursor-pointer">
             <option value="30">30 días vs 30 anteriores</option>
             <option value="7">7 días vs 7 anteriores</option>
             <option value="14">14 días vs 14 anteriores</option>
@@ -534,14 +528,14 @@
       </div>
 
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <div class="bg-[#1a1a1a] border border-[#262626] rounded-xl p-4 flex flex-col items-center">
-          <h3 class="text-xs font-medium text-[#8e8e93] mb-2">Reps / Series</h3>
+        <div class="bg-[#16161b] border border-[#26262c] rounded-xl p-4 flex flex-col items-center">
+          <h3 class="text-xs font-medium text-[#a1a1aa] mb-2">Reps / Series</h3>
           <div class="relative w-full max-w-[380px] h-[300px]">
             <canvas id="radarRepsChart"></canvas>
           </div>
         </div>
-        <div class="bg-[#1a1a1a] border border-[#262626] rounded-xl p-4 flex flex-col items-center">
-          <h3 class="text-xs font-medium text-[#8e8e93] mb-2">Volumen (kg)</h3>
+        <div class="bg-[#16161b] border border-[#26262c] rounded-xl p-4 flex flex-col items-center">
+          <h3 class="text-xs font-medium text-[#a1a1aa] mb-2">Volumen (kg)</h3>
           <div class="relative w-full max-w-[380px] h-[300px]">
             <canvas id="radarVolumeChart"></canvas>
           </div>
@@ -550,15 +544,15 @@
     </section>
 
     <!-- SECTION: ACTIVITY CALENDAR -->
-    <section id="activityCalendarSection" class="bg-[#121212] border border-[#242424] rounded-xl p-5 flex flex-col gap-4 scroll-mt-6">
-      <div class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-[#242424]">
+    <section id="activityCalendarSection" class="bg-[#121215] border border-[#26262c] rounded-xl p-5 flex flex-col gap-4 scroll-mt-6">
+      <div class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-[#26262c]">
         <h2 class="text-base font-semibold text-white">
           Calendario de Actividad
         </h2>
 
         <div class="flex flex-wrap items-center gap-3">
           <div class="flex flex-wrap items-center gap-2">
-            <select id="calendarRangeSelect" class="bg-[#1c1c1e] border border-[#2a2a2d] rounded-lg py-1 px-2.5 text-xs text-white focus:outline-none focus:border-[#1b85f3] cursor-pointer">
+            <select id="calendarRangeSelect" class="bg-[#1a1a1f] border border-[#26262c] rounded-lg py-1 px-2.5 text-xs text-white focus:outline-none focus:border-[#2563eb] cursor-pointer">
               <option value="1y">Último año</option>
               <option value="6m">Últimos 6 meses</option>
               <option value="3m">Últimos 3 meses</option>
@@ -569,16 +563,16 @@
               <option value="custom">Personalizado...</option>
             </select>
             <div id="calendarCustomDates" class="hidden flex items-center gap-1.5 text-xs font-mono">
-              <input type="date" id="calDateStart" class="bg-[#1c1c1e] border border-[#2a2a2d] rounded-md px-2 py-1 text-white focus:outline-none focus:border-[#1b85f3]">
-              <span class="text-[#8e8e93]">&rarr;</span>
-              <input type="date" id="calDateEnd" class="bg-[#1c1c1e] border border-[#2a2a2d] rounded-md px-2 py-1 text-white focus:outline-none focus:border-[#1b85f3]">
+              <input type="date" id="calDateStart" class="bg-[#1a1a1f] border border-[#26262c] rounded-md px-2 py-1 text-white focus:outline-none focus:border-[#2563eb]">
+              <span class="text-[#a1a1aa]">&rarr;</span>
+              <input type="date" id="calDateEnd" class="bg-[#1a1a1f] border border-[#26262c] rounded-md px-2 py-1 text-white focus:outline-none focus:border-[#2563eb]">
             </div>
           </div>
-          <div class="flex items-center bg-[#1c1c1e] rounded-lg border border-[#2a2a2d] p-0.5 text-[11px] font-medium">
+          <div class="flex items-center bg-[#1a1a1f] rounded-lg border border-[#26262c] p-0.5 text-[11px] font-medium">
             <button id="btnCalAll" class="px-2.5 py-1 rounded-md bg-white text-black font-semibold transition-colors">TODO</button>
-            <button id="btnCalSplit" class="px-2.5 py-1 rounded-md text-[#8e8e93] hover:text-white font-medium transition-colors">RUTINA</button>
+            <button id="btnCalSplit" class="px-2.5 py-1 rounded-md text-[#a1a1aa] hover:text-white font-medium transition-colors">RUTINA</button>
           </div>
-          <span id="calendarRangeLabel" class="text-xs font-mono text-[#8e8e93]">-</span>
+          <span id="calendarRangeLabel" class="text-xs font-mono text-[#a1a1aa]">-</span>
         </div>
       </div>
 
@@ -586,7 +580,7 @@
         <div id="activityCalendarGrid" class="inline-block min-w-full"></div>
       </div>
 
-      <div id="calendarLegend" class="flex flex-wrap items-center gap-2 text-[11px] font-mono text-[#8e8e93] pt-1">
+      <div id="calendarLegend" class="flex flex-wrap items-center gap-2 text-[11px] font-mono text-[#a1a1aa] pt-1">
       </div>
     </section>
 
@@ -594,45 +588,45 @@
 
   <!-- BALANCE FACTORS CALIBRATION MODAL -->
   <div id="balanceConfigModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-[#121212] border border-[#2a2a2d] rounded-xl shadow-2xl w-full max-w-5xl max-h-[88vh] flex flex-col overflow-hidden">
-      <div class="px-5 py-4 border-b border-[#242424] flex items-center justify-between gap-3 bg-[#161616]">
+    <div class="bg-[#121215] border border-[#26262c] rounded-xl shadow-2xl w-full max-w-5xl max-h-[88vh] flex flex-col overflow-hidden">
+      <div class="px-5 py-4 border-b border-[#26262c] flex items-center justify-between gap-3 bg-[#161616]">
         <div>
           <h3 class="text-sm font-semibold text-white flex items-center gap-2">
-            <i class="fa-solid fa-sliders text-[#1b85f3]"></i> Calibrar Factores Biomecánicos (kg eq.)
+            <i class="fa-solid fa-sliders text-[#2563eb]"></i> Calibrar Factores Biomecánicos (kg eq.)
           </h3>
-          <p class="text-xs text-[#8e8e93] mt-0.5">
-            Fórmula: <code class="text-[#3898ff]">Peso Eq. = (Peso + %PC &times; Peso Corporal) &times; Lados &times; Factor Mec.</code>
+          <p class="text-xs text-[#a1a1aa] mt-0.5">
+            Fórmula: <code class="text-[#60a5fa]">Peso Eq. = (Peso + %PC &times; Peso Corporal) &times; Lados &times; Factor Mec.</code>
           </p>
         </div>
-        <button id="btnCloseBalanceModal" class="w-7 h-7 rounded-md bg-[#1c1c1e] hover:bg-[#262629] text-[#8e8e93] hover:text-white flex items-center justify-center transition-colors border border-[#2a2a2d]">
+        <button id="btnCloseBalanceModal" class="w-7 h-7 rounded-md bg-[#1a1a1f] hover:bg-[#262629] text-[#a1a1aa] hover:text-white flex items-center justify-center transition-colors border border-[#26262c]">
           <i class="fa-solid fa-xmark text-xs"></i>
         </button>
       </div>
 
-      <div class="px-5 py-3 border-b border-[#242424] flex flex-wrap items-center justify-between gap-3 bg-[#121212]">
+      <div class="px-5 py-3 border-b border-[#26262c] flex flex-wrap items-center justify-between gap-3 bg-[#121215]">
         <div class="flex flex-wrap items-center gap-3 text-xs">
-          <label class="flex items-center gap-2 bg-[#1c1c1e] border border-[#2a2a2d] rounded-lg px-3 py-1.5">
-            <span class="text-[#8e8e93] font-medium">Peso Corporal:</span>
-            <input type="number" id="inputBodyweightKg" min="30" max="250" step="0.5" value="75" class="w-16 bg-[#121212] border border-[#2e2e2e] rounded px-2 py-0.5 text-white font-semibold text-center focus:outline-none focus:border-[#1b85f3]">
-            <span class="text-[#8e8e93]">kg</span>
+          <label class="flex items-center gap-2 bg-[#1a1a1f] border border-[#26262c] rounded-lg px-3 py-1.5">
+            <span class="text-[#a1a1aa] font-medium">Peso Corporal:</span>
+            <input type="number" id="inputBodyweightKg" min="30" max="250" step="0.5" value="75" class="w-16 bg-[#121215] border border-[#32323a] rounded px-2 py-0.5 text-white font-semibold text-center focus:outline-none focus:border-[#2563eb]">
+            <span class="text-[#a1a1aa]">kg</span>
           </label>
           <div class="relative">
-            <i class="fa-solid fa-magnifying-glass text-[#8e8e93] absolute left-3 top-1/2 -translate-y-1/2 text-[11px]"></i>
-            <input type="text" id="balanceSearchInput" placeholder="Buscar ejercicio (Prensa, Hacka, Lateral...)" class="bg-[#1c1c1e] border border-[#2a2a2d] rounded-lg pl-8 pr-3 py-1.5 text-xs text-white w-64 focus:outline-none focus:border-[#1b85f3]">
+            <i class="fa-solid fa-magnifying-glass text-[#a1a1aa] absolute left-3 top-1/2 -translate-y-1/2 text-[11px]"></i>
+            <input type="text" id="balanceSearchInput" placeholder="Buscar ejercicio (Prensa, Hacka, Lateral...)" class="bg-[#1a1a1f] border border-[#26262c] rounded-lg pl-8 pr-3 py-1.5 text-xs text-white w-64 focus:outline-none focus:border-[#2563eb]">
           </div>
           <label class="flex items-center gap-1.5 text-zinc-300 cursor-pointer select-none">
-            <input type="checkbox" id="balanceFilterUsedOnly" checked class="rounded border-[#2a2a2d] bg-[#1c1c1e] text-[#1b85f3] focus:ring-0">
+            <input type="checkbox" id="balanceFilterUsedOnly" checked class="rounded border-[#26262c] bg-[#1a1a1f] text-[#2563eb] focus:ring-0">
             <span>Solo mis ejercicios</span>
           </label>
         </div>
-        <button id="btnResetBalanceConfig" class="px-3 py-1.5 rounded-lg bg-[#1c1c1e] hover:bg-[#262629] text-zinc-300 hover:text-white text-xs font-medium border border-[#2a2a2d] transition-colors flex items-center gap-1.5">
+        <button id="btnResetBalanceConfig" class="px-3 py-1.5 rounded-lg bg-[#1a1a1f] hover:bg-[#262629] text-zinc-300 hover:text-white text-xs font-medium border border-[#26262c] transition-colors flex items-center gap-1.5">
           <i class="fa-solid fa-rotate-left text-[11px]"></i> Restaurar defaults
         </button>
       </div>
 
       <div class="overflow-y-auto flex-1">
         <table class="w-full text-left border-collapse text-xs">
-          <thead class="sticky top-0 bg-[#161616] border-b border-[#242424] text-[11px] uppercase tracking-wider text-[#8e8e93] z-10">
+          <thead class="sticky top-0 bg-[#161616] border-b border-[#26262c] text-[11px] uppercase tracking-wider text-[#a1a1aa] z-10">
             <tr>
               <th class="py-2.5 px-4">Ejercicio</th>
               <th class="py-2.5 px-3">Perfil</th>
@@ -643,16 +637,16 @@
               <th class="py-2.5 px-4 text-right">Ejemplo</th>
             </tr>
           </thead>
-          <tbody id="balanceModalTableBody" class="divide-y divide-[#242424]">
+          <tbody id="balanceModalTableBody" class="divide-y divide-[#26262c]">
           </tbody>
         </table>
       </div>
 
-      <div class="px-5 py-3 border-t border-[#242424] bg-[#161616] flex flex-wrap items-center justify-between gap-3 text-xs">
-        <span class="text-[#8e8e93]">
+      <div class="px-5 py-3 border-t border-[#26262c] bg-[#161616] flex flex-wrap items-center justify-between gap-3 text-xs">
+        <span class="text-[#a1a1aa]">
           Los cambios se guardan localmente y recalculan las métricas al instante.
         </span>
-        <button id="btnDoneBalanceModal" class="px-4 py-1.5 rounded-lg bg-[#1b85f3] hover:bg-[#1574d8] text-white font-semibold transition-colors">
+        <button id="btnDoneBalanceModal" class="px-4 py-1.5 rounded-lg bg-brand-600 hover:bg-[#1d4ed8] text-white font-semibold transition-colors">
           Aplicar y Cerrar
         </button>
       </div>

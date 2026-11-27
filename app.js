@@ -37,7 +37,7 @@ const SPANISH_MONTH_NAMES = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "a
 
 const MUSCLE_COLORS = {
   "Pierna": { bg: "#10b981", border: "#34d399", text: "text-emerald-400", light: "rgba(16, 185, 129, 0.15)" },
-  "Espalda": { bg: "#3b82f6", border: "#60a5fa", text: "text-blue-400", light: "rgba(27, 133, 243, 0.16)" },
+  "Espalda": { bg: "#3b82f6", border: "#60a5fa", text: "text-blue-400", light: "rgba(59, 130, 246, 0.15)" },
   "Pecho": { bg: "#ef4444", border: "#f87171", text: "text-red-400", light: "rgba(239, 68, 68, 0.15)" },
   "Bíceps": { bg: "#8b5cf6", border: "#a78bfa", text: "text-purple-400", light: "rgba(139, 92, 246, 0.15)" },
   "Hombro": { bg: "#f59e0b", border: "#fbbf24", text: "text-amber-400", light: "rgba(245, 158, 11, 0.15)" },
@@ -48,7 +48,7 @@ const MUSCLE_COLORS = {
 
 const ROUTINE_COLORS = {
   "Push (Empuje)": { bg: "#ef4444", border: "#f87171", text: "text-red-400", light: "rgba(239, 68, 68, 0.15)" },
-  "Pull (Tirón)": { bg: "#3b82f6", border: "#60a5fa", text: "text-blue-400", light: "rgba(27, 133, 243, 0.16)" },
+  "Pull (Tirón)": { bg: "#3b82f6", border: "#60a5fa", text: "text-blue-400", light: "rgba(59, 130, 246, 0.15)" },
   "Legs (Pierna)": { bg: "#10b981", border: "#34d399", text: "text-emerald-400", light: "rgba(16, 185, 129, 0.15)" },
   "Espalda y Pecho": { bg: "#ec4899", border: "#f472b6", text: "text-pink-400", light: "rgba(236, 72, 153, 0.15)" },
   "Hombro y Brazos": { bg: "#6366f1", border: "#818cf8", text: "text-indigo-400", light: "rgba(99, 102, 241, 0.15)" },
@@ -65,15 +65,21 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function setupEventListeners() {
+  // Sidebar nav active state
+  document.querySelectorAll('.hevy-nav-item[href]').forEach(link => {
+    link.addEventListener('click', () => {
+      document.querySelectorAll('.hevy-nav-item[href]').forEach(l => l.classList.remove('active'));
+      link.classList.add('active');
+    });
+  });
+
   // Metric buttons
   document.querySelectorAll('#metricTabs button').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('#metricTabs button').forEach(b => {
-        b.classList.remove('active', 'bg-brand-600', 'text-white', 'shadow-md');
-        b.classList.add('text-slate-400');
+        b.className = "metric-tab py-1.5 px-3 rounded-md text-xs font-medium text-zinc-400 hover:text-white transition-colors flex items-center justify-center gap-1.5 whitespace-nowrap";
       });
-      btn.classList.add('active', 'bg-brand-600', 'text-white', 'shadow-md');
-      btn.classList.remove('text-slate-400');
+      btn.className = "metric-tab active py-1.5 px-3 rounded-md text-xs font-medium bg-brand-600 text-white transition-colors flex items-center justify-center gap-1.5 whitespace-nowrap";
 
       activeMetric = btn.dataset.metric;
       updateUI();
@@ -84,11 +90,9 @@ function setupEventListeners() {
   document.querySelectorAll('#filterTypeButtons button').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('#filterTypeButtons button').forEach(b => {
-        b.classList.remove('active', 'bg-brand-600', 'text-white');
-        b.classList.add('bg-dark-950', 'text-slate-400');
+        b.className = "filter-type-btn px-2.5 py-0.5 rounded-md bg-dark-850 text-zinc-400 hover:text-white font-medium";
       });
-      btn.classList.add('active', 'bg-brand-600', 'text-white');
-      btn.classList.remove('bg-dark-950', 'text-slate-400');
+      btn.className = "filter-type-btn active px-2.5 py-0.5 rounded-md bg-brand-600 text-white font-medium";
 
       currentFilterType = btn.dataset.type;
       rebuildFilterDropdown();
@@ -106,13 +110,6 @@ function setupEventListeners() {
   // Range preset buttons (including 1w, 1m, 3m, 6m, 1y, all)
   document.querySelectorAll('.range-preset').forEach(btn => {
     btn.addEventListener('click', () => {
-      document.querySelectorAll('.range-preset').forEach(b => {
-        b.classList.remove('active', 'bg-brand-600/30', 'border', 'border-brand-500/40', 'text-brand-300', 'font-semibold');
-        b.classList.add('bg-dark-800', 'text-slate-300', 'font-medium');
-      });
-      btn.classList.add('active', 'bg-brand-600/30', 'border', 'border-brand-500/40', 'text-brand-300', 'font-semibold');
-      btn.classList.remove('bg-dark-800', 'text-slate-300');
-
       applyPresetRange(btn.dataset.range);
     });
   });
@@ -156,10 +153,10 @@ function setupEventListeners() {
     const btnTopFrac = document.getElementById('btnTopModeFractional');
     const banner = document.getElementById('fractionalNoteBanner');
 
-    const activeCls = "active px-3 py-1 rounded-lg bg-brand-600 text-white font-bold transition-all shadow-sm";
-    const inactiveCls = "px-3 py-1 rounded-lg text-slate-400 hover:text-white font-medium transition-colors";
-    const activeTopCls = "active px-2.5 py-1 rounded-lg bg-brand-600 text-white font-bold transition-all shadow-sm";
-    const inactiveTopCls = "px-2.5 py-1 rounded-lg text-slate-400 hover:text-white font-medium transition-colors";
+    const activeCls = "active px-2.5 py-1 rounded-md bg-brand-600 text-white font-medium transition-colors";
+    const inactiveCls = "px-2.5 py-1 rounded-md text-zinc-400 hover:text-white font-medium transition-colors";
+    const activeTopCls = "active px-2.5 py-1 rounded-md bg-brand-600 text-white font-medium transition-colors";
+    const inactiveTopCls = "px-2.5 py-1 rounded-md text-zinc-400 hover:text-white font-medium transition-colors";
 
     if (isFrac) {
       btnFrac.className = activeCls;
@@ -189,16 +186,16 @@ function setupEventListeners() {
 
   btnRaw.addEventListener('click', () => {
     statsMode = 'raw';
-    btnRaw.className = "active px-3 py-1 rounded-lg bg-brand-600 text-white font-bold transition-all shadow-sm";
-    btnBalanced.className = "px-3 py-1 rounded-lg text-slate-400 hover:text-white font-medium transition-colors";
-    modeHint.innerHTML = 'Mostrando kilogramos reales brutos (<code class="text-slate-300">peso × reps</code>).';
+    btnRaw.className = "active px-2.5 py-1 rounded-md bg-brand-600 text-white font-medium transition-colors";
+    btnBalanced.className = "px-2.5 py-1 rounded-md text-zinc-400 hover:text-white font-medium transition-colors";
+    modeHint.innerHTML = 'Mostrando kilogramos reales brutos (<code class="text-zinc-300">peso × reps</code>).';
     updateUI();
   });
 
   btnBalanced.addEventListener('click', () => {
     statsMode = 'balanced';
-    btnBalanced.className = "active px-3 py-1 rounded-lg bg-cyan-600 text-white font-bold transition-all shadow-sm";
-    btnRaw.className = "px-3 py-1 rounded-lg text-slate-400 hover:text-white font-medium transition-colors";
+    btnBalanced.className = "active px-2.5 py-1 rounded-md bg-cyan-600 text-white font-medium transition-colors";
+    btnRaw.className = "px-2.5 py-1 rounded-md text-zinc-400 hover:text-white font-medium transition-colors";
     modeHint.innerHTML = 'Convirtiendo cargas a <strong>kg equivalentes reales</strong> (<code class="text-cyan-300">(peso + %PC × PC) × lados × factor mec.</code>).';
     updateUI();
   });
@@ -471,9 +468,9 @@ function setFilterDirectly(type, value) {
   currentFilterType = type;
   document.querySelectorAll('#filterTypeButtons button').forEach(b => {
     if (b.dataset.type === type) {
-      b.className = "filter-type-btn active px-2 py-0.5 rounded bg-brand-600 text-white font-medium";
+      b.className = "filter-type-btn active px-2.5 py-0.5 rounded-md bg-brand-600 text-white font-medium";
     } else {
-      b.className = "filter-type-btn px-2 py-0.5 rounded bg-dark-950 text-slate-400 hover:text-white font-medium";
+      b.className = "filter-type-btn px-2.5 py-0.5 rounded-md bg-dark-850 text-zinc-400 hover:text-white font-medium";
     }
   });
   rebuildFilterDropdown();
@@ -508,9 +505,9 @@ function applyPresetRange(preset) {
 
   document.querySelectorAll('.range-preset').forEach(b => {
     if (b.dataset.range === preset) {
-      b.className = "range-preset active px-2.5 py-1 text-xs rounded-lg bg-brand-600/30 border border-brand-500/40 text-brand-300 font-semibold transition-colors";
+      b.className = "range-preset active px-2.5 py-1 text-xs rounded-md bg-brand-600/20 border border-brand-500/40 text-brand-400 font-medium transition-colors";
     } else {
-      b.className = "range-preset px-2.5 py-1 text-xs rounded-lg bg-dark-800 hover:bg-dark-700 text-slate-300 font-medium transition-colors";
+      b.className = "range-preset px-2.5 py-1 text-xs rounded-md bg-dark-850 hover:bg-dark-800 text-zinc-300 font-medium transition-colors";
     }
   });
 
@@ -538,8 +535,7 @@ function stepWeek(direction) {
 
 function clearPresetSelection() {
   document.querySelectorAll('.range-preset').forEach(b => {
-    b.classList.remove('active', 'bg-brand-600/30', 'border', 'border-brand-500/40', 'text-brand-300', 'font-semibold');
-    b.classList.add('bg-dark-800', 'text-slate-300', 'font-medium');
+    b.className = "range-preset px-2.5 py-1 text-xs rounded-md bg-dark-850 hover:bg-dark-800 text-zinc-300 font-medium transition-colors";
   });
 }
 
@@ -843,9 +839,9 @@ function renderChart() {
 
   const dataValues = filteredSessions.map(s => getSessionMetricValue(s));
 
-  let primaryColor = '#1b85f3';
-  let primaryBg = 'rgba(27, 133, 243, 0.16)';
-  let primaryBorder = '#3898ff';
+  let primaryColor = '#3b82f6';
+  let primaryBg = 'rgba(59, 130, 246, 0.15)';
+  let primaryBorder = '#60a5fa';
 
   if (currentFilterType === 'muscle' && MUSCLE_COLORS[currentFilterValue]) {
     const c = MUSCLE_COLORS[currentFilterValue];
@@ -959,10 +955,10 @@ function renderChart() {
       plugins: {
         legend: { display: false },
         tooltip: {
-          backgroundColor: '#161616',
+          backgroundColor: '#121215',
           titleColor: '#ffffff',
           bodyColor: '#cbd5e1',
-          borderColor: '#2a2a2d',
+          borderColor: '#26262c',
           borderWidth: 1,
           padding: 12,
           boxPadding: 6,
@@ -1204,10 +1200,10 @@ function renderDonutChart(sortedStats, totalVol, colorMap, volUnit = 'kg') {
           }
         },
         tooltip: {
-          backgroundColor: '#161616',
+          backgroundColor: '#121215',
           titleColor: '#ffffff',
           bodyColor: '#cbd5e1',
-          borderColor: '#2a2a2d',
+          borderColor: '#26262c',
           borderWidth: 1,
           padding: 10,
           callbacks: {
@@ -1249,10 +1245,10 @@ function renderBarChart(sortedStats, colorMap, volUnit = 'kg') {
       plugins: {
         legend: { display: false },
         tooltip: {
-          backgroundColor: '#161616',
+          backgroundColor: '#121215',
           titleColor: '#ffffff',
           bodyColor: '#cbd5e1',
-          borderColor: '#2a2a2d',
+          borderColor: '#26262c',
           borderWidth: 1,
           padding: 10,
           callbacks: {
@@ -1682,11 +1678,11 @@ function renderMuscleRadarCharts() {
         {
           label: currLabel,
           data: currArr,
-          borderColor: '#1b85f3',
-          backgroundColor: 'rgba(27, 133, 243, 0.24)',
+          borderColor: '#3b82f6',
+          backgroundColor: 'rgba(59, 130, 246, 0.22)',
           borderWidth: 2,
-          pointBackgroundColor: '#1b85f3',
-          pointBorderColor: '#1b85f3',
+          pointBackgroundColor: '#3b82f6',
+          pointBorderColor: '#3b82f6',
           pointRadius: 3.5,
           pointHoverRadius: 5
         },
@@ -1709,10 +1705,10 @@ function renderMuscleRadarCharts() {
       plugins: {
         legend: { display: false },
         tooltip: {
-          backgroundColor: '#161616',
+          backgroundColor: '#121215',
           titleColor: '#ffffff',
           bodyColor: '#cbd5e1',
-          borderColor: '#2a2a2d',
+          borderColor: '#26262c',
           borderWidth: 1,
           callbacks: {
             label: (item) => ` ${item.dataset.label}: ${item.raw.toLocaleString('es-ES')} ${unit}`
@@ -1848,7 +1844,7 @@ function renderActivityCalendar() {
     weeks.push(week);
   }
 
-  const INTENSITY_COLORS = ['#1c1c1e', '#0c2d4d', '#114b82', '#1668b8', '#1b85f3'];
+  const INTENSITY_COLORS = ['#1c1c1e', '#0c2d4d', '#114b82', '#1668b8', '#3b82f6'];
   const DAY_LABELS = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
 
   let monthRowHtml = '<div class="flex gap-1.5 mb-1.5">';
