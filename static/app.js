@@ -12,7 +12,7 @@ let exerciseSecondaryMap = {};
 
 let filteredSessions = [];
 let previousPeriodSessions = [];
-let activeMetric = 'volume'; // 'volume' | 'pr_count' | 'sum_orm'
+let activeMetric = 'volume'; // 'volume' | 'sets' | 'pr_count' | 'sum_orm' | 'best_orm' | 'best_weight'
 let currentFilterType = 'all'; // 'all' | 'muscle' | 'routine' | 'exercise'
 let currentFilterValue = 'ALL';
 let chartType = 'line';
@@ -20,10 +20,13 @@ let chartType = 'line';
 let chartInstance = null;
 let donutChartInstance = null;
 let barChartInstance = null;
+let radarRepsChartInstance = null;
+let radarVolumeChartInstance = null;
 let currentSessionIndex = -1;
 let currentBreakdownView = 'muscle'; // 'muscle' | 'routine'
 let useFractionalSets = true; // Toggle for fractional series counting
 let statsMode = 'raw'; // 'raw' (kg brutos) | 'balanced' (normalizada pts)
+let calendarMode = 'all'; // 'all' | 'split'
 
 const SPANISH_MONTH_NAMES = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
 
@@ -42,8 +45,12 @@ const ROUTINE_COLORS = {
   "Push (Empuje)": { bg: "#ef4444", border: "#f87171", text: "text-red-400", light: "rgba(239, 68, 68, 0.15)" },
   "Pull (Tirón)": { bg: "#3b82f6", border: "#60a5fa", text: "text-blue-400", light: "rgba(59, 130, 246, 0.15)" },
   "Legs (Pierna)": { bg: "#10b981", border: "#34d399", text: "text-emerald-400", light: "rgba(16, 185, 129, 0.15)" },
+  "Espalda y Pecho": { bg: "#ec4899", border: "#f472b6", text: "text-pink-400", light: "rgba(236, 72, 153, 0.15)" },
+  "Hombro y Brazos": { bg: "#6366f1", border: "#818cf8", text: "text-indigo-400", light: "rgba(99, 102, 241, 0.15)" },
   "Torso": { bg: "#f59e0b", border: "#fbbf24", text: "text-amber-400", light: "rgba(245, 158, 11, 0.15)" },
+  "Full Body": { bg: "#06b6d4", border: "#22d3ee", text: "text-cyan-400", light: "rgba(6, 182, 212, 0.15)" },
   "Brazos": { bg: "#8b5cf6", border: "#a78bfa", text: "text-purple-400", light: "rgba(139, 92, 246, 0.15)" },
+  "Core / Abdomen": { bg: "#eab308", border: "#facc15", text: "text-yellow-400", light: "rgba(234, 179, 8, 0.15)" },
   "General / Otro": { bg: "#64748b", border: "#94a3b8", text: "text-slate-400", light: "rgba(100, 116, 139, 0.15)" }
 };
 
@@ -228,6 +235,50 @@ function setupEventListeners() {
       highlightSelectedPoint();
     }
   });
+
+  // Radar period selector
+  const radarSelect = document.getElementById('radarPeriodSelect');
+  if (radarSelect) {
+    radarSelect.addEventListener('change', () => renderMuscleRadarCharts());
+  }
+
+  // Activity calendar mode & range controls
+  const btnCalAll = document.getElementById('btnCalAll');
+  const btnCalSplit = document.getElementById('btnCalSplit');
+  if (btnCalAll && btnCalSplit) {
+    btnCalAll.addEventListener('click', () => {
+      calendarMode = 'all';
+      btnCalAll.className = "px-3 py-1 rounded-md bg-slate-100 text-dark-950 font-bold transition-colors";
+      btnCalSplit.className = "px-3 py-1 rounded-md text-slate-400 hover:text-white font-medium transition-colors";
+      renderActivityCalendar();
+    });
+    btnCalSplit.addEventListener('click', () => {
+      calendarMode = 'split';
+      btnCalSplit.className = "px-3 py-1 rounded-md bg-slate-100 text-dark-950 font-bold transition-colors";
+      btnCalAll.className = "px-3 py-1 rounded-md text-slate-400 hover:text-white font-medium transition-colors";
+      renderActivityCalendar();
+    });
+  }
+
+  const calRangeSel = document.getElementById('calendarRangeSelect');
+  const calCustomBox = document.getElementById('calendarCustomDates');
+  const calStartEl = document.getElementById('calDateStart');
+  const calEndEl = document.getElementById('calDateEnd');
+  if (calRangeSel) {
+    calRangeSel.addEventListener('change', () => {
+      const isCustom = calRangeSel.value === 'custom';
+      if (calCustomBox) calCustomBox.classList.toggle('hidden', !isCustom);
+      if (isCustom && calStartEl && calEndEl && (!calStartEl.value || !calEndEl.value) && allSessions.length) {
+        const topStart = document.getElementById('dateStart')?.value;
+        const topEnd = document.getElementById('dateEnd')?.value;
+        calEndEl.value = topEnd || allSessions[allSessions.length - 1].date_day;
+        calStartEl.value = topStart || allSessions[0].date_day;
+      }
+      renderActivityCalendar();
+    });
+  }
+  if (calStartEl) calStartEl.addEventListener('change', () => renderActivityCalendar());
+  if (calEndEl) calEndEl.addEventListener('change', () => renderActivityCalendar());
 }
 
 function showToast(message, isError = false) {
@@ -271,7 +322,7 @@ async function fetchData() {
     // Populate dropdown
     rebuildFilterDropdown();
 
-    // Default range: last week
+    // Default: set to 1 Semana (as requested by user)
     applyPresetRange('1w');
 
     // Auto-select latest session
@@ -336,10 +387,27 @@ function rebuildFilterDropdown() {
     });
   } else if (currentFilterType === 'exercise') {
     select.innerHTML = '<option value="ALL">🏋️ Todos los Ejercicios</option>';
-    allExercises.forEach(ex => {
+    const usageSessions = {};
+    const usageSets = {};
+    allSessions.forEach(s => {
+      const grouped = s.grouped_exercises || {};
+      Object.keys(grouped).forEach(ex => {
+        usageSessions[ex] = (usageSessions[ex] || 0) + 1;
+        usageSets[ex] = (usageSets[ex] || 0) + grouped[ex].length;
+      });
+    });
+    const sortedExercises = [...allExercises].sort((a, b) => {
+      const diffSess = (usageSessions[b] || 0) - (usageSessions[a] || 0);
+      if (diffSess !== 0) return diffSess;
+      const diffSets = (usageSets[b] || 0) - (usageSets[a] || 0);
+      if (diffSets !== 0) return diffSets;
+      return a.localeCompare(b);
+    });
+    sortedExercises.forEach(ex => {
       const opt = document.createElement('option');
       opt.value = ex;
-      opt.textContent = `🏋️ ${ex} (${exerciseMuscleMap[ex] || 'Otro'})`;
+      const count = usageSessions[ex] || 0;
+      opt.textContent = `🏋️ ${ex} (${exerciseMuscleMap[ex] || 'Otro'} • ${count} ses.)`;
       select.appendChild(opt);
     });
   }
@@ -474,6 +542,8 @@ function updateUI() {
   updateChartTitles();
   renderChart();
   renderBreakdownSection();
+  renderMuscleRadarCharts();
+  renderActivityCalendar();
 
   if (currentSessionIndex >= filteredSessions.length) {
     currentSessionIndex = filteredSessions.length - 1;
@@ -519,54 +589,124 @@ function renderDiffBadge(currentVal, prevVal, isInteger = false, unit = '') {
   }
 }
 
+function parseLocalDay(dayStr) {
+  return new Date(dayStr + 'T12:00:00');
+}
+
+function fmtLocalDay(dt) {
+  const y = dt.getFullYear();
+  const m = String(dt.getMonth() + 1).padStart(2, '0');
+  const d = String(dt.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+
+function getSessionBestOrm(s, isBal) {
+  const oMap = (isBal ? s.balanced_exercise_max_orm : s.exercise_max_orm) || {};
+  const vals = Object.values(oMap);
+  return vals.length ? Math.max(...vals) : 0;
+}
+
+function getMuscleSumOrm(s, muscle, isBal) {
+  const oMap = (isBal ? s.balanced_exercise_max_orm : s.exercise_max_orm) || {};
+  let sum = 0;
+  Object.keys(oMap).forEach(ex => {
+    if ((exerciseMuscleMap[ex] || 'Otro') === muscle) {
+      sum += oMap[ex] || 0;
+    }
+  });
+  return roundOneDecimal(sum);
+}
+
+function getExerciseSumOrm(s, exName, isBal) {
+  const sets = (s.grouped_exercises && s.grouped_exercises[exName]) || [];
+  const sum = sets.reduce((acc, st) => acc + ((isBal ? st.balanced_1rm : st.estimated_1rm) || 0), 0);
+  return roundOneDecimal(sum);
+}
+
+function getSessionMetricValueForMetric(s, metric, isBal) {
+  if (currentFilterType === 'all' || currentFilterValue === 'ALL' || currentFilterType === 'routine') {
+    if (metric === 'volume') return isBal ? s.balanced_total_volume : s.total_volume;
+    if (metric === 'sets') return s.total_sets || 0;
+    if (metric === 'pr_count') return s.pr_count;
+    if (metric === 'sum_orm') return (isBal ? s.balanced_sum_orm : s.sum_orm) || 0;
+    if (metric === 'best_orm') return getSessionBestOrm(s, isBal);
+    if (metric === 'best_weight') return s.max_weight || 0;
+  } else if (currentFilterType === 'muscle') {
+    if (metric === 'volume') {
+      const mMap = isBal
+        ? (useFractionalSets ? s.balanced_muscle_volumes_fractional : s.balanced_muscle_volumes)
+        : (useFractionalSets ? s.muscle_volumes_fractional : s.muscle_volumes);
+      return (mMap && mMap[currentFilterValue]) || 0;
+    }
+    if (metric === 'sets') {
+      const sMap = useFractionalSets ? s.muscle_sets_fractional : s.muscle_sets_direct;
+      return (sMap && sMap[currentFilterValue]) || 0;
+    }
+    if (metric === 'pr_count') {
+      return (s.prs_achieved && s.prs_achieved.filter(p => p.muscle_group === currentFilterValue).length) || 0;
+    }
+    if (metric === 'sum_orm') return getMuscleSumOrm(s, currentFilterValue, isBal);
+    if (metric === 'best_orm') {
+      const oMap = isBal ? s.balanced_muscle_max_orm : s.muscle_max_orm;
+      return (oMap && oMap[currentFilterValue]) || 0;
+    }
+    if (metric === 'best_weight') {
+      return (s.muscle_max_weight && s.muscle_max_weight[currentFilterValue]) || 0;
+    }
+  } else if (currentFilterType === 'exercise') {
+    if (metric === 'volume') {
+      const eMap = isBal ? s.balanced_exercise_volumes : s.exercise_volumes;
+      return (eMap && eMap[currentFilterValue]) || 0;
+    }
+    if (metric === 'sets') {
+      return (s.grouped_exercises && s.grouped_exercises[currentFilterValue]) ? s.grouped_exercises[currentFilterValue].length : 0;
+    }
+    if (metric === 'pr_count') {
+      const hasPR = s.prs_achieved && s.prs_achieved.some(p => p.exercise === currentFilterValue);
+      return hasPR ? 1 : 0;
+    }
+    if (metric === 'sum_orm') return getExerciseSumOrm(s, currentFilterValue, isBal);
+    if (metric === 'best_orm') {
+      const oMap = isBal ? s.balanced_exercise_max_orm : s.exercise_max_orm;
+      return (oMap && oMap[currentFilterValue]) || 0;
+    }
+    if (metric === 'best_weight') {
+      return (s.exercise_max_weight && s.exercise_max_weight[currentFilterValue]) || 0;
+    }
+  }
+  return 0;
+}
+
 function computePeriodMetrics(sessions) {
   let totalVol = 0;
   let totalPRs = 0;
   let max1RM = 0;
   const isBal = statsMode === 'balanced';
+  const defaultOrmMetric = (currentFilterType === 'muscle' || currentFilterType === 'exercise') && currentFilterValue !== 'ALL'
+    ? 'best_orm'
+    : 'sum_orm';
+  const kpiOrmMetric = (activeMetric === 'sum_orm' || activeMetric === 'best_orm')
+    ? activeMetric
+    : defaultOrmMetric;
 
   sessions.forEach(s => {
-    if (currentFilterType === 'all' || currentFilterValue === 'ALL') {
-      totalVol += (isBal ? s.balanced_total_volume : s.total_volume) || 0;
-      totalPRs += s.pr_count || 0;
-      const ormVal = (isBal ? s.balanced_sum_orm : s.sum_orm) || 0;
-      if (ormVal > max1RM) max1RM = ormVal;
-    } else if (currentFilterType === 'muscle') {
-      const volMap = isBal
-        ? (useFractionalSets ? s.balanced_muscle_volumes_fractional : s.balanced_muscle_volumes)
-        : (useFractionalSets ? s.muscle_volumes_fractional : s.muscle_volumes);
-      const ormMap = isBal ? s.balanced_muscle_max_orm : s.muscle_max_orm;
-      totalVol += (volMap && volMap[currentFilterValue]) || 0;
-      const mPrs = s.prs_achieved && s.prs_achieved.filter(p => p.muscle_group === currentFilterValue).length;
-      totalPRs += (mPrs || 0);
-      const mORM = (ormMap && ormMap[currentFilterValue]) || 0;
-      if (mORM > max1RM) max1RM = mORM;
-    } else if (currentFilterType === 'routine') {
-      totalVol += (isBal ? s.balanced_total_volume : s.total_volume) || 0;
-      totalPRs += s.pr_count || 0;
-      const ormVal = (isBal ? s.balanced_sum_orm : s.sum_orm) || 0;
-      if (ormVal > max1RM) max1RM = ormVal;
-    } else if (currentFilterType === 'exercise') {
-      const volMap = isBal ? s.balanced_exercise_volumes : s.exercise_volumes;
-      const ormMap = isBal ? s.balanced_exercise_max_orm : s.exercise_max_orm;
-      totalVol += (volMap && volMap[currentFilterValue]) || 0;
-      const hasPR = s.prs_achieved && s.prs_achieved.some(p => p.exercise === currentFilterValue);
-      if (hasPR) totalPRs++;
-      const exORM = (ormMap && ormMap[currentFilterValue]) || 0;
-      if (exORM > max1RM) max1RM = exORM;
-    }
+    totalVol += getSessionMetricValueForMetric(s, 'volume', isBal) || 0;
+    totalPRs += getSessionMetricValueForMetric(s, 'pr_count', isBal) || 0;
+    const ormVal = getSessionMetricValueForMetric(s, kpiOrmMetric, isBal) || 0;
+    if (ormVal > max1RM) max1RM = ormVal;
   });
 
-  return { totalCount: sessions.length, totalVol, totalPRs, max1RM };
+  return { totalCount: sessions.length, totalVol, totalPRs, max1RM, kpiOrmMetric };
 }
 
 function updateKPIs() {
   const isBal = statsMode === 'balanced';
   const volUnit = isBal ? ' pts' : ' kg';
-  const ormUnit = (isBal && (currentFilterType === 'exercise' || currentFilterType === 'muscle')) ? '%' : (isBal ? ' pts' : ' kg');
 
   const curr = computePeriodMetrics(filteredSessions);
   const prev = computePeriodMetrics(previousPeriodSessions);
+  const isBestOrm = curr.kpiOrmMetric === 'best_orm';
+  const ormUnit = isBal ? (isBestOrm ? '%' : ' pts') : ' kg';
 
   document.getElementById('kpiSessions').textContent = curr.totalCount;
   let subLabel = 'sesiones en el período';
@@ -583,7 +723,9 @@ function updateKPIs() {
   document.getElementById('kpiPRsSub').textContent = 'Récords personales conseguidos';
 
   document.getElementById('kpiTopRM').textContent = `${curr.max1RM.toFixed(1)}${ormUnit}`;
-  document.getElementById('kpiTopRMSub').textContent = isBal ? 'Índice de fuerza relativa' : 'Mejor 1RM en el filtro';
+  document.getElementById('kpiTopRMSub').textContent = isBestOrm
+    ? (isBal ? 'Índice de fuerza relativa (Mejor 1RM)' : 'Mejor 1RM en el filtro')
+    : (isBal ? 'Suma máx. fuerza relativa' : (currentFilterType === 'exercise' && currentFilterValue !== 'ALL' ? 'Suma máx. de 1RM (series)' : 'Suma máx. de 1RM en sesión'));
 
   document.getElementById('kpiSessionsDiff').innerHTML = renderDiffBadge(curr.totalCount, prev.totalCount, true);
   document.getElementById('kpiVolumeDiff').innerHTML = renderDiffBadge(curr.totalVol, prev.totalVol, false, volUnit);
@@ -610,61 +752,19 @@ function updateChartTitles() {
   } else if (activeMetric === 'pr_count') {
     titleEl.innerHTML = `<i class="fa-solid fa-trophy text-amber-400 mr-1.5"></i> RMs / PRs Conseguidos ${filterLabel}`;
   } else if (activeMetric === 'sum_orm') {
+    const ormLabel = isBal ? 'Índice de Fuerza (pts)' : '1RM Estimado (kg)';
+    const seriesHint = (currentFilterType === 'exercise' && currentFilterValue !== 'ALL') ? ' (series)' : '';
+    titleEl.innerHTML = `<i class="fa-solid fa-bolt text-purple-400 mr-1.5"></i> Suma de ${ormLabel}${seriesHint} ${filterLabel}`;
+  } else if (activeMetric === 'best_orm') {
     const ormLabel = isBal ? 'Índice de Fuerza (%)' : '1RM Estimado (kg)';
-    titleEl.innerHTML = (currentFilterType === 'exercise' || currentFilterType === 'muscle')
-      ? `<i class="fa-solid fa-bolt text-purple-400 mr-1.5"></i> Mejor ${ormLabel} ${filterLabel}`
-      : `<i class="fa-solid fa-bolt text-purple-400 mr-1.5"></i> Suma de ${ormLabel} ${filterLabel}`;
+    titleEl.innerHTML = `<i class="fa-solid fa-crown text-violet-400 mr-1.5"></i> Serie con Mejor ${ormLabel} ${filterLabel}`;
+  } else if (activeMetric === 'best_weight') {
+    titleEl.innerHTML = `<i class="fa-solid fa-weight-hanging text-rose-400 mr-1.5"></i> Serie con Mejor Peso ${filterLabel} (kg)`;
   }
 }
 
 function getSessionMetricValue(s) {
-  const isBal = statsMode === 'balanced';
-  if (currentFilterType === 'all' || currentFilterValue === 'ALL') {
-    if (activeMetric === 'volume') return isBal ? s.balanced_total_volume : s.total_volume;
-    if (activeMetric === 'sets') return s.total_sets || 0;
-    if (activeMetric === 'pr_count') return s.pr_count;
-    if (activeMetric === 'sum_orm') return isBal ? s.balanced_sum_orm : s.sum_orm;
-  } else if (currentFilterType === 'muscle') {
-    if (activeMetric === 'volume') {
-      const mMap = isBal
-        ? (useFractionalSets ? s.balanced_muscle_volumes_fractional : s.balanced_muscle_volumes)
-        : (useFractionalSets ? s.muscle_volumes_fractional : s.muscle_volumes);
-      return (mMap && mMap[currentFilterValue]) || 0;
-    }
-    if (activeMetric === 'sets') {
-      const sMap = useFractionalSets ? s.muscle_sets_fractional : s.muscle_sets_direct;
-      return (sMap && sMap[currentFilterValue]) || 0;
-    }
-    if (activeMetric === 'pr_count') {
-      return (s.prs_achieved && s.prs_achieved.filter(p => p.muscle_group === currentFilterValue).length) || 0;
-    }
-    if (activeMetric === 'sum_orm') {
-      const oMap = isBal ? s.balanced_muscle_max_orm : s.muscle_max_orm;
-      return (oMap && oMap[currentFilterValue]) || 0;
-    }
-  } else if (currentFilterType === 'routine') {
-    if (activeMetric === 'volume') return isBal ? s.balanced_total_volume : s.total_volume;
-    if (activeMetric === 'sets') return s.total_sets || 0;
-    if (activeMetric === 'pr_count') return s.pr_count;
-    if (activeMetric === 'sum_orm') return isBal ? s.balanced_sum_orm : s.sum_orm;
-  } else if (currentFilterType === 'exercise') {
-    if (activeMetric === 'volume') {
-      const eMap = isBal ? s.balanced_exercise_volumes : s.exercise_volumes;
-      return (eMap && eMap[currentFilterValue]) || 0;
-    }
-    if (activeMetric === 'sets') {
-      return (s.grouped_exercises && s.grouped_exercises[currentFilterValue]) ? s.grouped_exercises[currentFilterValue].length : 0;
-    }
-    if (activeMetric === 'pr_count') {
-      const hasPR = s.prs_achieved && s.prs_achieved.some(p => p.exercise === currentFilterValue);
-      return hasPR ? 1 : 0;
-    }
-    if (activeMetric === 'sum_orm') {
-      const oMap = isBal ? s.balanced_exercise_max_orm : s.exercise_max_orm;
-      return (oMap && oMap[currentFilterValue]) || 0;
-    }
-  }
-  return 0;
+  return getSessionMetricValueForMetric(s, activeMetric, statsMode === 'balanced');
 }
 
 function renderChart() {
@@ -708,6 +808,14 @@ function renderChart() {
       primaryColor = '#a855f7';
       primaryBg = 'rgba(168, 85, 247, 0.2)';
       primaryBorder = '#c084fc';
+    } else if (activeMetric === 'best_orm') {
+      primaryColor = '#8b5cf6';
+      primaryBg = 'rgba(139, 92, 246, 0.2)';
+      primaryBorder = '#a78bfa';
+    } else if (activeMetric === 'best_weight') {
+      primaryColor = '#f43f5e';
+      primaryBg = 'rgba(244, 63, 94, 0.2)';
+      primaryBorder = '#fb7185';
     }
   }
 
@@ -730,16 +838,33 @@ function renderChart() {
   });
 
   const isBal = statsMode === 'balanced';
-  const metricUnit = activeMetric === 'pr_count' ? ' RMs' : (activeMetric === 'sets' ? ' series' : (isBal ? (activeMetric === 'sum_orm' && (currentFilterType === 'exercise' || currentFilterType === 'muscle') ? '%' : ' pts') : ' kg'));
-  const datasetLabel = activeMetric === 'volume' 
-    ? (isBal ? 'Esfuerzo (pts)' : 'Volumen (kg)') 
-    : (activeMetric === 'sets' ? 'Series' : (activeMetric === 'pr_count' ? 'RMs Conseguidos' : (isBal ? 'Fuerza Rel.' : '1RM (kg)')));
+  let metricUnit = ' kg';
+  let datasetLabel = isBal ? 'Esfuerzo (pts)' : 'Volumen (kg)';
+  if (activeMetric === 'volume') {
+    metricUnit = isBal ? ' pts' : ' kg';
+  } else if (activeMetric === 'sets') {
+    metricUnit = ' series';
+    datasetLabel = 'Series';
+  } else if (activeMetric === 'pr_count') {
+    metricUnit = ' RMs';
+    datasetLabel = 'RMs Conseguidos';
+  } else if (activeMetric === 'sum_orm') {
+    metricUnit = isBal ? ' pts' : ' kg';
+    datasetLabel = isBal ? 'Suma Fuerza Rel. (pts)' : 'Suma de 1RM (kg)';
+  } else if (activeMetric === 'best_orm') {
+    metricUnit = isBal ? '%' : ' kg';
+    datasetLabel = isBal ? 'Mejor Fuerza Rel. (%)' : 'Mejor 1RM (kg)';
+  } else if (activeMetric === 'best_weight') {
+    metricUnit = ' kg';
+    datasetLabel = 'Mejor Peso (kg)';
+  }
 
   chartInstance = new Chart(ctx, {
     type: chartType,
     data: {
       labels: labels,
       datasets: [{
+        _baseColor: primaryColor,
         label: datasetLabel,
         data: dataValues,
         borderColor: primaryBorder,
@@ -848,7 +973,7 @@ function highlightSelectedPoint() {
   ds.pointBackgroundColor = filteredSessions.map((s, idx) => {
     if (idx === currentSessionIndex) return '#ffffff';
     if (s.pr_count > 0) return '#f59e0b';
-    return '#3b82f6';
+    return ds._baseColor || '#3b82f6';
   });
   chartInstance.update('none');
 }
@@ -1284,6 +1409,7 @@ function showSessionDetail(s, index) {
     const sets = grouped[exName];
     const exVol = (s.exercise_volumes && s.exercise_volumes[exName]) || 0;
     const exORM = (s.exercise_max_orm && s.exercise_max_orm[exName]) || 0;
+    const exMaxW = (s.exercise_max_weight && s.exercise_max_weight[exName]) || 0;
     const muscle = exerciseMuscleMap[exName] || 'Otro';
     const mColor = MUSCLE_COLORS[muscle] || { text: 'text-slate-400', light: 'rgba(100, 116, 139, 0.15)' };
     const secondaries = exerciseSecondaryMap[exName] || [];
@@ -1340,6 +1466,7 @@ function showSessionDetail(s, index) {
         </div>
         <div class="flex items-center gap-3 text-xs text-slate-400">
           <span>Volumen: <strong class="text-emerald-400">${exVol.toLocaleString('es-ES')} kg</strong></span>
+          <span>Mejor Peso: <strong class="text-rose-400">${exMaxW} kg</strong></span>
           <span>Mejor 1RM: <strong class="text-purple-400">${exORM} kg</strong></span>
         </div>
       </div>
@@ -1367,3 +1494,388 @@ function showSessionDetail(s, index) {
   });
 }
 window.setFilterDirectly = setFilterDirectly;
+
+/**
+ * Muscle Group Radar Charts (Reps & Volume, Current vs Previous Period)
+ */
+function renderMuscleRadarCharts() {
+  const repsCanvas = document.getElementById('radarRepsChart');
+  const volCanvas = document.getElementById('radarVolumeChart');
+  if (!repsCanvas || !volCanvas) return;
+
+  if (radarRepsChartInstance) radarRepsChartInstance.destroy();
+  if (radarVolumeChartInstance) radarVolumeChartInstance.destroy();
+
+  const periodSel = document.getElementById('radarPeriodSelect');
+  const periodVal = periodSel ? periodSel.value : '30';
+
+  let currSessions = [];
+  let prevSessions = [];
+  let currLabel = 'Período actual';
+  let prevLabel = 'Período anterior';
+  let anchorText = '';
+
+  if (!allSessions.length) return;
+
+  if (periodVal === 'filter') {
+    currSessions = filteredSessions;
+    prevSessions = previousPeriodSessions;
+    currLabel = 'Rango actual';
+    prevLabel = 'Rango anterior';
+    const endVal = document.getElementById('dateEnd')?.value;
+    if (endVal) anchorText = ` · ANCLADO A ${endVal}`;
+  } else {
+    const days = parseInt(periodVal, 10) || 30;
+    const maxDay = allSessions[allSessions.length - 1].date_day;
+    const anchorDt = parseLocalDay(maxDay);
+    const currStartDt = new Date(anchorDt);
+    currStartDt.setDate(currStartDt.getDate() - (days - 1));
+    const prevEndDt = new Date(currStartDt);
+    prevEndDt.setDate(prevEndDt.getDate() - 1);
+    const prevStartDt = new Date(prevEndDt);
+    prevStartDt.setDate(prevStartDt.getDate() - (days - 1));
+
+    const currStartStr = fmtLocalDay(currStartDt);
+    const prevStartStr = fmtLocalDay(prevStartDt);
+    const prevEndStr = fmtLocalDay(prevEndDt);
+
+    currSessions = allSessions.filter(s => s.date_day >= currStartStr && s.date_day <= maxDay);
+    prevSessions = allSessions.filter(s => s.date_day >= prevStartStr && s.date_day <= prevEndStr);
+
+    currLabel = `Últimos ${days} días`;
+    prevLabel = `${days} días anteriores`;
+    const parts = maxDay.split('-');
+    if (parts.length === 3) {
+      anchorText = ` · ANCLADO A ${parseInt(parts[2], 10)} ${SPANISH_MONTH_NAMES[parseInt(parts[1], 10) - 1].toUpperCase()}`;
+    }
+  }
+
+  const legCurr = document.getElementById('radarLegendCurrent');
+  const legPrev = document.getElementById('radarLegendPrev');
+  const subEl = document.getElementById('radarSubtitle');
+  if (legCurr) legCurr.textContent = currLabel;
+  if (legPrev) legPrev.textContent = prevLabel;
+  if (subEl) {
+    const modeLabel = useFractionalSets ? 'SERIES EFECTIVAS (0.5x)' : 'SERIES DIRECTAS (1.0x)';
+    subEl.textContent = `${modeLabel} · BRILLANTE = ${currLabel.toUpperCase()}, OSCURO = ${prevLabel.toUpperCase()}${anchorText}`;
+  }
+
+  const axes = ['Pecho', 'Espalda', 'Pierna', 'Brazos', 'Hombro', 'Abdomen'];
+  const mapMuscleToAxis = (m) => {
+    if (m === 'Bíceps' || m === 'Tríceps') return 'Brazos';
+    if (axes.includes(m)) return m;
+    return null;
+  };
+
+  const aggregateRadar = (sessions) => {
+    const reps = Object.fromEntries(axes.map(a => [a, 0]));
+    const vol = Object.fromEntries(axes.map(a => [a, 0]));
+    sessions.forEach(s => {
+      (s.sets || []).forEach(st => {
+        if (st.set_type === 'warmup') return;
+        const primaryAxis = mapMuscleToAxis(st.muscle_group);
+        if (primaryAxis) {
+          reps[primaryAxis] += st.reps || 0;
+          vol[primaryAxis] += st.volume_kg || 0;
+        }
+        if (useFractionalSets && st.secondary_muscles) {
+          st.secondary_muscles.forEach(([mSec, w]) => {
+            const secAxis = mapMuscleToAxis(mSec);
+            if (secAxis) {
+              reps[secAxis] += (st.reps || 0) * w;
+              vol[secAxis] += (st.volume_kg || 0) * w;
+            }
+          });
+        }
+      });
+    });
+    return {
+      reps: axes.map(a => Math.round(reps[a])),
+      vol: axes.map(a => Math.round(vol[a]))
+    };
+  };
+
+  const currData = aggregateRadar(currSessions);
+  const prevData = aggregateRadar(prevSessions);
+
+  const buildRadarConfig = (currArr, prevArr, unit) => ({
+    type: 'radar',
+    data: {
+      labels: axes,
+      datasets: [
+        {
+          label: currLabel,
+          data: currArr,
+          borderColor: '#ff4d1a',
+          backgroundColor: 'rgba(255, 77, 26, 0.24)',
+          borderWidth: 2,
+          pointBackgroundColor: '#ff4d1a',
+          pointBorderColor: '#ff4d1a',
+          pointRadius: 3.5,
+          pointHoverRadius: 5
+        },
+        {
+          label: prevLabel,
+          data: prevArr,
+          borderColor: '#7c2d12',
+          backgroundColor: 'rgba(124, 45, 18, 0.28)',
+          borderWidth: 1.5,
+          pointBackgroundColor: '#7c2d12',
+          pointBorderColor: '#7c2d12',
+          pointRadius: 2.5,
+          pointHoverRadius: 4
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#0d1322',
+          titleColor: '#ffffff',
+          bodyColor: '#cbd5e1',
+          borderColor: '#233254',
+          borderWidth: 1,
+          callbacks: {
+            label: (item) => ` ${item.dataset.label}: ${item.raw.toLocaleString('es-ES')} ${unit}`
+          }
+        }
+      },
+      scales: {
+        r: {
+          beginAtZero: true,
+          grid: { color: 'rgba(255, 255, 255, 0.07)' },
+          angleLines: { color: 'rgba(255, 255, 255, 0.07)' },
+          pointLabels: {
+            color: '#cbd5e1',
+            font: { size: 11, weight: '600', family: 'monospace' }
+          },
+          ticks: { display: false }
+        }
+      }
+    }
+  });
+
+  radarRepsChartInstance = new Chart(repsCanvas.getContext('2d'), buildRadarConfig(currData.reps, prevData.reps, 'reps'));
+  radarVolumeChartInstance = new Chart(volCanvas.getContext('2d'), buildRadarConfig(currData.vol, prevData.vol, 'kg'));
+}
+
+/**
+ * Activity Calendar (GitHub-style Heatmap)
+ */
+function renderActivityCalendar() {
+  const container = document.getElementById('activityCalendarGrid');
+  const legendEl = document.getElementById('calendarLegend');
+  const rangeEl = document.getElementById('calendarRangeLabel');
+  if (!container || !legendEl) return;
+
+  if (!allSessions.length) {
+    container.innerHTML = '<div class="text-xs text-slate-500 py-6 text-center">No hay sesiones registradas para mostrar el calendario.</div>';
+    legendEl.innerHTML = '';
+    if (rangeEl) rangeEl.textContent = '-';
+    return;
+  }
+
+  const dayMap = {};
+  allSessions.forEach((s, idx) => {
+    if (!s.date_day) return;
+    if (!dayMap[s.date_day]) {
+      dayMap[s.date_day] = { sessions: [], totalVol: 0, totalSets: 0 };
+    }
+    dayMap[s.date_day].sessions.push({ session: s, globalIdx: idx });
+    dayMap[s.date_day].totalVol += s.total_volume || 0;
+    dayMap[s.date_day].totalSets += s.total_sets || 0;
+  });
+
+  const rangeMode = document.getElementById('calendarRangeSelect')?.value || '1y';
+  const maxDayStr = allSessions[allSessions.length - 1].date_day;
+  const minDayStr = allSessions[0].date_day;
+  const minDt = parseLocalDay(minDayStr);
+  const maxDt = parseLocalDay(maxDayStr);
+
+  let rangeEndDt = new Date(maxDt);
+  let rangeStartDt = new Date(maxDt);
+
+  if (rangeMode === '1m') {
+    rangeStartDt.setMonth(rangeStartDt.getMonth() - 1);
+    if (rangeStartDt < minDt) rangeStartDt = new Date(minDt);
+  } else if (rangeMode === '3m') {
+    rangeStartDt.setMonth(rangeStartDt.getMonth() - 3);
+    if (rangeStartDt < minDt) rangeStartDt = new Date(minDt);
+  } else if (rangeMode === '6m') {
+    rangeStartDt.setMonth(rangeStartDt.getMonth() - 6);
+    if (rangeStartDt < minDt) rangeStartDt = new Date(minDt);
+  } else if (rangeMode === '1y') {
+    rangeStartDt.setDate(rangeStartDt.getDate() - 364);
+    if (rangeStartDt < minDt) rangeStartDt = new Date(minDt);
+  } else if (rangeMode === 'ytd') {
+    rangeStartDt = new Date(rangeEndDt.getFullYear(), 0, 1, 12, 0, 0);
+    if (rangeStartDt < minDt) rangeStartDt = new Date(minDt);
+  } else if (rangeMode === 'all') {
+    rangeStartDt = new Date(minDt);
+  } else if (rangeMode === 'filter') {
+    const fStart = document.getElementById('dateStart')?.value;
+    const fEnd = document.getElementById('dateEnd')?.value;
+    rangeStartDt = fStart ? parseLocalDay(fStart) : new Date(minDt);
+    rangeEndDt = fEnd ? parseLocalDay(fEnd) : new Date(maxDt);
+  } else if (rangeMode === 'custom') {
+    const cStart = document.getElementById('calDateStart')?.value;
+    const cEnd = document.getElementById('calDateEnd')?.value;
+    rangeStartDt = cStart ? parseLocalDay(cStart) : new Date(minDt);
+    rangeEndDt = cEnd ? parseLocalDay(cEnd) : new Date(maxDt);
+  }
+
+  if (rangeStartDt > rangeEndDt) {
+    const tmp = rangeStartDt;
+    rangeStartDt = rangeEndDt;
+    rangeEndDt = tmp;
+  }
+
+  const strictStartClamp = (rangeMode === 'filter' || rangeMode === 'custom');
+  const startDt = new Date(rangeStartDt);
+  // Align startDt to Monday
+  const startDow = (startDt.getDay() + 6) % 7; // 0=Mon..6=Sun
+  startDt.setDate(startDt.getDate() - startDow);
+
+  const fmtShort = (d) => `${d.getDate()} ${SPANISH_MONTH_NAMES[d.getMonth()].toUpperCase()} '${String(d.getFullYear()).slice(2)}`;
+  const rangeStartStr = fmtLocalDay(rangeStartDt);
+  const rangeEndStr = fmtLocalDay(rangeEndDt);
+  const alignedStartStr = fmtLocalDay(startDt);
+
+  // Count visible sessions & compute max volume for intensity scaling
+  let visibleSessionCount = 0;
+  const visibleVolumes = [];
+  Object.entries(dayMap).forEach(([ds, info]) => {
+    const minVisible = strictStartClamp ? rangeStartStr : alignedStartStr;
+    if (ds >= minVisible && ds <= rangeEndStr) {
+      visibleSessionCount += info.sessions.length;
+      if (info.totalVol > 0) visibleVolumes.push(info.totalVol);
+    }
+  });
+  if (rangeEl) {
+    rangeEl.textContent = `${fmtShort(rangeStartDt)} → ${fmtShort(rangeEndDt)} · ${visibleSessionCount} ses.`;
+  }
+
+  const maxVol = visibleVolumes.length ? Math.max(...visibleVolumes) : 1;
+
+  // Build weeks
+  const weeks = [];
+  let cursor = new Date(startDt);
+  while (cursor <= rangeEndDt) {
+    const week = [];
+    for (let i = 0; i < 7; i++) {
+      week.push(new Date(cursor));
+      cursor.setDate(cursor.getDate() + 1);
+    }
+    weeks.push(week);
+  }
+
+  const INTENSITY_COLORS = ['#141824', '#431407', '#7c2d12', '#c2410c', '#ff4d1a'];
+  const DAY_LABELS = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
+
+  let monthRowHtml = '<div class="flex gap-1.5 mb-1.5">';
+  monthRowHtml += '<div class="w-4 pr-1 shrink-0"></div>';
+  let lastMonth = -1;
+  let lastLabelCol = -10;
+  weeks.forEach((week, wIdx) => {
+    const firstDay = week[0];
+    const m = firstDay.getMonth();
+    let label = '';
+    if (m !== lastMonth) {
+      const nextWeekChanges = (wIdx === 0 && weeks.length > 2 && weeks[1][0].getMonth() !== m);
+      if (!nextWeekChanges && (wIdx - lastLabelCol >= 2)) {
+        label = SPANISH_MONTH_NAMES[m].toUpperCase();
+        if (wIdx === 0 || m === 0) {
+          label += ` '${String(firstDay.getFullYear()).slice(2)}`;
+        }
+        lastLabelCol = wIdx;
+      }
+      lastMonth = m;
+    }
+    monthRowHtml += `<div class="w-3.5 shrink-0 text-[10px] font-mono text-slate-400 whitespace-nowrap overflow-visible">${label}</div>`;
+  });
+  monthRowHtml += '</div>';
+
+  let gridHtml = '<div class="flex gap-1.5">';
+  // Day of week labels column
+  gridHtml += '<div class="flex flex-col gap-1.5 pr-1 shrink-0">';
+  DAY_LABELS.forEach(dl => {
+    gridHtml += `<div class="h-3.5 w-4 text-[10px] font-mono text-slate-500 flex items-center justify-end">${dl}</div>`;
+  });
+  gridHtml += '</div>';
+
+  // Week columns
+  weeks.forEach(week => {
+    gridHtml += '<div class="flex flex-col gap-1.5 shrink-0">';
+    week.forEach(d => {
+      const ds = fmtLocalDay(d);
+      const isOutOfRange = (d > rangeEndDt) || (strictStartClamp && d < rangeStartDt);
+      const info = dayMap[ds];
+      let bg = INTENSITY_COLORS[0];
+      let title = `${ds}: Sin entrenamiento`;
+      let cursorCls = '';
+      let dataAttr = '';
+
+      if (isOutOfRange) {
+        bg = 'transparent';
+        title = '';
+      } else if (info && info.sessions.length > 0) {
+        const mainSess = info.sessions[info.sessions.length - 1].session;
+        const routine = mainSess.routine_category || 'General / Otro';
+        if (calendarMode === 'split') {
+          bg = (ROUTINE_COLORS[routine] && ROUTINE_COLORS[routine].bg) || '#64748b';
+        } else {
+          const ratio = info.totalVol / maxVol;
+          const level = ratio > 0.75 ? 4 : (ratio > 0.5 ? 3 : (ratio > 0.25 ? 2 : 1));
+          bg = INTENSITY_COLORS[level];
+        }
+        const titles = info.sessions.map(x => x.session.title).join(' + ');
+        title = `${ds} • ${titles} (${routine}) • ${info.totalSets} series • ${Math.round(info.totalVol).toLocaleString('es-ES')} kg`;
+        cursorCls = 'cursor-pointer hover:ring-2 hover:ring-white/70';
+        dataAttr = `data-cal-date="${ds}"`;
+      }
+
+      gridHtml += `<div class="w-3.5 h-3.5 shrink-0 rounded-[3px] transition-all ${cursorCls}" style="background-color:${bg}" title="${title}" ${dataAttr}></div>`;
+    });
+    gridHtml += '</div>';
+  });
+  gridHtml += '</div>';
+
+  container.innerHTML = monthRowHtml + gridHtml;
+
+  // Click handler on active calendar cells
+  container.querySelectorAll('[data-cal-date]').forEach(el => {
+    el.addEventListener('click', () => {
+      const ds = el.getAttribute('data-cal-date');
+      const idxInFiltered = filteredSessions.findIndex(s => s.date_day === ds);
+      if (idxInFiltered >= 0) {
+        currentSessionIndex = idxInFiltered;
+        showSessionDetail(filteredSessions[idxInFiltered], idxInFiltered);
+        highlightSelectedPoint();
+        document.getElementById('sessionDetailContainer')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } else if (dayMap[ds] && dayMap[ds].sessions.length > 0) {
+        showSessionDetail(dayMap[ds].sessions[0].session, 0);
+        document.getElementById('sessionDetailContainer')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+  });
+
+  // Legend
+  if (calendarMode === 'split') {
+    legendEl.innerHTML = '<span class="text-slate-500 mr-1">RUTINAS:</span>' +
+      Object.entries(ROUTINE_COLORS).map(([name, c]) =>
+        `<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-dark-950 border border-dark-800 text-[10px]">
+          <span class="w-2.5 h-2.5 rounded-[2px]" style="background-color:${c.bg}"></span>
+          <span>${name}</span>
+        </span>`
+      ).join('');
+  } else {
+    legendEl.innerHTML = `
+      <span>MENOS</span>
+      ${INTENSITY_COLORS.map(c => `<span class="w-3 h-3 rounded-[2px] inline-block" style="background-color:${c}"></span>`).join('')}
+      <span>MÁS</span>
+    `;
+  }
+}

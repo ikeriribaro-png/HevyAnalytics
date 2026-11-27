@@ -52,78 +52,249 @@ SPANISH_MONTHS = {
 EXERCISE_MUSCLE_MAP = {
     # Pecho
     "Bench Press (Barbell)": "Pecho",
+    "Bench Press (Dumbbell)": "Pecho",
+    "Bench Press (Smith Machine)": "Pecho",
+    "Bench Press (Cable)": "Pecho",
     "Bench Press - Close Grip (Barbell)": "Pecho",
+    "Bench Press - Wide Grip (Barbell)": "Pecho",
     "Butterfly (Pec Deck)": "Pecho",
     "Cable Fly Crossovers": "Pecho",
+    "Chest Dip": "Pecho",
+    "Chest Dip (Assisted)": "Pecho",
+    "Chest Dip (Weighted)": "Pecho",
+    "Chest Fly (Band)": "Pecho",
     "Chest Fly (Dumbbell)": "Pecho",
+    "Chest Fly (Machine)": "Pecho",
+    "Chest Press (Band)": "Pecho",
     "Chest Press (Machine)": "Pecho",
+    "Decline Bench Press (Barbell)": "Pecho",
+    "Decline Bench Press (Dumbbell)": "Pecho",
+    "Decline Bench Press (Machine)": "Pecho",
+    "Decline Bench Press (Smith Machine)": "Pecho",
+    "Decline Chest Fly (Dumbbell)": "Pecho",
+    "Dips": "Pecho",
+    "Floor Press (Barbell)": "Pecho",
+    "Floor Press (Dumbbell)": "Pecho",
     "Incline Bench Press (Barbell)": "Pecho",
     "Incline Bench Press (Dumbbell)": "Pecho",
+    "Incline Bench Press (Smith Machine)": "Pecho",
+    "Incline Chest Fly (Dumbbell)": "Pecho",
+    "Incline Chest Press (Machine)": "Pecho",
+    "Incline Push Up": "Pecho",
+    "Iso-Lateral Chest Press (Machine)": "Pecho",
     "Low Cable Fly Crossovers": "Pecho",
+    "Pullover (Dumbbell)": "Pecho",
+    "Push Up": "Pecho",
+    "Push Up (Weighted)": "Pecho",
+    "Seated Chest Flys (Cable)": "Pecho",
+    "Single Arm Cable Crossover": "Pecho",
 
     # Espalda
+    "Back Extension": "Espalda",
+    "Back Extension (Hyperextension)": "Espalda",
+    "Back Extension (Weighted Hyperextension)": "Espalda",
+    "Bent Over One Arm Row (Dumbbell)": "Espalda",
+    "Bent Over Row (Band)": "Espalda",
+    "Bent Over Row (Barbell)": "Espalda",
+    "Bent Over Row (Dumbbell)": "Espalda",
     "Chest Supported Incline Row (Dumbbell)": "Espalda",
+    "Chest Supported Y Raise (Dumbbell)": "Espalda",
     "Chin Up": "Espalda",
+    "Chin Up (Assisted)": "Espalda",
     "Chin Up (Weighted)": "Espalda",
+    "Deadlift (Band)": "Espalda",
     "Deadlift (Barbell)": "Espalda",
+    "Deadlift (Dumbbell)": "Espalda",
+    "Deadlift (Smith Machine)": "Espalda",
+    "Deadlift (Trap Bar)": "Espalda",
+    "Dumbbell Row": "Espalda",
+    "Good Morning (Barbell)": "Espalda",
+    "Inverted Row": "Espalda",
+    "Iso-Lateral High Row (Machine)": "Espalda",
+    "Iso-Lateral Low Row": "Espalda",
     "Iso-Lateral Row (Machine)": "Espalda",
+    "Kneeling Pulldown (Band)": "Espalda",
+    "Lat Pulldown (Band)": "Espalda",
     "Lat Pulldown (Cable)": "Espalda",
     "Lat Pulldown (Machine)": "Espalda",
+    "Lat Pulldown - Close Grip (Cable)": "Espalda",
+    "Meadows Rows (Barbell)": "Espalda",
     "Pendlay Row (Barbell)": "Espalda",
     "Pull Up": "Espalda",
+    "Pull Up (Assisted)": "Espalda",
+    "Pull Up (Band)": "Espalda",
+    "Pull Up (Weighted)": "Espalda",
     "Rack Pull": "Espalda",
+    "Renegade Row (Dumbbell)": "Espalda",
+    "Reverse Grip Lat Pulldown (Cable)": "Espalda",
     "Rope Straight Arm Pulldown": "Espalda",
     "Seated Cable Row - Bar Grip": "Espalda",
     "Seated Cable Row - Bar Wide Grip": "Espalda",
+    "Seated Cable Row - V Grip (Cable)": "Espalda",
+    "Seated Row (Machine)": "Espalda",
+    "Shrug (Barbell)": "Espalda",
+    "Shrug (Dumbbell)": "Espalda",
+    "Shrug (Machine)": "Espalda",
+    "Shrug (Smith Machine)": "Espalda",
     "Single Arm Cable Row": "Espalda",
+    "Single Arm Lat Pulldown": "Espalda",
     "Straight Arm Lat Pulldown (Cable)": "Espalda",
+    "Sumo Deadlift (Barbell)": "Espalda",
+    "Superman": "Espalda",
+    "T Bar Row": "Espalda",
+    "Upright Row (Barbell)": "Espalda",
 
     # Hombros
+    "Arnold Press (Dumbbell)": "Hombro",
+    "Band Pullaparts": "Hombro",
+    "Cable Shoulder Press": "Hombro",
     "Face Pull": "Hombro",
+    "Front Raise (Band)": "Hombro",
+    "Front Raise (Barbell)": "Hombro",
+    "Front Raise (Cable)": "Hombro",
+    "Front Raise (Dumbbell)": "Hombro",
+    "Front Raise (Suspension)": "Hombro",
+    "Handstand Push Up": "Hombro",
+    "Lateral Raise (Band)": "Hombro",
     "Lateral Raise (Cable)": "Hombro",
     "Lateral Raise (Dumbbell)": "Hombro",
+    "Lateral Raise (Machine)": "Hombro",
+    "Military Press (Barbell)": "Hombro",
+    "Overhead Press (Barbell)": "Hombro",
+    "Overhead Press (Dumbbell)": "Hombro",
     "Overhead Press (Smith Machine)": "Hombro",
+    "Pike Pushup": "Hombro",
+    "Push Press": "Hombro",
+    "Rear Delt Reverse Fly (Cable)": "Hombro",
+    "Rear Delt Reverse Fly (Dumbbell)": "Hombro",
     "Rear Delt Reverse Fly (Machine)": "Hombro",
     "Reverse Fly Single Arm (Cable)": "Hombro",
+    "Seated Overhead Press (Barbell)": "Hombro",
+    "Seated Overhead Press (Dumbbell)": "Hombro",
     "Seated Shoulder Press (Machine)": "Hombro",
     "Shoulder Press (Dumbbell)": "Hombro",
+    "Shoulder Press (Machine plates)": "Hombro",
+    "Single Arm Lateral Raise (Cable)": "Hombro",
+    "Upright Row (Cable)": "Hombro",
+    "Upright Row (Dumbbell)": "Hombro",
 
     # Piernas
+    "Box Jump": "Pierna",
+    "Box Squat (Barbell)": "Pierna",
+    "Bulgarian Split Squat": "Pierna",
     "Calf Extension (Machine)": "Pierna",
+    "Calf Press (Machine)": "Pierna",
+    "Donkey Calf Raise": "Pierna",
+    "Front Squat (Barbell)": "Pierna",
+    "Glute Bridge": "Pierna",
+    "Glute Ham Raise": "Pierna",
+    "Glute Kickback (Machine)": "Pierna",
+    "Glute Kickback on Floor": "Pierna",
+    "Goblet Squat": "Pierna",
+    "Hack Squat": "Pierna",
     "Hack Squat (Machine)": "Pierna",
+    "Hip Abduction (Machine)": "Pierna",
     "Hip Adduction (Machine)": "Pierna",
+    "Hip Thrust": "Pierna",
     "Hip Thrust (Barbell)": "Pierna",
     "Hip Thrust (Machine)": "Pierna",
+    "Hip Thrust (Smith Machine)": "Pierna",
+    "Jump Squat": "Pierna",
     "Leg Extension (Machine)": "Pierna",
     "Leg Press (Machine)": "Pierna",
     "Leg Press Horizontal (Machine)": "Pierna",
+    "Lunge": "Pierna",
+    "Lunge (Barbell)": "Pierna",
+    "Lunge (Dumbbell)": "Pierna",
     "Lying Leg Curl (Machine)": "Pierna",
+    "Nordic Hamstrings Curls": "Pierna",
+    "Pause Squat (Barbell)": "Pierna",
+    "Pendulum Squat (Machine)": "Pierna",
+    "Pistol Squat": "Pierna",
+    "Reverse Lunge": "Pierna",
+    "Reverse Lunge (Barbell)": "Pierna",
+    "Reverse Lunge (Dumbbell)": "Pierna",
+    "Romanian Deadlift (Barbell)": "Pierna",
+    "Romanian Deadlift (Dumbbell)": "Pierna",
     "Seated Calf Raise": "Pierna",
     "Seated Leg Curl (Machine)": "Pierna",
+    "Single Leg Extensions": "Pierna",
+    "Single Leg Hip Thrust": "Pierna",
+    "Single Leg Press (Machine)": "Pierna",
+    "Single Leg Romanian Deadlift (Barbell)": "Pierna",
+    "Single Leg Romanian Deadlift (Dumbbell)": "Pierna",
+    "Sissy Squat (Weighted)": "Pierna",
+    "Squat (Band)": "Pierna",
     "Squat (Barbell)": "Pierna",
+    "Squat (Bodyweight)": "Pierna",
+    "Squat (Dumbbell)": "Pierna",
+    "Squat (Machine)": "Pierna",
     "Squat (Smith Machine)": "Pierna",
+    "Standing Calf Raise": "Pierna",
+    "Standing Calf Raise (Barbell)": "Pierna",
+    "Standing Calf Raise (Dumbbell)": "Pierna",
+    "Standing Calf Raise (Machine)": "Pierna",
     "Standing Calf Raise (Smith)": "Pierna",
+    "Standing Leg Curls": "Pierna",
+    "Step Up": "Pierna",
+    "Stiff Leg Deadlift (Barbell)": "Pierna",
+    "Sumo Squat": "Pierna",
+    "Walking Lunge": "Pierna",
+    "Walking Lunge (Dumbbell)": "Pierna",
+    "Wall Sit": "Pierna",
+    "Zercher Squat": "Pierna",
 
     # Bíceps
+    "21s Bicep Curl": "Bíceps",
     "Bayesian": "Bíceps",
+    "Behind the Back Bicep Curl (Cable)": "Bíceps",
     "Behind the Back Wrist Curl (Barbell)": "Bíceps",
     "Bicep Curl (Barbell)": "Bíceps",
     "Bicep Curl (Cable)": "Bíceps",
     "Bicep Curl (Dumbbell)": "Bíceps",
+    "Bicep Curl (Machine)": "Bíceps",
+    "Bicep Curl (Suspension)": "Bíceps",
+    "Concentration Curl": "Bíceps",
+    "Cross Body Hammer Curl": "Bíceps",
     "Curl Martillo Cable Unilateral": "Bíceps",
+    "Drag Curl": "Bíceps",
+    "EZ Bar Biceps Curl": "Bíceps",
+    "Hammer Curl (Band)": "Bíceps",
     "Hammer Curl (Cable)": "Bíceps",
     "Hammer Curl (Dumbbell)": "Bíceps",
+    "Overhead Curl (Cable)": "Bíceps",
+    "Plate Curl": "Bíceps",
     "Preacher Curl (Barbell)": "Bíceps",
     "Preacher Curl (Dumbbell)": "Bíceps",
     "Preacher Curl (Machine)": "Bíceps",
     "Reverse Curl (Barbell)": "Bíceps",
+    "Reverse Curl (Cable)": "Bíceps",
+    "Reverse Curl (Dumbbell)": "Bíceps",
     "Seated Incline Curl (Dumbbell)": "Bíceps",
+    "Single Arm Curl (Cable)": "Bíceps",
+    "Spider Curl (Barbell)": "Bíceps",
+    "Spider Curl (Dumbbell)": "Bíceps",
+    "Wrist Curl (Barbell)": "Bíceps",
+    "Wrist Curl (Dumbbell)": "Bíceps",
+    "Zottman Curl (Dumbbell)": "Bíceps",
 
     # Tríceps
+    "Bench Dip": "Tríceps",
+    "Diamond Push Up": "Tríceps",
+    "EZ Bar Skullcrusher": "Tríceps",
+    "Floor Triceps Dip": "Tríceps",
     "Overhead Triceps Extension (Cable)": "Tríceps",
+    "Seated Dip Machine": "Tríceps",
+    "Seated Triceps Press": "Tríceps",
     "Single Arm Triceps Pushdown (Cable)": "Tríceps",
     "Skullcrusher (Barbell)": "Tríceps",
+    "Skullcrusher (Dumbbell)": "Tríceps",
+    "Triceps Dip": "Tríceps",
+    "Triceps Dip (Assisted)": "Tríceps",
+    "Triceps Dip (Weighted)": "Tríceps",
+    "Triceps Extension (Barbell)": "Tríceps",
     "Triceps Extension (Cable)": "Tríceps",
+    "Triceps Extension (Dumbbell)": "Tríceps",
     "Triceps Extension (Machine)": "Tríceps",
     "Triceps Kickback (Cable)": "Tríceps",
     "Triceps Kickback (Dumbbell)": "Tríceps",
@@ -136,16 +307,67 @@ EXERCISE_MUSCLE_MAP = {
     "Tríceps Lonamico": "Tríceps",
 
     # Abdomen / Core
+    "Ab Wheel": "Abdomen",
+    "Bicycle Crunch": "Abdomen",
+    "Cable Crunch": "Abdomen",
+    "Cable Twist": "Abdomen",
+    "Crunch": "Abdomen",
     "Crunch (Machine)": "Abdomen",
     "Crunch (Weighted)": "Abdomen",
+    "Dead Bug": "Abdomen",
     "Decline Crunch": "Abdomen",
     "Decline Crunch (Weighted)": "Abdomen",
+    "Dragon Flag": "Abdomen",
     "Dragonfly": "Abdomen",
+    "Hanging Knee Raise": "Abdomen",
+    "Hanging Leg Raise": "Abdomen",
+    "Hollow Rock": "Abdomen",
+    "Jackknife (Suspension)": "Abdomen",
+    "Knee Raise Parallel Bars": "Abdomen",
+    "Leg Raise Parallel Bars": "Abdomen",
+    "L-Sit Hold": "Abdomen",
+    "Lying Leg Raise": "Abdomen",
+    "Mountain Climber": "Abdomen",
+    "Oblique Crunch": "Abdomen",
+    "Plank": "Abdomen",
+    "Reverse Crunch": "Abdomen",
+    "Russian Twist (Bodyweight)": "Abdomen",
+    "Russian Twist (Weighted)": "Abdomen",
+    "Side Plank": "Abdomen",
+    "Sit Up": "Abdomen",
+    "Sit Up (Weighted)": "Abdomen",
+    "Toes to Bar": "Abdomen",
+    "Torso Rotation (Machine)": "Abdomen",
+    "V Up": "Abdomen",
+    "Woodchoppers": "Abdomen",
 
     # Cardio / Otro
+    "Aerobics": "Cardio / Otro",
+    "Air Bike": "Cardio / Otro",
+    "Battle Ropes": "Cardio / Otro",
+    "Burpee": "Cardio / Otro",
+    "Climbing": "Cardio / Otro",
     "Cycling": "Cardio / Otro",
     "Elliptical Trainer": "Cardio / Otro",
+    "Farmers Walk": "Cardio / Otro",
+    "HIIT": "Cardio / Otro",
+    "Hiking": "Cardio / Otro",
+    "Jump Rope": "Cardio / Otro",
+    "Jumping Jack": "Cardio / Otro",
+    "Kettlebell Swing": "Cardio / Otro",
+    "Rowing Machine": "Cardio / Otro",
+    "Running": "Cardio / Otro",
+    "Skiing": "Cardio / Otro",
+    "Sled Push": "Cardio / Otro",
+    "Spinning": "Cardio / Otro",
+    "Sprints": "Cardio / Otro",
+    "Stair Machine": "Cardio / Otro",
+    "Stretching": "Cardio / Otro",
+    "Swimming": "Cardio / Otro",
+    "Thruster (Barbell)": "Cardio / Otro",
     "Treadmill": "Cardio / Otro",
+    "Walking": "Cardio / Otro",
+    "Yoga": "Cardio / Otro",
     "atraco a maquina Al Fallo": "Cardio / Otro"
 }
 
@@ -179,11 +401,47 @@ EXERCISE_SECONDARY_MUSCLES = {
     "Seated Shoulder Press (Machine)": [("Tríceps", 0.5)],
     "Shoulder Press (Dumbbell)": [("Tríceps", 0.5)],
     "Rear Delt Reverse Fly (Machine)": [("Espalda", 0.25)],
+    "Incline Chest Press (Machine)": [("Hombro", 0.5), ("Tríceps", 0.5)],
+    "Iso-Lateral Chest Press (Machine)": [("Tríceps", 0.5), ("Hombro", 0.5)],
+    "Bench Press (Dumbbell)": [("Tríceps", 0.5), ("Hombro", 0.5)],
+    "Bench Press (Smith Machine)": [("Tríceps", 0.5), ("Hombro", 0.5)],
+    "Incline Bench Press (Smith Machine)": [("Hombro", 0.5), ("Tríceps", 0.5)],
+    "Decline Bench Press (Barbell)": [("Tríceps", 0.5), ("Hombro", 0.25)],
+    "Chest Dip": [("Tríceps", 0.5), ("Hombro", 0.5)],
+    "Chest Dip (Weighted)": [("Tríceps", 0.5), ("Hombro", 0.5)],
+    "Dips": [("Tríceps", 0.5), ("Hombro", 0.5)],
+    "Push Up": [("Tríceps", 0.5), ("Hombro", 0.25)],
+    "Bent Over Row (Barbell)": [("Bíceps", 0.5), ("Hombro", 0.25)],
+    "Bent Over Row (Dumbbell)": [("Bíceps", 0.5), ("Hombro", 0.25)],
+    "Dumbbell Row": [("Bíceps", 0.5), ("Hombro", 0.25)],
+    "T Bar Row": [("Bíceps", 0.5), ("Hombro", 0.25)],
+    "Seated Row (Machine)": [("Bíceps", 0.5), ("Hombro", 0.25)],
+    "Seated Cable Row - V Grip (Cable)": [("Bíceps", 0.5), ("Hombro", 0.25)],
+    "Pull Up (Weighted)": [("Bíceps", 0.5)],
+    "Lat Pulldown - Close Grip (Cable)": [("Bíceps", 0.5)],
+    "Overhead Press (Barbell)": [("Tríceps", 0.5)],
+    "Overhead Press (Dumbbell)": [("Tríceps", 0.5)],
+    "Military Press (Barbell)": [("Tríceps", 0.5)],
+    "Arnold Press (Dumbbell)": [("Tríceps", 0.5)],
+    "Romanian Deadlift (Barbell)": [("Espalda", 0.5)],
+    "Romanian Deadlift (Dumbbell)": [("Espalda", 0.5)],
+    "Sumo Deadlift (Barbell)": [("Pierna", 0.5)],
     "Reverse Fly Single Arm (Cable)": [("Espalda", 0.25)],
 }
 
 ORDERED_MUSCLE_GROUPS = ["Pierna", "Espalda", "Pecho", "Bíceps", "Hombro", "Tríceps", "Abdomen", "Cardio / Otro"]
-ORDERED_ROUTINES = ["Push (Empuje)", "Pull (Tirón)", "Legs (Pierna)", "Torso", "Brazos", "General / Otro"]
+ORDERED_ROUTINES = [
+    "Push (Empuje)",
+    "Pull (Tirón)",
+    "Legs (Pierna)",
+    "Espalda y Pecho",
+    "Hombro y Brazos",
+    "Torso",
+    "Full Body",
+    "Brazos",
+    "Core / Abdomen",
+    "General / Otro",
+]
 
 CACHE = {
     "sessions": [],
@@ -222,33 +480,95 @@ def calc_1rm(weight, reps):
         return round(float(weight), 1)
     return round(float(weight) * (1.0 + float(reps) / 30.0), 1)
 
+ROUTINE_TITLE_PATTERNS = [
+    ("Full Body", re.compile(r"\bfull\s*body\b|\bfullbody\b|cuerpo\s+completo|todo\s+el\s+cuerpo")),
+    ("Espalda y Pecho", re.compile(r"espalda\s*(?:y|&|/|\+|con)\s*pecho|pecho\s*(?:y|&|/|\+|con)\s*espalda|pechalda|espalcho|back\s*(?:and|&|/|\+)\s*chest|chest\s*(?:and|&|/|\+)\s*back")),
+    ("Hombro y Brazos", re.compile(r"hombros?\s*(?:y|&|/|\+|con)\s*brazos?|brazos?\s*(?:y|&|/|\+|con)\s*hombros?|shoulders?\s*(?:and|&|/|\+)\s*arms?|arms?\s*(?:and|&|/|\+)\s*shoulders?")),
+    ("Legs (Pierna)", re.compile(r"\blegs?\b|\bpiernas?\b|\bpatas?\b|\bcuadris?\b|\blower\b|tren\s+inferior|\bgl[uú]teos?\b|\bfemoral|\bisquios?")),
+    ("Torso", re.compile(r"\btorso\b|\bupper\b|tren\s+superior")),
+    ("Push (Empuje)", re.compile(r"\bpush\b|\bempuje\b")),
+    ("Pull (Tirón)", re.compile(r"\bpull\b|\btir[oó]n\b")),
+    ("Brazos", re.compile(r"\bbrazos?\b|\barms?\b|\bb[ií]ceps\b|\btr[ií]ceps\b")),
+    ("Core / Abdomen", re.compile(r"\babdomen\b|\babs\b|\bcore\b|abdominal")),
+]
+
 def detect_routine_category(title, sets):
     t = title.lower()
-    if any(k in t for k in ["push", "empuje"]):
-        return "Push (Empuje)"
-    if any(k in t for k in ["pull", "tirón", "tiron"]):
-        return "Pull (Tirón)"
-    if any(k in t for k in ["leg", "pierna", "pata", "cuadri"]):
-        return "Legs (Pierna)"
-    if any(k in t for k in ["torso"]):
-        return "Torso"
-    if any(k in t for k in ["brazo", "arm", "biceps", "triceps"]):
-        return "Brazos"
-    
-    vol_push = sum(s["volume_kg"] for s in sets if EXERCISE_MUSCLE_MAP.get(s["exercise_title"]) in ["Pecho", "Hombro", "Tríceps"])
-    vol_pull = sum(s["volume_kg"] for s in sets if EXERCISE_MUSCLE_MAP.get(s["exercise_title"]) in ["Espalda", "Bíceps"])
-    vol_legs = sum(s["volume_kg"] for s in sets if EXERCISE_MUSCLE_MAP.get(s["exercise_title"]) == "Pierna")
-    total = vol_push + vol_pull + vol_legs
+    for category, pattern in ROUTINE_TITLE_PATTERNS:
+        if pattern.search(t):
+            return category
+
+    vol_by_muscle = {}
+    sets_by_muscle = {}
+    for s in sets:
+        m = EXERCISE_MUSCLE_MAP.get(s["exercise_title"], "Otro")
+        vol_by_muscle[m] = vol_by_muscle.get(m, 0.0) + s["volume_kg"]
+        sets_by_muscle[m] = sets_by_muscle.get(m, 0) + 1
+
+    vol_pecho = vol_by_muscle.get("Pecho", 0.0)
+    vol_espalda = vol_by_muscle.get("Espalda", 0.0)
+    vol_hombro = vol_by_muscle.get("Hombro", 0.0)
+    vol_biceps = vol_by_muscle.get("Bíceps", 0.0)
+    vol_triceps = vol_by_muscle.get("Tríceps", 0.0)
+    vol_legs = vol_by_muscle.get("Pierna", 0.0)
+    vol_abdomen = vol_by_muscle.get("Abdomen", 0.0)
+
+    vol_arms = vol_biceps + vol_triceps
+    vol_push = vol_pecho + vol_hombro + vol_triceps
+    vol_pull = vol_espalda + vol_biceps
+    vol_upper = vol_pecho + vol_espalda + vol_hombro + vol_arms
+    total = vol_upper + vol_legs
+
+    sets_pecho = sets_by_muscle.get("Pecho", 0)
+    sets_espalda = sets_by_muscle.get("Espalda", 0)
+    sets_hombro = sets_by_muscle.get("Hombro", 0)
+    sets_arms = sets_by_muscle.get("Bíceps", 0) + sets_by_muscle.get("Tríceps", 0)
+    sets_legs = sets_by_muscle.get("Pierna", 0)
+    sets_upper = sets_pecho + sets_espalda + sets_hombro + sets_arms
+    total_sets = sets_upper + sets_legs
+
     if total == 0:
+        if vol_abdomen > 0 or sets_by_muscle.get("Abdomen", 0) > 0:
+            return "Core / Abdomen"
         return "General / Otro"
-    
+
+    # Full Body: substantial lower body + upper body with chest/back work
+    if (
+        total_sets > 0
+        and sets_legs >= 2
+        and (sets_pecho >= 2 or sets_espalda >= 2)
+        and (sets_legs / total_sets >= 0.20)
+        and (sets_upper / total_sets >= 0.40)
+    ):
+        return "Full Body"
+
+    # Espalda y Pecho (Arnold split / antagonist upper)
+    if (
+        sets_pecho >= 2
+        and sets_espalda >= 2
+        and sets_upper > 0
+        and ((sets_pecho + sets_espalda) / sets_upper >= 0.40)
+        and (vol_pecho + vol_espalda > 0)
+        and (vol_pecho / (vol_pecho + vol_espalda) >= 0.25)
+        and (vol_espalda / (vol_pecho + vol_espalda) >= 0.25)
+    ):
+        return "Espalda y Pecho"
+
+    # Hombro y Brazos (Arnold split)
+    if sets_hombro >= 2 and sets_arms >= 2 and sets_pecho <= 1 and sets_espalda <= 1 and sets_legs <= 2:
+        return "Hombro y Brazos"
+
+    # Solo Brazos
+    if vol_arms / total >= 0.65 and sets_pecho <= 1 and sets_espalda <= 1:
+        return "Brazos"
+
     if vol_legs / total > 0.45:
         return "Legs (Pierna)"
     if vol_push / total > 0.55:
         return "Push (Empuje)"
     if vol_pull / total > 0.55:
         return "Pull (Tirón)"
-    if (vol_push / total > 0.3) and (vol_pull / total > 0.3):
+    if (vol_push / total > 0.30) and (vol_pull / total > 0.30):
         return "Torso"
     return "General / Otro"
 
@@ -337,10 +657,13 @@ def load_and_parse_csv(filepath):
 
     for sess in sorted_sessions:
         total_vol = 0.0
+        max_weight = 0.0
         ex_volumes = {}
         ex_max_orm = {}
+        ex_max_weight = {}
         muscle_volumes = {}
         muscle_max_orm = {}
+        muscle_max_weight = {}
         muscle_sets_direct = {}
         muscle_sets_fractional = {}
         sess_prs = []
@@ -353,6 +676,8 @@ def load_and_parse_csv(filepath):
             all_exercises.add(ex)
             
             total_vol += s["volume_kg"]
+            if s["weight_kg"] > max_weight:
+                max_weight = s["weight_kg"]
             ex_volumes[ex] = round(ex_volumes.get(ex, 0.0) + s["volume_kg"], 1)
             muscle_volumes[m] = round(muscle_volumes.get(m, 0.0) + s["volume_kg"], 1)
 
@@ -367,6 +692,10 @@ def load_and_parse_csv(filepath):
                 ex_max_orm[ex] = s["estimated_1rm"]
             if s["estimated_1rm"] > muscle_max_orm.get(m, 0.0):
                 muscle_max_orm[m] = s["estimated_1rm"]
+            if s["weight_kg"] > ex_max_weight.get(ex, 0.0):
+                ex_max_weight[ex] = s["weight_kg"]
+            if s["weight_kg"] > muscle_max_weight.get(m, 0.0):
+                muscle_max_weight[m] = s["weight_kg"]
 
             if ex not in grouped_exercises:
                 grouped_exercises[ex] = []
@@ -391,10 +720,13 @@ def load_and_parse_csv(filepath):
         sum_orm = round(sum(ex_max_orm.values()), 1)
 
         sess["total_volume"] = round(total_vol, 1)
+        sess["max_weight"] = round(max_weight, 1)
         sess["exercise_volumes"] = ex_volumes
         sess["exercise_max_orm"] = ex_max_orm
+        sess["exercise_max_weight"] = ex_max_weight
         sess["muscle_volumes"] = muscle_volumes
         sess["muscle_max_orm"] = muscle_max_orm
+        sess["muscle_max_weight"] = muscle_max_weight
         sess["muscle_sets_direct"] = muscle_sets_direct
         sess["muscle_sets_fractional"] = muscle_sets_fractional
         sess["routine_category"] = detect_routine_category(sess["title"], sess["sets"])
@@ -469,6 +801,10 @@ def load_and_parse_csv(filepath):
 class DashboardHandler(SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, directory=STATIC_DIR, **kwargs)
+
+    def end_headers(self):
+        self.send_header("Cache-Control", "no-store, must-revalidate")
+        super().end_headers()
 
     def _is_local_origin(self):
         """Block cross-site requests: only accept calls coming from this local page."""
