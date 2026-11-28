@@ -1,3 +1,7 @@
+function escHtml(v) {
+  return String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
 /**
  * Hevy Analytics Dashboard Client
  * Supports Volume, RMs, Routines, Muscle Groups, Fractional Sets & Period Comparison (% Mejora/Empeoramiento)
@@ -352,7 +356,7 @@ function showToast(message, isError = false) {
   }`;
   toast.innerHTML = `
     <i class="fa-solid ${isError ? 'fa-circle-exclamation text-red-400' : 'fa-circle-check text-emerald-400'} text-lg"></i>
-    <span>${message}</span>
+    <span>${escHtml(message)}</span>
   `;
   setTimeout(() => {
     toast.classList.add('translate-y-24', 'opacity-0');
@@ -377,9 +381,16 @@ function applyData(data, sourceInfo) {
   const empty = document.getElementById('emptyState');
   if (empty) empty.style.display = hasData ? 'none' : '';
 
-  document.getElementById('sourceStatus').innerHTML = hasData
-    ? `<span class="inline-block w-2 h-2 rounded-full bg-emerald-400"></span> ${sourceInfo} &bull; ${allSessions.length} sesiones`
-    : `<span class="inline-block w-2 h-2 rounded-full bg-slate-500"></span> Sin datos: sube tu CSV de Hevy`;
+  const sourceStatusDot = document.createElement('span');
+  sourceStatusDot.className = `inline-block w-2 h-2 rounded-full ${hasData ? 'bg-emerald-400' : 'bg-slate-500'}`;
+  const sourceStatusText = document.createElement('span');
+  sourceStatusText.textContent = hasData
+    ? `${sourceInfo} • ${allSessions.length} sesiones`
+    : 'Sin datos: sube tu CSV de Hevy';
+  const sourceStatus = document.getElementById('sourceStatus');
+  sourceStatus.textContent = '';
+  sourceStatus.appendChild(sourceStatusDot);
+  sourceStatus.appendChild(sourceStatusText);
 
   rebuildFilterDropdown();
   applyPresetRange('1w');
@@ -795,9 +806,9 @@ function updateChartTitles() {
     ? (useFractionalSets ? ' (Fraccionario 0.5x)' : ' (Directo 1.0x)')
     : '';
   let filterLabel = 'por Sesión';
-  if (currentFilterType === 'muscle' && currentFilterValue !== 'ALL') filterLabel = `en ${currentFilterValue}${fracBadge}`;
-  else if (currentFilterType === 'routine' && currentFilterValue !== 'ALL') filterLabel = `en ${currentFilterValue}`;
-  else if (currentFilterType === 'exercise' && currentFilterValue !== 'ALL') filterLabel = `en ${currentFilterValue}`;
+  if (currentFilterType === 'muscle' && currentFilterValue !== 'ALL') filterLabel = `en ${escHtml(currentFilterValue)}${fracBadge}`;
+  else if (currentFilterType === 'routine' && currentFilterValue !== 'ALL') filterLabel = `en ${escHtml(currentFilterValue)}`;
+  else if (currentFilterType === 'exercise' && currentFilterValue !== 'ALL') filterLabel = `en ${escHtml(currentFilterValue)}`;
 
   if (activeMetric === 'volume') {
     titleEl.innerHTML = `<i class="fa-solid fa-dumbbell text-brand-400 mr-1.5"></i> ${isBal ? 'Volumen Equivalente' : 'Volumen Total'} ${filterLabel} (${unit})`;
@@ -1341,7 +1352,7 @@ function renderCardsGrid(sortedStats, totalVol, colorMap, isMuscle, volUnit = 'k
 
     let exRowsHtml = topExercises.map(([ex, orm]) => `
       <div class="flex items-center justify-between text-[11px] text-slate-400 py-0.5">
-        <span class="truncate max-w-[150px] text-slate-300" title="${ex}">${ex}</span>
+        <span class="truncate max-w-[150px] text-slate-300" title="${escHtml(ex)}">${escHtml(ex)}</span>
         <span class="font-semibold text-purple-300">${orm > 0 ? orm + ' kg' : '-'}</span>
       </div>
     `).join('');
@@ -1351,7 +1362,7 @@ function renderCardsGrid(sortedStats, totalVol, colorMap, isMuscle, volUnit = 'k
         <div class="flex items-center justify-between mb-2">
           <span class="text-sm font-bold text-white flex items-center gap-1.5">
             <span class="w-2.5 h-2.5 rounded-full" style="background-color: ${c.bg}"></span>
-            ${st.name}
+            ${escHtml(st.name)}
           </span>
           <span class="text-xs font-bold px-2 py-0.5 rounded-full" style="background-color: ${c.light}; color: ${c.border}">
             ${pct}%
@@ -1380,12 +1391,15 @@ function renderCardsGrid(sortedStats, totalVol, colorMap, isMuscle, volUnit = 'k
         ` : ''}
       </div>
 
-      <button class="mt-4 w-full py-1.5 px-3 rounded-lg bg-dark-900 hover:bg-dark-800 text-xs font-semibold text-slate-300 border border-dark-800 hover:border-dark-700 transition-colors flex items-center justify-center gap-1.5"
-        onclick="setFilterDirectly('${isMuscle ? 'muscle' : 'routine'}', '${st.name}')">
+      <button type="button" class="js-card-filter-btn mt-4 w-full py-1.5 px-3 rounded-lg bg-dark-900 hover:bg-dark-800 text-xs font-semibold text-slate-300 border border-dark-800 hover:border-dark-700 transition-colors flex items-center justify-center gap-1.5"
+        data-filter-type="${isMuscle ? 'muscle' : 'routine'}" data-filter-val="${escHtml(st.name)}">
         <i class="fa-solid fa-arrow-trend-up text-brand-400"></i>
         <span>Ver evolución en gráfica</span>
       </button>
     `;
+    card.querySelector('.js-card-filter-btn')?.addEventListener('click', () => {
+      setFilterDirectly(isMuscle ? 'muscle' : 'routine', st.name);
+    });
 
     grid.appendChild(card);
   });
@@ -1404,7 +1418,7 @@ function showSessionDetail(s, index) {
   // Header
   document.getElementById('detailTitle').textContent = s.title;
   document.getElementById('detailDateTime').innerHTML = `
-    <i class="fa-regular fa-calendar"></i> ${s.date_iso} 
+    <i class="fa-regular fa-calendar"></i> ${escHtml(s.date_iso)} 
     ${s.duration_min > 0 ? `&bull; <i class="fa-regular fa-clock ml-2"></i> ${s.duration_min} minutos` : ''}
   `;
 
@@ -1527,7 +1541,7 @@ function showSessionDetail(s, index) {
           <span class="w-6 h-6 rounded-lg bg-brand-500/10 text-brand-400 flex items-center justify-center text-xs font-bold font-mono">
             ${exIdx + 1}
           </span>
-          <h4 class="font-bold text-sm text-white">${exName}</h4>
+          <h4 class="font-bold text-sm text-white">${escHtml(exName)}</h4>
           <span class="px-2 py-0.5 text-[11px] rounded-md font-medium" style="background-color: ${mColor.light}; color: ${mColor.border}">
             ${muscle}
           </span>
@@ -1909,7 +1923,7 @@ function renderActivityCalendar() {
         dataAttr = `data-cal-date="${ds}"`;
       }
 
-      gridHtml += `<div class="w-3.5 h-3.5 shrink-0 rounded-[3px] transition-all ${cursorCls}" style="background-color:${bg}" title="${title}" ${dataAttr}></div>`;
+      gridHtml += `<div class="w-3.5 h-3.5 shrink-0 rounded-[3px] transition-all ${cursorCls}" style="background-color:${bg}" title="${escHtml(title)}" ${dataAttr}></div>`;
     });
     gridHtml += '</div>';
   });
@@ -1940,7 +1954,7 @@ function renderActivityCalendar() {
       Object.entries(ROUTINE_COLORS).map(([name, c]) =>
         `<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-dark-950 border border-dark-800 text-[10px]">
           <span class="w-2.5 h-2.5 rounded-[2px]" style="background-color:${c.bg}"></span>
-          <span>${name}</span>
+          <span>${escHtml(name)}</span>
         </span>`
       ).join('');
   } else {
@@ -2148,8 +2162,8 @@ function renderBalanceModal() {
     const tdName = document.createElement('td');
     tdName.className = 'py-2.5 px-4';
     tdName.innerHTML = `
-      <div class="font-semibold text-white">${ex}</div>
-      <div class="text-[10px] text-slate-500">${muscle}</div>
+      <div class="font-semibold text-white">${escHtml(ex)}</div>
+      <div class="text-[10px] text-slate-500">${escHtml(muscle)}</div>
     `;
 
     const tdProf = document.createElement('td');

@@ -941,10 +941,13 @@
       const startStr = get(row, 'start_time');
       const title = get(row, 'title') || 'Entrenamiento';
       if (!startStr) continue;
+      const dtTest = parseHevyDate(startStr);
+      if (!dtTest) continue;
 
       const key = startStr + '\u0000' + title;
       if (!workouts.has(key)) {
         const dt = parseHevyDate(startStr);
+        if (!dt) continue; // Descarta las sesiones cuya fecha no pase parseHevyDate
         const endStr = get(row, 'end_time');
         const endDt = parseHevyDate(endStr);
         let duration = 0;
@@ -954,8 +957,8 @@
           title,
           start_time_str: startStr,
           end_time_str: endStr,
-          date_iso: dt ? `${dt.getFullYear()}-${pad(dt.getMonth() + 1)}-${pad(dt.getDate())} ${pad(dt.getHours())}:${pad(dt.getMinutes())}` : startStr,
-          date_day: dt ? `${dt.getFullYear()}-${pad(dt.getMonth() + 1)}-${pad(dt.getDate())}` : '',
+          date_iso: `${dt.getFullYear()}-${pad(dt.getMonth() + 1)}-${pad(dt.getDate())} ${pad(dt.getHours())}:${pad(dt.getMinutes())}`,
+          date_day: `${dt.getFullYear()}-${pad(dt.getMonth() + 1)}-${pad(dt.getDate())}`,
           timestamp: dt ? dt.getTime() / 1000 : 0,
           duration_min: duration,
           description: get(row, 'description'),
