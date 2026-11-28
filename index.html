@@ -298,6 +298,16 @@
       <div class="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-[#26262c]">
         <div class="flex flex-wrap items-center gap-4 text-xs">
           <div class="flex flex-wrap items-center gap-2">
+            <span class="text-xs text-[#a1a1aa]">Frecuencia:</span>
+            <div class="flex items-center bg-[#1a1a1f] p-0.5 rounded-lg border border-[#26262c]" id="chartFreqButtons">
+              <button data-freq="session" class="chart-freq-btn active px-2.5 py-1 rounded-md bg-brand-600 text-white font-medium transition-colors">Sesión</button>
+              <button data-freq="week" class="chart-freq-btn px-2.5 py-1 rounded-md text-zinc-400 hover:text-white font-medium transition-colors">Semana</button>
+              <button data-freq="month" class="chart-freq-btn px-2.5 py-1 rounded-md text-zinc-400 hover:text-white font-medium transition-colors">Mes</button>
+              <button data-freq="year" class="chart-freq-btn px-2.5 py-1 rounded-md text-zinc-400 hover:text-white font-medium transition-colors">Año</button>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-2">
             <span class="text-xs text-[#a1a1aa]">Carga:</span>
             <div class="flex items-center bg-[#1a1a1f] p-0.5 rounded-lg border border-[#26262c]">
               <button id="btnStatsRaw" class="active px-2.5 py-1 rounded-md bg-brand-600 text-white font-medium transition-colors">

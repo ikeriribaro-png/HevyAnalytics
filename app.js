@@ -36,6 +36,8 @@ let currentBreakdownView = 'muscle'; // 'muscle' | 'routine'
 let useFractionalSets = true; // Toggle for fractional series counting
 let statsMode = 'raw'; // 'raw' (kg brutos) | 'balanced' (kg equivalentes)
 let calendarMode = 'all'; // 'all' | 'split'
+let chartFrequency = 'session'; // 'session' | 'week' | 'month' | 'year'
+let currentChartPoints = [];
 
 const SPANISH_MONTH_NAMES = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
 
@@ -146,6 +148,19 @@ function setupEventListeners() {
     document.getElementById('btnChartBar').className = "px-2.5 py-1 rounded-md bg-dark-800 text-white font-medium";
     document.getElementById('btnChartLine').className = "px-2.5 py-1 rounded-md text-slate-400 hover:text-white";
     renderChart();
+  });
+
+  // Chart frequency toggles (Sesión | Semana | Mes | Año)
+  document.querySelectorAll('#chartFreqButtons button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('#chartFreqButtons button').forEach(b => {
+        b.className = "chart-freq-btn px-2.5 py-1 rounded-md text-zinc-400 hover:text-white font-medium transition-colors";
+      });
+      btn.className = "chart-freq-btn active px-2.5 py-1 rounded-md bg-brand-600 text-white font-medium transition-colors";
+      chartFrequency = btn.dataset.freq || 'session';
+      updateChartTitles();
+      renderChart();
+    });
   });
 
   // Fractional Sets Toggles (Top bar & Breakdown section synchronized)
@@ -805,10 +820,12 @@ function updateChartTitles() {
   const fracBadge = (currentFilterType === 'muscle' && currentFilterValue !== 'ALL')
     ? (useFractionalSets ? ' (Fraccionario 0.5x)' : ' (Directo 1.0x)')
     : '';
-  let filterLabel = 'por Sesión';
-  if (currentFilterType === 'muscle' && currentFilterValue !== 'ALL') filterLabel = `en ${escHtml(currentFilterValue)}${fracBadge}`;
-  else if (currentFilterType === 'routine' && currentFilterValue !== 'ALL') filterLabel = `en ${escHtml(currentFilterValue)}`;
-  else if (currentFilterType === 'exercise' && currentFilterValue !== 'ALL') filterLabel = `en ${escHtml(currentFilterValue)}`;
+  const freqLabelMap = { session: 'por Sesión', week: 'por Semana', month: 'por Mes', year: 'por Año' };
+  const freqLabel = freqLabelMap[chartFrequency] || 'por Sesión';
+  let filterLabel = freqLabel;
+  if (currentFilterType === 'muscle' && currentFilterValue !== 'ALL') filterLabel = `en ${escHtml(currentFilterValue)}${fracBadge} (${freqLabel})`;
+  else if (currentFilterType === 'routine' && currentFilterValue !== 'ALL') filterLabel = `en ${escHtml(currentFilterValue)} (${freqLabel})`;
+  else if (currentFilterType === 'exercise' && currentFilterValue !== 'ALL') filterLabel = `en ${escHtml(currentFilterValue)} (${freqLabel})`;
 
   if (activeMetric === 'volume') {
     titleEl.innerHTML = `<i class="fa-solid fa-dumbbell text-brand-400 mr-1.5"></i> ${isBal ? 'Volumen Equivalente' : 'Volumen Total'} ${filterLabel} (${unit})`;
@@ -832,6 +849,85 @@ function getSessionMetricValue(s) {
   return getSessionMetricValueForMetric(s, activeMetric, statsMode === 'balanced');
 }
 
+function buildChartSeries() {
+  if (chartFrequency === 'session') {
+    return filteredSessions.map((s, idx) => {
+      const parts = (s.date_day || '').split('-');
+      let label = s.date_day;
+      if (parts.length === 3) {
+        const mIdx = parseInt(parts[1], 10) - 1;
+        label = `${parseInt(parts[2], 10)} ${SPANISH_MONTH_NAMES[mIdx]} '${parts[0].slice(2)}`;
+      }
+      return {
+        key: s.date_day + '_' + idx,
+        label,
+        value: getSessionMetricValue(s),
+        sessions: [s],
+        sessionIndices: [idx],
+        lastSession: s,
+        lastSessionIdx: idx,
+        prCount: s.pr_count || 0
+      };
+    });
+  }
+
+  const buckets = new Map();
+  filteredSessions.forEach((s, idx) => {
+    if (!s.date_day) return;
+    let key = s.date_day;
+    let label = s.date_day;
+    if (chartFrequency === 'week') {
+      const dt = parseLocalDay(s.date_day);
+      const dow = (dt.getDay() + 6) % 7;
+      dt.setDate(dt.getDate() - dow);
+      key = fmtLocalDay(dt);
+      label = `Sem ${dt.getDate()} ${SPANISH_MONTH_NAMES[dt.getMonth()]} '${String(dt.getFullYear()).slice(2)}`;
+    } else if (chartFrequency === 'month') {
+      key = s.date_day.slice(0, 7);
+      const [y, m] = key.split('-');
+      const mIdx = parseInt(m, 10) - 1;
+      label = `${SPANISH_MONTH_NAMES[mIdx] || m} '${y.slice(2)}`;
+    } else if (chartFrequency === 'year') {
+      key = s.date_day.slice(0, 4);
+      label = key;
+    }
+
+    if (!buckets.has(key)) {
+      buckets.set(key, { key, label, sessions: [], sessionIndices: [], values: [], prCount: 0 });
+    }
+    const b = buckets.get(key);
+    b.sessions.push(s);
+    b.sessionIndices.push(idx);
+    b.values.push(getSessionMetricValue(s) || 0);
+    b.prCount += s.pr_count || 0;
+  });
+
+  const points = [];
+  buckets.forEach(b => {
+    let agg = 0;
+    if (activeMetric === 'best_orm' || activeMetric === 'best_weight') {
+      agg = b.values.length ? Math.max(...b.values) : 0;
+    } else if (activeMetric === 'sum_orm') {
+      const nonZero = b.values.filter(v => v > 0);
+      agg = nonZero.length ? nonZero.reduce((a, x) => a + x, 0) / nonZero.length : 0;
+    } else {
+      agg = b.values.reduce((a, x) => a + x, 0);
+    }
+    const lastIdx = b.sessionIndices[b.sessionIndices.length - 1];
+    points.push({
+      key: b.key,
+      label: b.label,
+      value: roundOneDecimal(agg),
+      sessions: b.sessions,
+      sessionIndices: b.sessionIndices,
+      lastSession: b.sessions[b.sessions.length - 1],
+      lastSessionIdx: lastIdx,
+      prCount: b.prCount
+    });
+  });
+  return points;
+}
+
 function renderChart() {
   const ctx = document.getElementById('workoutChart').getContext('2d');
 
@@ -839,16 +935,9 @@ function renderChart() {
     chartInstance.destroy();
   }
 
-  const labels = filteredSessions.map(s => {
-    const parts = s.date_day.split('-');
-    if (parts.length === 3) {
-      const mIdx = parseInt(parts[1], 10) - 1;
-      return `${parseInt(parts[2], 10)} ${SPANISH_MONTH_NAMES[mIdx]} '${parts[0].slice(2)}`;
-    }
-    return s.date_day;
-  });
-
-  const dataValues = filteredSessions.map(s => getSessionMetricValue(s));
+  currentChartPoints = buildChartSeries();
+  const labels = currentChartPoints.map(p => p.label);
+  const dataValues = currentChartPoints.map(p => p.value);
 
   let primaryColor = '#3b82f6';
   let primaryBg = 'rgba(59, 130, 246, 0.15)';
@@ -884,21 +973,21 @@ function renderChart() {
     }
   }
 
-  const pointColors = filteredSessions.map((s, idx) => {
-    if (idx === currentSessionIndex) return '#ffffff';
-    if (s.pr_count > 0) return '#f59e0b';
+  const pointColors = currentChartPoints.map(p => {
+    if (p.sessionIndices.includes(currentSessionIndex)) return '#ffffff';
+    if (p.prCount > 0) return '#f59e0b';
     return primaryColor;
   });
 
-  const pointRadius = filteredSessions.map((s, idx) => {
-    if (idx === currentSessionIndex) return 8;
-    if (s.pr_count > 0) return 5;
-    return filteredSessions.length > 80 ? 3 : 4;
+  const pointRadius = currentChartPoints.map(p => {
+    if (p.sessionIndices.includes(currentSessionIndex)) return 8;
+    if (p.prCount > 0) return 5;
+    return currentChartPoints.length > 80 ? 3 : 4;
   });
 
-  const pointBorderWidth = filteredSessions.map((s, idx) => {
-    if (idx === currentSessionIndex) return 3;
-    if (s.pr_count > 0) return 2;
+  const pointBorderWidth = currentChartPoints.map(p => {
+    if (p.sessionIndices.includes(currentSessionIndex)) return 3;
+    if (p.prCount > 0) return 2;
     return 1;
   });
 
@@ -957,10 +1046,12 @@ function renderChart() {
       },
       onClick: (e, activeElements) => {
         if (activeElements.length > 0) {
-          const idx = activeElements[0].index;
-          currentSessionIndex = idx;
-          showSessionDetail(filteredSessions[idx], idx);
-          highlightSelectedPoint();
+          const pt = currentChartPoints[activeElements[0].index];
+          if (pt && pt.lastSession) {
+            currentSessionIndex = pt.lastSessionIdx;
+            showSessionDetail(pt.lastSession, pt.lastSessionIdx);
+            highlightSelectedPoint();
+          }
         }
       },
       plugins: {
@@ -976,23 +1067,35 @@ function renderChart() {
           usePointStyle: true,
           callbacks: {
             title: (items) => {
-              const idx = items[0].dataIndex;
-              const s = filteredSessions[idx];
-              return `${s.title} • ${s.routine_category} • ${s.date_iso}`;
+              const pt = currentChartPoints[items[0].dataIndex];
+              if (!pt) return '';
+              if (chartFrequency === 'session') {
+                const s = pt.lastSession;
+                return `${s.title} • ${s.routine_category} • ${s.date_iso}`;
+              }
+              return `${pt.label} (${pt.sessions.length} ses.)`;
             },
             label: (item) => {
-              const idx = item.dataIndex;
-              const s = filteredSessions[idx];
+              const pt = currentChartPoints[item.dataIndex];
+              if (!pt) return '';
               let lines = [`${item.dataset.label}: ${item.raw.toLocaleString('es-ES')}${metricUnit}`];
-              if (s.description) {
-                lines.push(`Nota: "${s.description.slice(0, 45)}${s.description.length > 45 ? '...' : ''}"`);
-              }
-              if (s.pr_count > 0) {
-                lines.push(`${s.pr_count} récord(s) batido(s)`);
+              if (chartFrequency === 'session') {
+                const s = pt.lastSession;
+                if (s.description) {
+                  lines.push(`Nota: "${s.description.slice(0, 45)}${s.description.length > 45 ? '...' : ''}"`);
+                }
+                if (s.pr_count > 0) {
+                  lines.push(`${s.pr_count} récord(s) batido(s)`);
+                }
+              } else {
+                lines.push(`${pt.sessions.length} entrenamientos en el período`);
+                if (pt.prCount > 0) lines.push(`${pt.prCount} récord(s) en el período`);
               }
               return lines;
             },
-            afterBody: () => '👉 Haz clic para ver el detalle completo'
+            afterBody: () => chartFrequency === 'session'
+              ? 'Haz clic para ver el detalle completo'
+              : 'Haz clic para ver la última sesión del período'
           }
         }
       },
@@ -1030,14 +1133,14 @@ function renderChart() {
 function highlightSelectedPoint() {
   if (!chartInstance) return;
   const ds = chartInstance.data.datasets[0];
-  ds.pointRadius = filteredSessions.map((s, idx) => {
-    if (idx === currentSessionIndex) return 9;
-    if (s.pr_count > 0) return 5;
-    return filteredSessions.length > 80 ? 3 : 4;
+  ds.pointRadius = currentChartPoints.map(p => {
+    if (p.sessionIndices.includes(currentSessionIndex)) return 9;
+    if (p.prCount > 0) return 5;
+    return currentChartPoints.length > 80 ? 3 : 4;
   });
-  ds.pointBackgroundColor = filteredSessions.map((s, idx) => {
-    if (idx === currentSessionIndex) return '#ffffff';
-    if (s.pr_count > 0) return '#f59e0b';
+  ds.pointBackgroundColor = currentChartPoints.map(p => {
+    if (p.sessionIndices.includes(currentSessionIndex)) return '#ffffff';
+    if (p.prCount > 0) return '#f59e0b';
     return ds._baseColor || '#3b82f6';
   });
   chartInstance.update('none');
